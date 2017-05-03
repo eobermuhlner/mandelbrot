@@ -1,5 +1,7 @@
 package ch.obermuhlner.mandelbrot.javafx;
 
+import java.util.stream.Stream;
+
 import javafx.application.Application;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -12,7 +14,7 @@ import javafx.stage.Stage;
 
 public class MandelbrotApp extends Application {
 
-	private static final int MAX_ITERATION = 1000;
+	private static final int MAX_ITERATION = 100;
 	
 	private static final Color[] PALETTE = new Color[MAX_ITERATION+1];
 	
@@ -33,10 +35,10 @@ public class MandelbrotApp extends Application {
 		Group root = new Group();
 		Scene scene = new Scene(root);
 		
-		double height = 400;
-		double width = 400;
+		double height = 800;
+		double width = 800;
 		Canvas canvas = new Canvas(width, height);
-		drawMandelbrot(canvas);
+		drawMandelbrot(canvas, 1);
 		
 		root.getChildren().add(canvas);
 		
@@ -59,7 +61,7 @@ public class MandelbrotApp extends Application {
 			lastMouseDragX = event.getX();
 			lastMouseDragY = event.getY();
 			
-			translateMandelbrot(canvas, deltaX, deltaY);
+			translateMandelbrot(canvas, deltaX, deltaY, 2);
 		});
 		canvas.setOnMouseReleased(event -> {
 			double deltaX = event.getX() - lastMouseDragX;
@@ -67,17 +69,17 @@ public class MandelbrotApp extends Application {
 			lastMouseDragX = event.getX();
 			lastMouseDragY = event.getY();
 
-			translateMandelbrot(canvas, deltaX, deltaY);
+			translateMandelbrot(canvas, deltaX, deltaY, 1);
 		});
 		
 		canvas.setOnScroll(event -> {
 			double deltaY = event.getDeltaY();
 			
-			zoomMandelbrot(canvas, deltaY);
+			zoomMandelbrot(canvas, deltaY, 1);
 		});
 	}
 
-	private void translateMandelbrot(Canvas canvas, double deltaPixelX, double deltaPixelY) {
+	private void translateMandelbrot(Canvas canvas, double deltaPixelX, double deltaPixelY, int pixelSize) {
 		double pixelWidth = canvas.getWidth();
 		double pixelHeight = canvas.getHeight();
 
@@ -87,21 +89,21 @@ public class MandelbrotApp extends Application {
 		xCenterProperty.set(xCenterProperty.get() + deltaX);
 		yCenterProperty.set(yCenterProperty.get() + deltaY);
 		
-		drawMandelbrot(canvas);
+		drawMandelbrot(canvas, pixelSize);
 	}
 
-	private void zoomMandelbrot(Canvas canvas, double deltaPixelY) {
+	private void zoomMandelbrot(Canvas canvas, double deltaPixelY, int pixelSize) {
 		double pixelHeight = canvas.getHeight();
 	
-		double deltaZ = deltaPixelY / pixelHeight;
+		double deltaZ = deltaPixelY / pixelHeight * 2.0;
 		
 		radiusProperty.set(radiusProperty.get() * (1.0 + deltaZ));
 
-		drawMandelbrot(canvas);
+		drawMandelbrot(canvas, pixelSize);
 	}
 
 
-	private void drawMandelbrot(Canvas canvas) {
+	private void drawMandelbrot(Canvas canvas, int pixelSize) {
 		GraphicsContext gc = canvas.getGraphicsContext2D();
 		
 		double pixelWidth = canvas.getWidth();
@@ -112,22 +114,31 @@ public class MandelbrotApp extends Application {
 		double xCenter = xCenterProperty.get();
 		double yCenter = yCenterProperty.get();
 		
-		for (int pixelX = 0; pixelX < pixelWidth; pixelX++) {
-			for (int pixelY = 0; pixelY < pixelHeight; pixelY++) {
-				double x0 = pixelX * xRadius*2 / pixelWidth - xCenter - xRadius;
-				double y0 = pixelY * yRadius*2 / pixelHeight - yCenter - yRadius;
+		double stepX = xRadius*2 / pixelWidth * pixelSize;
+		double stepY = yRadius*2 / pixelHeight * pixelSize;
+		double x0 = 0 - xCenter - xRadius; 
+		
+		for (int pixelX = 0; pixelX < pixelWidth; pixelX+=pixelSize) {
+			x0 += stepX;
+			double y0 = 0 - yCenter - yRadius; 
+			for (int pixelY = 0; pixelY < pixelHeight; pixelY+=pixelSize) {
+				y0 += stepY;
 				double x = 0;
 				double y = 0;
 				int iteration = 0;
-				while (x*x + y*y < 2*2 && iteration < MAX_ITERATION) {
-					double tmp = x*x - y*y + x0;
+				double xx = x*x;
+				double yy = y*y;
+				while (xx + yy < 2*2 && iteration < MAX_ITERATION) {
 					y = 2*x*y + y0;
-					x = tmp;
+					x = xx - yy + x0;
 					iteration++;
+					
+					xx = x*x;
+					yy = y*y;
 				}
 
 				gc.setFill(PALETTE[iteration]);
-				gc.fillRect(pixelX, pixelY, 1, 1);
+				gc.fillRect(pixelX, pixelY, pixelSize, pixelSize);
 			}
 		}
 	}
