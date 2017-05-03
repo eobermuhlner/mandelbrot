@@ -1,7 +1,5 @@
 package ch.obermuhlner.mandelbrot.javafx;
 
-import java.util.stream.Stream;
-
 import javafx.application.Application;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
