@@ -19,7 +19,7 @@ import javafx.stage.Stage;
 
 public class MandelbrotApp extends Application {
 
-	private static final int MAX_ITERATION = 100;
+	private static final int MAX_ITERATION = 200;
 	
 	private static final Color[] PALETTE = new Color[MAX_ITERATION+1];
 	
@@ -33,6 +33,10 @@ public class MandelbrotApp extends Application {
 
 	private static final DecimalFormat DOUBLE_FORMAT = new DecimalFormat("##0.00000000");
 
+	private static final int GOOD_QUALITY = 1;
+	private static final int MEDIUM_QUALITY = 2;
+	private static final int BAD_QUALITY = 4;
+	
 	private DoubleProperty xCenterProperty = new SimpleDoubleProperty(0.0);
 	private DoubleProperty yCenterProperty = new SimpleDoubleProperty(0.0);
 	private DoubleProperty radiusProperty = new SimpleDoubleProperty(2.0);
@@ -48,11 +52,13 @@ public class MandelbrotApp extends Application {
 		Node toolbar = createToolbar();
 		borderPane.setTop(toolbar);
 
-		Canvas canvas = createMandelbrotCanvas();
-		borderPane.setCenter(canvas);
+		Canvas mandelbrotCanvas = createMandelbrotCanvas();
+		borderPane.setCenter(mandelbrotCanvas);
 		
 		primaryStage.setScene(scene);
 		primaryStage.show();
+		
+		mandelbrotCanvas.requestFocus();
 	}
 
 	private Canvas createMandelbrotCanvas() {
@@ -60,9 +66,11 @@ public class MandelbrotApp extends Application {
 		double width = 800;
 		
 		Canvas canvas = new Canvas(width, height);
-		drawMandelbrot(canvas, 1);
-
+		canvas.setFocusTraversable(true);
+		
 		setupCanvasEventHandlers(canvas);
+
+		drawMandelbrot(canvas, GOOD_QUALITY);
 
 		return canvas;
 	}
@@ -98,7 +106,7 @@ public class MandelbrotApp extends Application {
 			lastMouseDragX = event.getX();
 			lastMouseDragY = event.getY();
 			
-			translateMandelbrot(canvas, deltaX, deltaY, 2);
+			translateMandelbrot(canvas, deltaX, deltaY, MEDIUM_QUALITY);
 		});
 		canvas.setOnMouseReleased(event -> {
 			double deltaX = event.getX() - lastMouseDragX;
@@ -108,9 +116,9 @@ public class MandelbrotApp extends Application {
 
 			translateMandelbrot(canvas, deltaX, deltaY, 1);
 		});
-		
+	
 		canvas.setOnZoom(event -> {
-			zoomMandelbrot(canvas, 1.0 / event.getZoomFactor(), 2);
+			zoomMandelbrot(canvas, 1.0 / event.getZoomFactor(), MEDIUM_QUALITY);
 		});
 		canvas.setOnZoomFinished(event -> {
 			drawMandelbrot(canvas, 1);
@@ -120,8 +128,33 @@ public class MandelbrotApp extends Application {
 			if (!event.isDirect()) {
 				double deltaY = event.getDeltaY();
 				
-				zoomScrollMandelbrot(canvas, deltaY, 1);
+				zoomScrollMandelbrot(canvas, deltaY, GOOD_QUALITY);
 			}
+		});
+		
+		canvas.setOnKeyPressed(event -> {
+			switch (event.getCode()) {
+			case UP:
+				zoomMandelbrot(canvas, 1.0/1.2, GOOD_QUALITY);
+				break;
+			case DOWN:
+				zoomMandelbrot(canvas, 1.2, GOOD_QUALITY);
+				break;
+			case W:
+				translateMandelbrot(canvas, 0.0, -canvas.getHeight() * 0.1, 1);
+				break;
+			case A:
+				translateMandelbrot(canvas, -canvas.getWidth() * 0.1, 0.0, 1);
+				break;
+			case S:
+				translateMandelbrot(canvas, 0.0, canvas.getHeight() * 0.1, 1);
+				break;
+			case D:
+				translateMandelbrot(canvas, canvas.getWidth() * 0.1, 0.0, 1);
+				break;
+			default:
+			}
+			event.consume();
 		});
 	}
 
