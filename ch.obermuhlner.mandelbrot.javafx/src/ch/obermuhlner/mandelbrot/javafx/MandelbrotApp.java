@@ -35,6 +35,9 @@ public class MandelbrotApp extends Application {
 
 	private static final DecimalFormat DOUBLE_FORMAT = new DecimalFormat("##0.00000000");
 
+	private static final double KEY_TRANSLATE_FACTOR = 0.1;
+	private static final double KEY_ZOOM_FACTOR = 1.2;
+
 	private static final int GOOD_QUALITY = 1;
 	private static final int MEDIUM_QUALITY = 2;
 	
@@ -125,14 +128,14 @@ public class MandelbrotApp extends Application {
 			lastMouseDragX = event.getX();
 			lastMouseDragY = event.getY();
 
-			translateMandelbrot(canvas, deltaX, deltaY, 1);
+			translateMandelbrot(canvas, deltaX, deltaY, GOOD_QUALITY);
 		});
 	
 		canvas.setOnZoom(event -> {
 			zoomMandelbrot(canvas, 1.0 / event.getZoomFactor(), MEDIUM_QUALITY);
 		});
 		canvas.setOnZoomFinished(event -> {
-			drawMandelbrot(canvas, 1);
+			drawMandelbrot(canvas, GOOD_QUALITY);
 		});
 		
 		canvas.setOnScroll(event -> {
@@ -146,22 +149,22 @@ public class MandelbrotApp extends Application {
 		canvas.setOnKeyPressed(event -> {
 			switch (event.getCode()) {
 			case UP:
-				zoomMandelbrot(canvas, 1.0/1.2, GOOD_QUALITY);
+				zoomMandelbrot(canvas, 1.0/KEY_ZOOM_FACTOR, GOOD_QUALITY);
 				break;
 			case DOWN:
-				zoomMandelbrot(canvas, 1.2, GOOD_QUALITY);
+				zoomMandelbrot(canvas, KEY_ZOOM_FACTOR, GOOD_QUALITY);
 				break;
 			case W:
-				translateMandelbrot(canvas, 0.0, -canvas.getHeight() * 0.1, 1);
+				translateMandelbrot(canvas, 0.0, -canvas.getHeight() * KEY_TRANSLATE_FACTOR, 1);
 				break;
 			case A:
-				translateMandelbrot(canvas, -canvas.getWidth() * 0.1, 0.0, 1);
+				translateMandelbrot(canvas, -canvas.getWidth() * KEY_TRANSLATE_FACTOR, 0.0, 1);
 				break;
 			case S:
-				translateMandelbrot(canvas, 0.0, canvas.getHeight() * 0.1, 1);
+				translateMandelbrot(canvas, 0.0, canvas.getHeight() * KEY_TRANSLATE_FACTOR, 1);
 				break;
 			case D:
-				translateMandelbrot(canvas, canvas.getWidth() * 0.1, 0.0, 1);
+				translateMandelbrot(canvas, canvas.getWidth() * KEY_TRANSLATE_FACTOR, 0.0, 1);
 				break;
 			default:
 			}
