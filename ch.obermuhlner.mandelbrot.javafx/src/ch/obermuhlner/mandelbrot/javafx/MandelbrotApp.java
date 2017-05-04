@@ -6,11 +6,13 @@ import javafx.application.Application;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -60,6 +62,12 @@ public class MandelbrotApp extends Application {
 		mandelbrotCanvas.requestFocus();
 	}
 
+	@Override
+	public void stop() throws Exception {
+		// TODO Auto-generated method stub
+		super.stop();
+	}
+	
 	private Canvas createMandelbrotCanvas() {
 		double height = 800;
 		double width = 800;
@@ -75,16 +83,20 @@ public class MandelbrotApp extends Application {
 	}
 
 	private Node createToolbar() {
-		HBox toolbar = new HBox();
+		HBox toolbar = new HBox(2);
+		toolbar.setAlignment(Pos.CENTER_LEFT);
 		
+		toolbar.getChildren().add(new Label("X:"));
 		TextField xCenterTextField = new TextField();
 		toolbar.getChildren().add(xCenterTextField);
 		Bindings.bindBidirectional(xCenterTextField.textProperty(), xCenterProperty, DOUBLE_FORMAT);
 		
+		toolbar.getChildren().add(new Label("Y:"));
 		TextField yCenterTextField = new TextField();
 		toolbar.getChildren().add(yCenterTextField);
 		Bindings.bindBidirectional(yCenterTextField.textProperty(), yCenterProperty, DOUBLE_FORMAT);
 		
+		toolbar.getChildren().add(new Label("Radius:"));
 		TextField radiusTextField = new TextField();
 		toolbar.getChildren().add(radiusTextField);
 		Bindings.bindBidirectional(radiusTextField.textProperty(), radiusProperty, DOUBLE_FORMAT);
