@@ -35,7 +35,6 @@ public class MandelbrotApp extends Application {
 
 	private static final int GOOD_QUALITY = 1;
 	private static final int MEDIUM_QUALITY = 2;
-	private static final int BAD_QUALITY = 4;
 	
 	private DoubleProperty xCenterProperty = new SimpleDoubleProperty(0.0);
 	private DoubleProperty yCenterProperty = new SimpleDoubleProperty(0.0);
