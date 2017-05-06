@@ -1,6 +1,8 @@
 package ch.obermuhlner.mandelbrot.javafx;
 
 import java.text.DecimalFormat;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javafx.application.Application;
 import javafx.beans.binding.Bindings;
@@ -14,6 +16,8 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.image.PixelWriter;
+import javafx.scene.image.WritableImage;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
@@ -29,11 +33,13 @@ public class MandelbrotApp extends Application {
 		for (int i = 0; i < PALETTE.length; i++) {
 			double factor = 1.0 / MAX_ITERATION * i;
 			double correctedFactor = Math.sqrt(factor);
-			PALETTE[i] = Color.hsb(correctedFactor * 360, 1.0, 1.0 - correctedFactor);
+			PALETTE[i] = Color.hsb(correctedFactor * 360, 1.0, 1.0);
 		}
+		
+		PALETTE[MAX_ITERATION] = Color.BLACK;
 	}
 
-	private static final DecimalFormat DOUBLE_FORMAT = new DecimalFormat("##0.00000000");
+	private static final DecimalFormat DOUBLE_FORMAT = new DecimalFormat("##0.00000000000");
 
 	private static final double KEY_TRANSLATE_FACTOR = 0.1;
 	private static final double KEY_ZOOM_FACTOR = 1.2;
@@ -45,6 +51,11 @@ public class MandelbrotApp extends Application {
 	private DoubleProperty yCenterProperty = new SimpleDoubleProperty(0.0);
 	private DoubleProperty radiusProperty = new SimpleDoubleProperty(2.0);
 
+	private WritableImage image = new WritableImage(800, 800);
+	private volatile DrawRequest drawRequest;
+	
+	private ExecutorService executor = Executors.newFixedThreadPool(1);
+	
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		Group root = new Group();
@@ -67,7 +78,8 @@ public class MandelbrotApp extends Application {
 
 	@Override
 	public void stop() throws Exception {
-		// TODO Auto-generated method stub
+		executor.shutdown();
+		
 		super.stop();
 	}
 	
@@ -202,10 +214,17 @@ public class MandelbrotApp extends Application {
 	}
 
 	private void drawMandelbrot(Canvas canvas, int pixelSize) {
-		GraphicsContext gc = canvas.getGraphicsContext2D();
+		drawMandelbrot(pixelSize);
 		
-		double pixelWidth = canvas.getWidth();
-		double pixelHeight = canvas.getHeight();
+		GraphicsContext gc = canvas.getGraphicsContext2D();
+		gc.drawImage(image, 0, 0);
+	}
+
+	private void drawMandelbrot(int pixelSize) {
+		PixelWriter pixelWriter = image.getPixelWriter();
+		
+		double pixelWidth = image.getWidth();
+		double pixelHeight = image.getHeight();
 		
 		double xRadius = radiusProperty.get();
 		double yRadius = radiusProperty.get();
@@ -235,8 +254,12 @@ public class MandelbrotApp extends Application {
 					yy = y*y;
 				}
 
-				gc.setFill(PALETTE[iteration]);
-				gc.fillRect(pixelX, pixelY, pixelSize, pixelSize);
+				Color color = PALETTE[iteration];
+				for (int pixelOffsetX = 0; pixelOffsetX < pixelSize; pixelOffsetX++) {
+					for (int pixelOffsetY = 0; pixelOffsetY < pixelSize; pixelOffsetY++) {
+						pixelWriter.setColor(pixelX + pixelOffsetX, pixelY + pixelOffsetY, color);
+					}
+				}
 			}
 		}
 	}
