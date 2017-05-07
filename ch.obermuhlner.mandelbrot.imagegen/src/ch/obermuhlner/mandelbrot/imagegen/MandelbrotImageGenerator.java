@@ -61,36 +61,6 @@ public class MandelbrotImageGenerator {
 		}
 	}
 	
-	private static void renderImage() {
-		StopWatch stopWatch = new StopWatch();
-		Palette palette = new CachingPalette(new RandomPalette(1, 10)); 
-	
-		Apfloat zoomPower = new Apfloat(4.1);
-		int precision = zoomPower.intValue() + 10;
-		Apfloat radius = ApfloatMath.pow(new Apfloat(10, precision), zoomPower.negate());
-		Apfloat xCenter = new Apfloat("1.749721929742", precision);
-		Apfloat yCenter = new Apfloat("-0.000029016647", precision);
-		int maxIterations = 1000;
-		int imageWidth = 400;
-		int imageHeight = 400;
-		BufferedImage image = drawMandelbrot(
-				xCenter,
-				yCenter,
-				radius,
-				radius,
-				maxIterations,
-				imageWidth,
-				imageHeight,
-				palette);
-		try {
-			ImageIO.write(image, "png", new File("mandelbrot.png"));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		System.out.println("Calculated in " + stopWatch);
-	}
-
 	private static BufferedImage drawMandelbrot(Apfloat xCenter, Apfloat yCenter, Apfloat xRadius, Apfloat yRadius, int maxIterations, int imageWidth, int imageHeight, Palette palette) {
 		BufferedImage image = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_RGB);
 		Graphics2D gc = image.createGraphics();
