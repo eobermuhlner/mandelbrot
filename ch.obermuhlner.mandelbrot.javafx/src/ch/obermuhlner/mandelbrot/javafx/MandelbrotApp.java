@@ -45,7 +45,7 @@ public class MandelbrotApp extends Application {
 	private DoubleProperty yCenterProperty = new SimpleDoubleProperty(0.0);
 	private DoubleProperty radiusProperty = new SimpleDoubleProperty(2.0);
 
-	private Palette palette = new CachingPalette(new HuePalette(50));
+	private Palette palette = new CachingPalette(new RandomPalette(10));
 	
 	private WritableImage image = new WritableImage(800, 800);
 	private volatile DrawRequest drawRequest;
