@@ -1,6 +1,7 @@
 package ch.obermuhlner.mandelbrot.javafx;
 
 import java.text.DecimalFormat;
+import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -23,21 +24,14 @@ import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
+
+/*
+ * Nice points:
+ * -0.04729622199 0.66103581600
+ */
 public class MandelbrotApp extends Application {
 
-	private static final int MAX_ITERATION = 200;
-	
-	private static final Color[] PALETTE = new Color[MAX_ITERATION+1];
-	
-	static {
-		for (int i = 0; i < PALETTE.length; i++) {
-			double factor = 1.0 / MAX_ITERATION * i;
-			double correctedFactor = Math.sqrt(factor);
-			PALETTE[i] = Color.hsb(correctedFactor * 360, 1.0, 1.0);
-		}
-		
-		PALETTE[MAX_ITERATION] = Color.BLACK;
-	}
+	private static final int MAX_ITERATION = 1000;
 
 	private static final DecimalFormat DOUBLE_FORMAT = new DecimalFormat("##0.00000000000");
 
@@ -51,6 +45,8 @@ public class MandelbrotApp extends Application {
 	private DoubleProperty yCenterProperty = new SimpleDoubleProperty(0.0);
 	private DoubleProperty radiusProperty = new SimpleDoubleProperty(2.0);
 
+	private Palette palette = new CachingPalette(new HuePalette(50));
+	
 	private WritableImage image = new WritableImage(800, 800);
 	private volatile DrawRequest drawRequest;
 	
@@ -214,13 +210,13 @@ public class MandelbrotApp extends Application {
 	}
 
 	private void drawMandelbrot(Canvas canvas, int pixelSize) {
-		drawMandelbrot(pixelSize);
+		drawMandelbrot(pixelSize, MAX_ITERATION);
 		
 		GraphicsContext gc = canvas.getGraphicsContext2D();
 		gc.drawImage(image, 0, 0);
 	}
 
-	private void drawMandelbrot(int pixelSize) {
+	private void drawMandelbrot(int pixelSize, int maxIteration) {
 		PixelWriter pixelWriter = image.getPixelWriter();
 		
 		double pixelWidth = image.getWidth();
@@ -245,7 +241,7 @@ public class MandelbrotApp extends Application {
 				int iteration = 0;
 				double xx = x*x;
 				double yy = y*y;
-				while (xx + yy < 2*2 && iteration < MAX_ITERATION) {
+				while (xx + yy < 2*2 && iteration < maxIteration) {
 					y = 2*x*y + y0;
 					x = xx - yy + x0;
 					iteration++;
@@ -254,7 +250,7 @@ public class MandelbrotApp extends Application {
 					yy = y*y;
 				}
 
-				Color color = PALETTE[iteration];
+				Color color = iteration == maxIteration ? Color.BLACK : palette.getColor(iteration);
 				for (int pixelOffsetX = 0; pixelOffsetX < pixelSize; pixelOffsetX++) {
 					for (int pixelOffsetY = 0; pixelOffsetY < pixelSize; pixelOffsetY++) {
 						pixelWriter.setColor(pixelX + pixelOffsetX, pixelY + pixelOffsetY, color);
