@@ -27,6 +27,7 @@ import javafx.stage.Stage;
 
 /*
  * Nice points:
+ * 0.56255802552 0.65043192728
  * -0.04729622199 0.66103581600
  */
 public class MandelbrotApp extends Application {
@@ -39,13 +40,13 @@ public class MandelbrotApp extends Application {
 	private static final double KEY_ZOOM_FACTOR = 1.2;
 
 	private static final int GOOD_QUALITY = 1;
-	private static final int MEDIUM_QUALITY = 2;
+	private static final int MEDIUM_QUALITY = 4;
 	
 	private DoubleProperty xCenterProperty = new SimpleDoubleProperty(0.0);
 	private DoubleProperty yCenterProperty = new SimpleDoubleProperty(0.0);
 	private DoubleProperty radiusProperty = new SimpleDoubleProperty(2.0);
 
-	private Palette palette = new CachingPalette(new RandomPalette(10));
+	private Palette palette = new CachingPalette(new RandomPalette(3, 20));
 	
 	private WritableImage image = new WritableImage(800, 800);
 	private volatile DrawRequest drawRequest;

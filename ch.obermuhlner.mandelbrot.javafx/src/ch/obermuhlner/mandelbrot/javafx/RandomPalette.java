@@ -6,9 +6,11 @@ import javafx.scene.paint.Color;
 
 public class RandomPalette implements Palette {
 
+	private long seed;
 	private int steps;
 	
-	public RandomPalette(int steps) {
+	public RandomPalette(long seed, int steps) {
+		this.seed = seed;
 		this.steps = steps;
 	}
 	
@@ -36,7 +38,7 @@ public class RandomPalette implements Palette {
 	}
 	
 	private Color getRandomColor(int index) {
-		Random random = new Random(index);
+		Random random = new Random(seed + index);
 		random.nextLong();
 		double hue = random.nextDouble() * 360;
 		double saturation = random.nextDouble() * 0.2f + 0.8f;
