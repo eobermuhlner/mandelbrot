@@ -7,8 +7,10 @@ import java.util.concurrent.Executors;
 import javafx.application.Application;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.LongProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
@@ -61,6 +63,7 @@ public class MandelbrotApp extends Application {
 	private DoubleProperty yCenterProperty = new SimpleDoubleProperty(0.0);
 	private DoubleProperty radiusProperty = new SimpleDoubleProperty(2.0);
 	private LongProperty seedProperty = new SimpleLongProperty(1);
+	private IntegerProperty iterationsProperty = new SimpleIntegerProperty(0);
 
 	private Palette palette = new CachingPalette(new RandomPalette(3, 20));
 	
@@ -128,7 +131,12 @@ public class MandelbrotApp extends Application {
 		TextField radiusTextField = new TextField();
 		toolbar.getChildren().add(radiusTextField);
 		Bindings.bindBidirectional(radiusTextField.textProperty(), radiusProperty, DOUBLE_STRING_CONVERTER);
-		
+
+		toolbar.getChildren().add(new Label("Iterations:"));
+		TextField iterationsTextField = new TextField();
+		toolbar.getChildren().add(iterationsTextField);
+		Bindings.bindBidirectional(iterationsTextField.textProperty(), iterationsProperty, INTEGER_FORMAT);
+
 		toolbar.getChildren().add(new Label("Color Scheme:"));
 		TextField seedTextField = new TextField();
 		toolbar.getChildren().add(seedTextField);
@@ -248,7 +256,9 @@ public class MandelbrotApp extends Application {
 		
 		double pixelWidth = image.getWidth();
 		double pixelHeight = image.getHeight();
-		
+
+		int centerPixelX = (int)pixelWidth / 2;
+		int centerPixelY = (int)pixelHeight / 2;
 		double xRadius = radiusProperty.get();
 		double yRadius = radiusProperty.get();
 		double xCenter = xCenterProperty.get();
@@ -256,7 +266,7 @@ public class MandelbrotApp extends Application {
 		
 		double stepX = xRadius*2 / pixelWidth * pixelSize;
 		double stepY = yRadius*2 / pixelHeight * pixelSize;
-		double x0 = 0 - xCenter - xRadius; 
+		double x0 = 0 - xCenter - xRadius;
 		
 		for (int pixelX = 0; pixelX < pixelWidth; pixelX+=pixelSize) {
 			x0 += stepX;
@@ -277,6 +287,10 @@ public class MandelbrotApp extends Application {
 					yy = y*y;
 				}
 
+				if (pixelX == centerPixelX && pixelY == centerPixelY) {
+					iterationsProperty.set(iteration);
+				}
+				
 				Color color = iteration == maxIteration ? Color.BLACK : palette.getColor(iteration);
 				for (int pixelOffsetX = 0; pixelOffsetX < pixelSize; pixelOffsetX++) {
 					for (int pixelOffsetY = 0; pixelOffsetY < pixelSize; pixelOffsetY++) {
