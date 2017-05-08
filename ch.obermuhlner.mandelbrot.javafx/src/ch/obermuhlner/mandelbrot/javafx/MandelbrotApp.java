@@ -1,14 +1,15 @@
 package ch.obermuhlner.mandelbrot.javafx;
 
 import java.text.DecimalFormat;
-import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import javafx.application.Application;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.LongProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleLongProperty;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -29,12 +30,14 @@ import javafx.stage.Stage;
  * Nice points:
  * 0.56255802552 0.65043192728
  * -0.04729622199 0.66103581600
+ * 0.56268187195 0.64225590163
  */
 public class MandelbrotApp extends Application {
 
 	private static final int MAX_ITERATION = 1000;
 
 	private static final DecimalFormat DOUBLE_FORMAT = new DecimalFormat("##0.00000000000");
+	private static final DecimalFormat INTEGER_FORMAT = new DecimalFormat("##0");
 
 	private static final double KEY_TRANSLATE_FACTOR = 0.1;
 	private static final double KEY_ZOOM_FACTOR = 1.2;
@@ -45,6 +48,7 @@ public class MandelbrotApp extends Application {
 	private DoubleProperty xCenterProperty = new SimpleDoubleProperty(0.0);
 	private DoubleProperty yCenterProperty = new SimpleDoubleProperty(0.0);
 	private DoubleProperty radiusProperty = new SimpleDoubleProperty(2.0);
+	private LongProperty seedProperty = new SimpleLongProperty(1);
 
 	private Palette palette = new CachingPalette(new RandomPalette(3, 20));
 	
@@ -113,6 +117,11 @@ public class MandelbrotApp extends Application {
 		toolbar.getChildren().add(radiusTextField);
 		Bindings.bindBidirectional(radiusTextField.textProperty(), radiusProperty, DOUBLE_FORMAT);
 		
+		toolbar.getChildren().add(new Label("Color Scheme:"));
+		TextField seedTextField = new TextField();
+		toolbar.getChildren().add(seedTextField);
+		Bindings.bindBidirectional(seedTextField.textProperty(), seedProperty, INTEGER_FORMAT);
+		
 		return toolbar;
 	}
 
@@ -178,6 +187,11 @@ public class MandelbrotApp extends Application {
 			default:
 			}
 			event.consume();
+		});
+
+		seedProperty.addListener((observable, oldValue, newValue) -> {
+			palette = new CachingPalette(new RandomPalette(seedProperty.get(), 20));
+			drawMandelbrot(canvas, GOOD_QUALITY);
 		});
 	}
 
