@@ -24,6 +24,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.util.StringConverter;
 
 
 /*
@@ -36,8 +37,19 @@ public class MandelbrotApp extends Application {
 
 	private static final int MAX_ITERATION = 1000;
 
-	private static final DecimalFormat DOUBLE_FORMAT = new DecimalFormat("##0.00000000000");
 	private static final DecimalFormat INTEGER_FORMAT = new DecimalFormat("##0");
+	
+	private static final StringConverter<Number> DOUBLE_STRING_CONVERTER = new StringConverter<Number>() {
+		@Override
+		public String toString(Number object) {
+			return object.toString();
+		}
+
+		@Override
+		public Double fromString(String string) {
+			return Double.parseDouble(string);
+		}
+	};
 
 	private static final double KEY_TRANSLATE_FACTOR = 0.1;
 	private static final double KEY_ZOOM_FACTOR = 1.2;
@@ -105,17 +117,17 @@ public class MandelbrotApp extends Application {
 		toolbar.getChildren().add(new Label("X:"));
 		TextField xCenterTextField = new TextField();
 		toolbar.getChildren().add(xCenterTextField);
-		Bindings.bindBidirectional(xCenterTextField.textProperty(), xCenterProperty, DOUBLE_FORMAT);
+		Bindings.bindBidirectional(xCenterTextField.textProperty(), xCenterProperty, DOUBLE_STRING_CONVERTER);
 		
 		toolbar.getChildren().add(new Label("Y:"));
 		TextField yCenterTextField = new TextField();
 		toolbar.getChildren().add(yCenterTextField);
-		Bindings.bindBidirectional(yCenterTextField.textProperty(), yCenterProperty, DOUBLE_FORMAT);
+		Bindings.bindBidirectional(yCenterTextField.textProperty(), yCenterProperty, DOUBLE_STRING_CONVERTER);
 		
 		toolbar.getChildren().add(new Label("Radius:"));
 		TextField radiusTextField = new TextField();
 		toolbar.getChildren().add(radiusTextField);
-		Bindings.bindBidirectional(radiusTextField.textProperty(), radiusProperty, DOUBLE_FORMAT);
+		Bindings.bindBidirectional(radiusTextField.textProperty(), radiusProperty, DOUBLE_STRING_CONVERTER);
 		
 		toolbar.getChildren().add(new Label("Color Scheme:"));
 		TextField seedTextField = new TextField();
