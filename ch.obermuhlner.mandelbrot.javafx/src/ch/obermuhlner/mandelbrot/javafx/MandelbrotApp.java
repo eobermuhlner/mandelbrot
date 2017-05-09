@@ -140,7 +140,7 @@ public class MandelbrotApp extends Application {
 		Bindings.bindBidirectional(iterationsTextField.textProperty(), iterationsProperty, INTEGER_FORMAT);
 
 		toolbar.getChildren().add(new Label("Color Scheme:"));
-		Spinner<Integer> paletteSeedSpinner = new Spinner<Integer>(0, 999, 1);
+		Spinner<Integer> paletteSeedSpinner = new Spinner<Integer>(0, 999, paletteSeedProperty.get());
 		toolbar.getChildren().add(paletteSeedSpinner);
 		paletteSeedSpinner.setEditable(true);
 		paletteSeedSpinner.valueProperty().addListener((observable, oldValue, newValue) -> {
