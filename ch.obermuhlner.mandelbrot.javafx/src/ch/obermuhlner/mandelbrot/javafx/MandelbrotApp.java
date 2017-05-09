@@ -19,6 +19,7 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
+import javafx.scene.control.Spinner;
 import javafx.scene.control.TextField;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
@@ -62,10 +63,11 @@ public class MandelbrotApp extends Application {
 	private DoubleProperty xCenterProperty = new SimpleDoubleProperty(0.0);
 	private DoubleProperty yCenterProperty = new SimpleDoubleProperty(0.0);
 	private DoubleProperty radiusProperty = new SimpleDoubleProperty(2.0);
-	private LongProperty seedProperty = new SimpleLongProperty(1);
-	private IntegerProperty iterationsProperty = new SimpleIntegerProperty(0);
+	private LongProperty paletteSeedProperty = new SimpleLongProperty(14);
+	private IntegerProperty paletteStepProperty = new SimpleIntegerProperty(20);
+	private IntegerProperty iterationsProperty = new SimpleIntegerProperty(01);
 
-	private Palette palette = new CachingPalette(new RandomPalette(3, 20));
+	private Palette palette;
 	
 	private WritableImage image = new WritableImage(800, 800);
 	private volatile DrawRequest drawRequest;
@@ -108,7 +110,7 @@ public class MandelbrotApp extends Application {
 		
 		setupCanvasEventHandlers(canvas);
 
-		drawMandelbrot(canvas, GOOD_QUALITY);
+		updatePalette(canvas);
 
 		return canvas;
 	}
@@ -138,9 +140,17 @@ public class MandelbrotApp extends Application {
 		Bindings.bindBidirectional(iterationsTextField.textProperty(), iterationsProperty, INTEGER_FORMAT);
 
 		toolbar.getChildren().add(new Label("Color Scheme:"));
-		TextField seedTextField = new TextField();
-		toolbar.getChildren().add(seedTextField);
-		Bindings.bindBidirectional(seedTextField.textProperty(), seedProperty, INTEGER_FORMAT);
+		Spinner<Integer> paletteSeedSpinner = new Spinner<Integer>(0, 999, 1);
+		toolbar.getChildren().add(paletteSeedSpinner);
+		paletteSeedSpinner.setEditable(true);
+		paletteSeedSpinner.valueProperty().addListener((observable, oldValue, newValue) -> {
+			paletteSeedProperty.set(newValue);
+		});
+
+		toolbar.getChildren().add(new Label("Color Step:"));
+		TextField paletteStepTextField = new TextField();
+		toolbar.getChildren().add(paletteStepTextField);
+		Bindings.bindBidirectional(paletteStepTextField.textProperty(), paletteStepProperty, INTEGER_FORMAT);
 		
 		return toolbar;
 	}
@@ -209,10 +219,17 @@ public class MandelbrotApp extends Application {
 			event.consume();
 		});
 
-		seedProperty.addListener((observable, oldValue, newValue) -> {
-			palette = new CachingPalette(new RandomPalette(seedProperty.get(), 20));
-			drawMandelbrot(canvas, GOOD_QUALITY);
+		paletteSeedProperty.addListener((observable, oldValue, newValue) -> {
+			updatePalette(canvas);
 		});
+		paletteStepProperty.addListener((observable, oldValue, newValue) -> {
+			updatePalette(canvas);
+		});
+	}
+	
+	private void updatePalette(Canvas canvas) {
+		palette = new CachingPalette(new RandomPalette(paletteSeedProperty.get(), paletteStepProperty.get()));
+		drawMandelbrot(canvas, GOOD_QUALITY);
 	}
 
 	private void translateMandelbrot(Canvas canvas, double deltaPixelX, double deltaPixelY, int pixelSize) {
