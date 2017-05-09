@@ -16,6 +16,9 @@ import org.apfloat.ApfloatMath;
 
 // http://www.apfloat.org/apfloat_java/tutorial.html
 
+// ffmpeg -y -r 60 -start_number 0 -i mandelbrot%04d.png -s 800x800 -vcodec mpeg4 -q:v 1 mandelbrot_fast.mp4
+
+
 public class MandelbrotImageGenerator {
 
 	private static final Apfloat TWO = new Apfloat(2);
@@ -34,7 +37,11 @@ public class MandelbrotImageGenerator {
 
 		//renderZoomImages("-0.04729622199", "-0.66103581600", "5", "0.005", 1000, 10, "zoom2");
 		//renderZoomImages("0.7436438885706", "0.1318259043124", "5", "0.01", 1000, 10, "zoom3");
-		renderZoomImages("1.3482970614556051", "0.04900840524463914", "5", "0.01", 20, 1000, "zoom4");
+		//renderZoomImages("1.3482970614556051", "0.04900840524463914", "5", "0.01", 20, 1000, "zoom4");
+		//renderZoomImages("-0.3277232503080546", "0.037120106058309704", "5", "0.1", 20, 133, "zoom5");
+		//renderZoomImages("1.6206014961291328", "0.006846323168828212", "5", "0.01", 20, 1200, "zoom6.1");
+		//renderZoomImages("1.6206014961291328", "0.006846323168828212", "5", "0.005", 10, 2200, "zoom6.2");
+		renderZoomImages("-0.26345476786999406", "-0.0027125008489098756", "5", "0.005", 10, 2200, "zoom7");
 	}
 	
 	public static void renderZoomImages(String xCenterString, String yCenterString, String zoomStartString, String zoomStepString, int paletteStep, int imageCount, String directoryName) {
@@ -47,7 +54,7 @@ public class MandelbrotImageGenerator {
 
 		Apfloat xCenter = new Apfloat(xCenterString);
 		Apfloat yCenter = new Apfloat(yCenterString);
-		Apfloat zoomStart = new Apfloat(zoomStartString);
+		Apfloat zoomStart = new Apfloat(zoomStartString, 10);
 		Apfloat zoomStep = new Apfloat(zoomStepString, 10);
 
 		IntStream.range(0, imageCount).parallel().forEach(index -> {
@@ -93,7 +100,7 @@ public class MandelbrotImageGenerator {
 	}
 
 	private static BufferedImage drawMandelbrot(Apfloat xCenter, Apfloat yCenter, Apfloat xRadius, Apfloat yRadius, int maxIterations, int imageWidth, int imageHeight, Palette palette) {
-		Apfloat threshold = new Apfloat("0.0000000000001");
+		Apfloat threshold = new Apfloat("0.00000000002");
 		if (xRadius.compareTo(threshold) > 0 && yRadius.compareTo(threshold) > 0) {
 			return drawMandelbrotDouble(xCenter.doubleValue(), yCenter.doubleValue(), xRadius.doubleValue(), yRadius.doubleValue(), maxIterations, imageWidth, imageHeight, palette);
 		} else {
