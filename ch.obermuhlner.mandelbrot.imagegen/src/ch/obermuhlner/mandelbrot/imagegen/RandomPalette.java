@@ -43,6 +43,7 @@ public class RandomPalette implements Palette {
 	
 	private Color getRandomColor(int index) {
 		Random random = new Random(seed + index);
+		random.nextDouble();
 		float hue = random.nextFloat() * 360;
 		float saturation = random.nextFloat() * 0.2f + 0.8f;
 		float brightness = random.nextFloat() * 0.8f + 0.2f;
