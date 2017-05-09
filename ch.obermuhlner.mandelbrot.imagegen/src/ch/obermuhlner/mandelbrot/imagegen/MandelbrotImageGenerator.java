@@ -23,35 +23,44 @@ public class MandelbrotImageGenerator {
 	private static final Apfloat TWO_SQUARE = new Apfloat(2*2);
 
 	public static void main(String[] args) {
-		//renderZoomImages("-0.04729622199", "-0.66103581600", "0.005", 1000, "zoom2");
-		//renderZoomImages("-0.04729622199", "-0.66103581600", "1", 10, "zoom2");
-		renderZoomImages("0.7436438885706", "0.1318259043124", "0.01", 1000, "zoom3");
-		
+//		renderZoomImages(
+//				"1.7497219297423385717104386951868287166821567562234308144552652007051737509332",
+//				"-0.0000290166477536876274764422704374969315895481370276256407423549503316886795",
+//				"5",
+//				"0.01",
+//				10,
+//				1500,
+//				"zoom1");
+
+		//renderZoomImages("-0.04729622199", "-0.66103581600", "5", "0.005", 1000, 10, "zoom2");
+		//renderZoomImages("0.7436438885706", "0.1318259043124", "5", "0.01", 1000, 10, "zoom3");
+		renderZoomImages("1.3482970614556051", "0.04900840524463914", "5", "0.01", 20, 1000, "zoom4");
 	}
 	
-	public static void renderZoomImages(String xCenterString, String yCenterString, String zoomStepString, int imageCount, String directoryName) {
+	public static void renderZoomImages(String xCenterString, String yCenterString, String zoomStartString, String zoomStepString, int paletteStep, int imageCount, String directoryName) {
 		Path outDir = Paths.get("images", directoryName);
 		outDir.toFile().mkdirs();
 
-		Palette palette = new CachingPalette(new RandomPalette(1, 10)); 
+		Palette palette = new CachingPalette(new RandomPalette(1, paletteStep)); 
 
 		StopWatch stopWatch = new StopWatch();
 
 		Apfloat xCenter = new Apfloat(xCenterString);
 		Apfloat yCenter = new Apfloat(yCenterString);
+		Apfloat zoomStart = new Apfloat(zoomStartString);
 		Apfloat zoomStep = new Apfloat(zoomStepString, 10);
 
 		IntStream.range(0, imageCount).parallel().forEach(index -> {
 			String filename = String.format("mandelbrot%04d.png", index);
 			File file = outDir.resolve(filename).toFile();
 			Apfloat zoomPower = zoomStep.multiply(new Apfloat(index));
-			renderImage(file, xCenter, yCenter, zoomPower, palette);
+			renderImage(file, xCenter, yCenter, zoomStart, zoomPower, palette);
 		});
 
 		System.out.println("Calculated all " + imageCount + " images for " + directoryName + " in " + stopWatch);
 	}
 
-	private static void renderImage(File file, Apfloat xCenter, Apfloat yCenter, Apfloat zoomPower, Palette palette) {
+	private static void renderImage(File file, Apfloat xCenter, Apfloat yCenter, Apfloat zoomStart, Apfloat zoomPower, Palette palette) {
 		if (file.exists()) {
 			System.out.println("Already calculated " + file.getName() + " with zoom " + zoomPower.toString(true));
 			return;
@@ -60,7 +69,7 @@ public class MandelbrotImageGenerator {
 		StopWatch stopWatch = new StopWatch();
 
 		int precision = zoomPower.intValue() + 10;
-		Apfloat radius = ApfloatMath.pow(new Apfloat(10, precision), zoomPower.negate().precision(precision));
+		Apfloat radius = zoomStart.multiply(ApfloatMath.pow(new Apfloat(10, precision), zoomPower.negate().precision(precision)));
 		int maxIterations = 2000;
 		int imageWidth = 800;
 		int imageHeight = 800;
@@ -84,7 +93,7 @@ public class MandelbrotImageGenerator {
 	}
 
 	private static BufferedImage drawMandelbrot(Apfloat xCenter, Apfloat yCenter, Apfloat xRadius, Apfloat yRadius, int maxIterations, int imageWidth, int imageHeight, Palette palette) {
-		Apfloat threshold = new Apfloat("0.00000000000001");
+		Apfloat threshold = new Apfloat("0.0000000000001");
 		if (xRadius.compareTo(threshold) > 0 && yRadius.compareTo(threshold) > 0) {
 			return drawMandelbrotDouble(xCenter.doubleValue(), yCenter.doubleValue(), xRadius.doubleValue(), yRadius.doubleValue(), maxIterations, imageWidth, imageHeight, palette);
 		} else {
