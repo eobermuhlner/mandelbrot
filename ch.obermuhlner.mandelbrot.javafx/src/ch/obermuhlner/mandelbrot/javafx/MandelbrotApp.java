@@ -6,13 +6,12 @@ import java.util.concurrent.Executors;
 
 import javafx.application.Application;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.LongProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleLongProperty;
-import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -21,9 +20,11 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -62,10 +63,13 @@ public class MandelbrotApp extends Application {
 	
 	private DoubleProperty xCenterProperty = new SimpleDoubleProperty(0.0);
 	private DoubleProperty yCenterProperty = new SimpleDoubleProperty(0.0);
+	private DoubleProperty zoomProperty = new SimpleDoubleProperty(0.0);
 	private DoubleProperty radiusProperty = new SimpleDoubleProperty(2.0);
-	private LongProperty paletteSeedProperty = new SimpleLongProperty(14);
+	private IntegerProperty paletteSeedProperty = new SimpleIntegerProperty(14);
 	private IntegerProperty paletteStepProperty = new SimpleIntegerProperty(20);
 	private IntegerProperty iterationsProperty = new SimpleIntegerProperty(01);
+	
+	private BooleanProperty crosshairProperty = new SimpleBooleanProperty(true); 
 
 	private Palette palette;
 	
@@ -84,6 +88,9 @@ public class MandelbrotApp extends Application {
 		
 		Node toolbar = createToolbar();
 		borderPane.setTop(toolbar);
+
+		Node editor = createEditor();
+		borderPane.setRight(editor);
 
 		Canvas mandelbrotCanvas = createMandelbrotCanvas();
 		borderPane.setCenter(mandelbrotCanvas);
@@ -116,43 +123,74 @@ public class MandelbrotApp extends Application {
 	}
 
 	private Node createToolbar() {
-		HBox toolbar = new HBox(2);
-		toolbar.setAlignment(Pos.CENTER_LEFT);
+		HBox box = new HBox(2);
 		
-		toolbar.getChildren().add(new Label("X:"));
+		ToggleButton crosshairToggleButton = new ToggleButton("Crosshair");
+		box.getChildren().add(crosshairToggleButton);
+		Bindings.bindBidirectional(crosshairToggleButton.selectedProperty(), crosshairProperty);
+		
+		return box;
+	}
+	
+	private Node createEditor() {
+		GridPane gridPane = new GridPane();
+        gridPane.setHgap(4);
+        gridPane.setVgap(4);
+		
+		int rowIndex = 0;
+		
+		gridPane.add(new Label("X:"), 0, rowIndex);
 		TextField xCenterTextField = new TextField();
-		toolbar.getChildren().add(xCenterTextField);
+		gridPane.add(xCenterTextField, 1, rowIndex);
 		Bindings.bindBidirectional(xCenterTextField.textProperty(), xCenterProperty, DOUBLE_STRING_CONVERTER);
+		rowIndex++;
 		
-		toolbar.getChildren().add(new Label("Y:"));
+		gridPane.add(new Label("Y:"), 0, rowIndex);
 		TextField yCenterTextField = new TextField();
-		toolbar.getChildren().add(yCenterTextField);
+		gridPane.add(yCenterTextField, 1, rowIndex);
 		Bindings.bindBidirectional(yCenterTextField.textProperty(), yCenterProperty, DOUBLE_STRING_CONVERTER);
+		rowIndex++;
 		
-		toolbar.getChildren().add(new Label("Radius:"));
+		gridPane.add(new Label("Zoom:"), 0, rowIndex);
+//		Slider zoomSlider = new Slider(0.0, 10.0, 0.0);
+//        zoomSlider.setShowTickMarks(true);
+//        zoomSlider.setShowTickLabels(true);
+//        zoomSlider.setMajorTickUnit(1.0f);
+//        gridPane.add(zoomSlider, 1, rowIndex);
+//        Bindings.bindBidirectional(zoomProperty, zoomSlider.valueProperty());
+        TextField zoomTextField = new TextField();
+		gridPane.add(zoomTextField, 1, rowIndex);
+		Bindings.bindBidirectional(zoomTextField.textProperty(), zoomProperty, DOUBLE_STRING_CONVERTER);
+		rowIndex++;
+
+		gridPane.add(new Label("Radius:"), 0, rowIndex);
 		TextField radiusTextField = new TextField();
-		toolbar.getChildren().add(radiusTextField);
+		gridPane.add(radiusTextField, 1, rowIndex);
 		Bindings.bindBidirectional(radiusTextField.textProperty(), radiusProperty, DOUBLE_STRING_CONVERTER);
+		rowIndex++;
 
-		toolbar.getChildren().add(new Label("Iterations:"));
+		gridPane.add(new Label("Iterations:"), 0, rowIndex);
 		TextField iterationsTextField = new TextField();
-		toolbar.getChildren().add(iterationsTextField);
+		gridPane.add(iterationsTextField, 1, rowIndex);
 		Bindings.bindBidirectional(iterationsTextField.textProperty(), iterationsProperty, INTEGER_FORMAT);
+		rowIndex++;
 
-		toolbar.getChildren().add(new Label("Color Scheme:"));
+		gridPane.add(new Label("Color Scheme:"), 0, rowIndex);
 		Spinner<Integer> paletteSeedSpinner = new Spinner<Integer>(0, 999, paletteSeedProperty.get());
-		toolbar.getChildren().add(paletteSeedSpinner);
+		gridPane.add(paletteSeedSpinner, 1, rowIndex);
 		paletteSeedSpinner.setEditable(true);
 		paletteSeedSpinner.valueProperty().addListener((observable, oldValue, newValue) -> {
 			paletteSeedProperty.set(newValue);
 		});
+		rowIndex++;
 
-		toolbar.getChildren().add(new Label("Color Step:"));
+		gridPane.add(new Label("Color Step:"), 0, rowIndex);
 		TextField paletteStepTextField = new TextField();
-		toolbar.getChildren().add(paletteStepTextField);
+		gridPane.add(paletteStepTextField, 1, rowIndex);
 		Bindings.bindBidirectional(paletteStepTextField.textProperty(), paletteStepProperty, INTEGER_FORMAT);
+		rowIndex++;
 		
-		return toolbar;
+		return gridPane;
 	}
 
 	double lastMouseDragX;
@@ -183,7 +221,7 @@ public class MandelbrotApp extends Application {
 			zoomMandelbrot(canvas, 1.0 / event.getZoomFactor(), MEDIUM_QUALITY);
 		});
 		canvas.setOnZoomFinished(event -> {
-			drawMandelbrot(canvas, GOOD_QUALITY);
+			calculateAndDrawMandelbrot(canvas, GOOD_QUALITY);
 		});
 		
 		canvas.setOnScroll(event -> {
@@ -225,11 +263,15 @@ public class MandelbrotApp extends Application {
 		paletteStepProperty.addListener((observable, oldValue, newValue) -> {
 			updatePalette(canvas);
 		});
+		
+		crosshairProperty.addListener((observable, oldValue, newValue) -> {
+			drawMandelbrot(canvas);
+		});
 	}
 	
 	private void updatePalette(Canvas canvas) {
 		palette = new CachingPalette(new RandomPalette(paletteSeedProperty.get(), paletteStepProperty.get()));
-		drawMandelbrot(canvas, GOOD_QUALITY);
+		calculateAndDrawMandelbrot(canvas, GOOD_QUALITY);
 	}
 
 	private void translateMandelbrot(Canvas canvas, double deltaPixelX, double deltaPixelY, int pixelSize) {
@@ -242,7 +284,7 @@ public class MandelbrotApp extends Application {
 		xCenterProperty.set(xCenterProperty.get() + deltaX);
 		yCenterProperty.set(yCenterProperty.get() + deltaY);
 		
-		drawMandelbrot(canvas, pixelSize);
+		calculateAndDrawMandelbrot(canvas, pixelSize);
 	}
 
 	private void zoomScrollMandelbrot(Canvas canvas, double deltaPixelY, int pixelSize) {
@@ -252,23 +294,33 @@ public class MandelbrotApp extends Application {
 		
 		radiusProperty.set(radiusProperty.get() * (1.0 + deltaZ));
 
-		drawMandelbrot(canvas, pixelSize);
+		calculateAndDrawMandelbrot(canvas, pixelSize);
 	}
 
 	private void zoomMandelbrot(Canvas canvas, double zoomFactor, int pixelSize) {
 		radiusProperty.set(radiusProperty.get() * zoomFactor);
 
-		drawMandelbrot(canvas, pixelSize);
+		calculateAndDrawMandelbrot(canvas, pixelSize);
 	}
 
-	private void drawMandelbrot(Canvas canvas, int pixelSize) {
-		drawMandelbrot(pixelSize, MAX_ITERATION);
+	private void calculateAndDrawMandelbrot(Canvas canvas, int pixelSize) {
+		calculateMandelbrot(pixelSize, MAX_ITERATION);
 		
+		drawMandelbrot(canvas);
+	}		
+
+	private void drawMandelbrot(Canvas canvas) {
 		GraphicsContext gc = canvas.getGraphicsContext2D();
 		gc.drawImage(image, 0, 0);
+
+		if (crosshairProperty.get()) {
+			gc.setStroke(Color.WHITE);
+			gc.strokeLine(canvas.getWidth() / 2, 0, canvas.getWidth() / 2, canvas.getHeight());
+			gc.strokeLine(0, canvas.getHeight() / 2, canvas.getWidth(), canvas.getHeight() / 2);
+		}
 	}
 
-	private void drawMandelbrot(int pixelSize, int maxIteration) {
+	private void calculateMandelbrot(int pixelSize, int maxIteration) {
 		PixelWriter pixelWriter = image.getPixelWriter();
 		
 		double pixelWidth = image.getWidth();
