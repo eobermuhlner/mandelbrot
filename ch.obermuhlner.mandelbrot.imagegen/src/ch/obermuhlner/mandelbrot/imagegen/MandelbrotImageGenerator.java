@@ -42,6 +42,7 @@ public class MandelbrotImageGenerator {
 		//renderZoomImages("1.6206014961291328", "0.006846323168828212", "5", "0.01", 20, 1200, "zoom6.1");
 		//renderZoomImages("1.6206014961291328", "0.006846323168828212", "5", "0.005", 10, 2200, "zoom6.2");
 		renderZoomImages("-0.26345476786999406", "-0.0027125008489098756", "5", "0.005", 10, 2200, "zoom7");
+		// 0.049882468660064516 0.6745302994618768
 	}
 	
 	public static void renderZoomImages(String xCenterString, String yCenterString, String zoomStartString, String zoomStepString, int paletteStep, int imageCount, String directoryName) {
