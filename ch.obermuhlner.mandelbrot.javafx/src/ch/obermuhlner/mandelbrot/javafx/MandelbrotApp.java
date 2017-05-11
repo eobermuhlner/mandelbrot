@@ -53,6 +53,32 @@ public class MandelbrotApp extends Application {
 		}
 	};
 
+	private static class BlockRenderInfo {
+		public int blockSize;
+		public int pixelOffsetX;
+		public int pixelOffsetY;
+		public int pixelSize;
+
+		public BlockRenderInfo(int blockSize, int pixelOffsetX, int pixelOffsetY, int pixelSize) {
+			this.blockSize = blockSize;
+			this.pixelOffsetX = pixelOffsetX;
+			this.pixelOffsetY = pixelOffsetY;
+			this.pixelSize = pixelSize;
+		}
+
+		@Override
+		public String toString() {
+			return "BlockRenderInfo [blockSize=" + blockSize + ", pixelOffsetX=" + pixelOffsetX + ", pixelOffsetY=" + pixelOffsetY + ", pixelSize=" + pixelSize + "]";
+		}
+	}
+	
+	private static final BlockRenderInfo[] blockRenderInfos = {
+			new BlockRenderInfo(2, 0, 0, 2),	
+			new BlockRenderInfo(2, 1, 1, 1),	
+			new BlockRenderInfo(2, 0, 1, 1),	
+			new BlockRenderInfo(2, 1, 0, 1),	
+	};
+	
 	private class BackgroundRenderer extends Thread {
 		private boolean backgroundRunning;
 		private DrawRequest nextDrawRequest;
@@ -78,20 +104,20 @@ public class MandelbrotApp extends Application {
 			while (backgroundRunning) {
 				DrawRequest currentDrawRequest = getNextDrawRequest();
 				if (currentDrawRequest != null) {
-					int pixelSize = START_QUALITY;
-					while (pixelSize > 0) {
-						System.out.println("DRAWING " + currentDrawRequest + " " + pixelSize);
-						calculateMandelbrot(currentDrawRequest, pixelSize, MAX_ITERATION);
+					int block = 0;
+					while (block < blockRenderInfos.length) {
+						BlockRenderInfo blockRenderInfo = blockRenderInfos[block];
+						calculateMandelbrot(currentDrawRequest, blockRenderInfo.blockSize, blockRenderInfo.pixelOffsetX, blockRenderInfo.pixelOffsetY, blockRenderInfo.pixelSize, MAX_ITERATION);
 						Platform.runLater(() -> {
 							drawMandelbrot();
 						});
 	
 						DrawRequest anotherDrawRequest = getNextDrawRequest();
 						if (anotherDrawRequest == null) {
-							pixelSize = pixelSize / 2;
+							block++;
 						} else {
 							currentDrawRequest = anotherDrawRequest;
-							pixelSize = START_QUALITY;
+							block = 0;
 						}
 					}
 				}
@@ -110,8 +136,6 @@ public class MandelbrotApp extends Application {
 	private static final double KEY_TRANSLATE_FACTOR = 0.1;
 	private static final double KEY_ZOOM_FACTOR = 1.2;
 
-	private static final int START_QUALITY = 8;
-	
 	private DoubleProperty xCenterProperty = new SimpleDoubleProperty(0.0);
 	private DoubleProperty yCenterProperty = new SimpleDoubleProperty(0.0);
 	private DoubleProperty zoomProperty = new SimpleDoubleProperty(0.0);
@@ -372,7 +396,7 @@ public class MandelbrotApp extends Application {
 		}
 	}
 
-	private void calculateMandelbrot(DrawRequest drawRequest, int pixelSize, int maxIteration) {
+	private void calculateMandelbrot(DrawRequest drawRequest, int blockSize, int blockPixelOffsetX, int blockPixelOffsetY, int pixelSize, int maxIteration) {
 		PixelWriter pixelWriter = image.getPixelWriter();
 		
 		double pixelWidth = image.getWidth();
@@ -385,14 +409,14 @@ public class MandelbrotApp extends Application {
 		double xCenter = drawRequest.x;
 		double yCenter = drawRequest.y;
 		
-		double stepX = xRadius*2 / pixelWidth * pixelSize;
-		double stepY = yRadius*2 / pixelHeight * pixelSize;
+		double stepX = xRadius*2 / pixelWidth * blockSize;
+		double stepY = yRadius*2 / pixelHeight * blockSize;
 		double x0 = 0 - xCenter - xRadius;
 		
-		for (int pixelX = 0; pixelX < pixelWidth; pixelX+=pixelSize) {
+		for (int pixelX = blockPixelOffsetX; pixelX < pixelWidth; pixelX+=blockSize) {
 			x0 += stepX;
 			double y0 = 0 - yCenter - yRadius; 
-			for (int pixelY = 0; pixelY < pixelHeight; pixelY+=pixelSize) {
+			for (int pixelY = blockPixelOffsetY; pixelY < pixelHeight; pixelY+=blockSize) {
 				y0 += stepY;
 				double x = 0;
 				double y = 0;
