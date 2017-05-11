@@ -112,6 +112,7 @@ public class MandelbrotApp extends Application {
 		
 		public synchronized void stopRunning() {
 			backgroundRunning = false;
+			notifyAll();
 		}
 
 		public void run() {
