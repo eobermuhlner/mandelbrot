@@ -73,10 +73,26 @@ public class MandelbrotApp extends Application {
 	}
 	
 	private static final BlockRenderInfo[] blockRenderInfos = {
-			new BlockRenderInfo(2, 0, 0, 2),	
-			new BlockRenderInfo(2, 1, 1, 1),	
-			new BlockRenderInfo(2, 0, 1, 1),	
-			new BlockRenderInfo(2, 1, 0, 1),	
+			new BlockRenderInfo(4, 0, 0, 4),	
+			new BlockRenderInfo(4, 2, 2, 2),	
+			new BlockRenderInfo(4, 0, 2, 2),	
+			new BlockRenderInfo(4, 2, 0, 2),	
+
+			new BlockRenderInfo(4, 1, 1, 1),	
+			new BlockRenderInfo(4, 0, 1, 1),	
+			new BlockRenderInfo(4, 1, 0, 1),	
+
+			new BlockRenderInfo(4, 1, 3, 1),	
+			new BlockRenderInfo(4, 1, 2, 1),	
+			new BlockRenderInfo(4, 0, 3, 1),	
+
+			new BlockRenderInfo(4, 3, 1, 1),	
+			new BlockRenderInfo(4, 3, 0, 1),	
+			new BlockRenderInfo(4, 2, 1, 1),	
+
+			new BlockRenderInfo(4, 3, 3, 1),	
+			new BlockRenderInfo(4, 2, 3, 1),	
+			new BlockRenderInfo(4, 3, 2, 1),	
 	};
 	
 	private class BackgroundRenderer extends Thread {
@@ -409,15 +425,17 @@ public class MandelbrotApp extends Application {
 		double xCenter = drawRequest.x;
 		double yCenter = drawRequest.y;
 		
-		double stepX = xRadius*2 / pixelWidth * blockSize;
-		double stepY = yRadius*2 / pixelHeight * blockSize;
-		double x0 = 0 - xCenter - xRadius;
+		double pixelStepX = xRadius*2 / pixelWidth;
+		double pixelStepY = yRadius*2 / pixelHeight;
+		double blockStepX = pixelStepX * blockSize;
+		double blockStepY = pixelStepY * blockSize;
+		double x0 = pixelStepX * blockPixelOffsetX - xCenter - xRadius;
 		
 		for (int pixelX = blockPixelOffsetX; pixelX < pixelWidth; pixelX+=blockSize) {
-			x0 += stepX;
-			double y0 = 0 - yCenter - yRadius; 
+			x0 += blockStepX;
+			double y0 = pixelStepY * blockPixelOffsetY - yCenter - yRadius; 
 			for (int pixelY = blockPixelOffsetY; pixelY < pixelHeight; pixelY+=blockSize) {
-				y0 += stepY;
+				y0 += blockStepY;
 				double x = 0;
 				double y = 0;
 				int iteration = 0;
