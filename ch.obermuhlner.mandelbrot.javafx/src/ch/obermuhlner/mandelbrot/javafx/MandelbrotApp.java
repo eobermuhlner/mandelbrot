@@ -1,10 +1,9 @@
 package ch.obermuhlner.mandelbrot.javafx;
 
 import java.text.DecimalFormat;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
@@ -30,7 +29,6 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
 
-
 /*
  * Nice points:
  * 0.56255802552 0.65043192728
@@ -55,11 +53,64 @@ public class MandelbrotApp extends Application {
 		}
 	};
 
+	private class BackgroundRenderer extends Thread {
+		private boolean backgroundRunning;
+		private DrawRequest nextDrawRequest;
+		
+		private synchronized  void triggerDraw(DrawRequest drawRequest) {
+			nextDrawRequest = drawRequest;
+			notifyAll();
+		}
+		
+		private synchronized DrawRequest getNextDrawRequest() {
+			DrawRequest result = nextDrawRequest;
+			nextDrawRequest = null;
+			return result;
+		}
+		
+		public synchronized void stopRunning() {
+			backgroundRunning = false;
+		}
+
+		public void run() {
+			backgroundRunning = true;
+
+			while (backgroundRunning) {
+				DrawRequest currentDrawRequest = getNextDrawRequest();
+				if (currentDrawRequest != null) {
+					int pixelSize = START_QUALITY;
+					while (pixelSize > 0) {
+						System.out.println("DRAWING " + currentDrawRequest + " " + pixelSize);
+						calculateMandelbrot(currentDrawRequest, pixelSize, MAX_ITERATION);
+						Platform.runLater(() -> {
+							drawMandelbrot();
+						});
+	
+						DrawRequest anotherDrawRequest = getNextDrawRequest();
+						if (anotherDrawRequest == null) {
+							pixelSize = pixelSize / 2;
+						} else {
+							currentDrawRequest = anotherDrawRequest;
+							pixelSize = START_QUALITY;
+						}
+					}
+				}
+				
+				try {
+					synchronized(this) {
+						wait();
+					}
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+			}
+		}
+	}
+	
 	private static final double KEY_TRANSLATE_FACTOR = 0.1;
 	private static final double KEY_ZOOM_FACTOR = 1.2;
 
-	private static final int GOOD_QUALITY = 1;
-	private static final int MEDIUM_QUALITY = 4;
+	private static final int START_QUALITY = 8;
 	
 	private DoubleProperty xCenterProperty = new SimpleDoubleProperty(0.0);
 	private DoubleProperty yCenterProperty = new SimpleDoubleProperty(0.0);
@@ -72,14 +123,17 @@ public class MandelbrotApp extends Application {
 	private BooleanProperty crosshairProperty = new SimpleBooleanProperty(true); 
 
 	private Palette palette;
-	
+
+	private Canvas mandelbrotCanvas;
 	private WritableImage image = new WritableImage(800, 800);
-	private volatile DrawRequest drawRequest;
 	
-	private ExecutorService executor = Executors.newFixedThreadPool(1);
-	
+	private BackgroundRenderer backgroundRenderer;
+
 	@Override
 	public void start(Stage primaryStage) throws Exception {
+		backgroundRenderer = new BackgroundRenderer();
+		backgroundRenderer.start();
+
 		Group root = new Group();
 		Scene scene = new Scene(root);
 		
@@ -92,7 +146,7 @@ public class MandelbrotApp extends Application {
 		Node editor = createEditor();
 		borderPane.setRight(editor);
 
-		Canvas mandelbrotCanvas = createMandelbrotCanvas();
+		mandelbrotCanvas = createMandelbrotCanvas();
 		borderPane.setCenter(mandelbrotCanvas);
 		
 		primaryStage.setScene(scene);
@@ -103,7 +157,7 @@ public class MandelbrotApp extends Application {
 
 	@Override
 	public void stop() throws Exception {
-		executor.shutdown();
+		backgroundRenderer.stopRunning();
 		
 		super.stop();
 	}
@@ -206,7 +260,7 @@ public class MandelbrotApp extends Application {
 			lastMouseDragX = event.getX();
 			lastMouseDragY = event.getY();
 			
-			translateMandelbrot(canvas, deltaX, deltaY, MEDIUM_QUALITY);
+			translateMandelbrot(canvas, deltaX, deltaY);
 		});
 		canvas.setOnMouseReleased(event -> {
 			double deltaX = event.getX() - lastMouseDragX;
@@ -214,43 +268,43 @@ public class MandelbrotApp extends Application {
 			lastMouseDragX = event.getX();
 			lastMouseDragY = event.getY();
 
-			translateMandelbrot(canvas, deltaX, deltaY, GOOD_QUALITY);
+			translateMandelbrot(canvas, deltaX, deltaY);
 		});
 	
 		canvas.setOnZoom(event -> {
-			zoomMandelbrot(canvas, 1.0 / event.getZoomFactor(), MEDIUM_QUALITY);
+			zoomMandelbrot(canvas, 1.0 / event.getZoomFactor());
 		});
 		canvas.setOnZoomFinished(event -> {
-			calculateAndDrawMandelbrot(canvas, GOOD_QUALITY);
+			calculateAndDrawMandelbrot(canvas);
 		});
 		
 		canvas.setOnScroll(event -> {
 			if (!event.isDirect()) {
 				double deltaY = event.getDeltaY();
 				
-				zoomScrollMandelbrot(canvas, deltaY, GOOD_QUALITY);
+				zoomScrollMandelbrot(canvas, deltaY);
 			}
 		});
 		
 		canvas.setOnKeyPressed(event -> {
 			switch (event.getCode()) {
 			case UP:
-				zoomMandelbrot(canvas, 1.0/KEY_ZOOM_FACTOR, GOOD_QUALITY);
+				zoomMandelbrot(canvas, 1.0/KEY_ZOOM_FACTOR);
 				break;
 			case DOWN:
-				zoomMandelbrot(canvas, KEY_ZOOM_FACTOR, GOOD_QUALITY);
+				zoomMandelbrot(canvas, KEY_ZOOM_FACTOR);
 				break;
 			case W:
-				translateMandelbrot(canvas, 0.0, -canvas.getHeight() * KEY_TRANSLATE_FACTOR, 1);
+				translateMandelbrot(canvas, 0.0, -canvas.getHeight() * KEY_TRANSLATE_FACTOR);
 				break;
 			case A:
-				translateMandelbrot(canvas, -canvas.getWidth() * KEY_TRANSLATE_FACTOR, 0.0, 1);
+				translateMandelbrot(canvas, -canvas.getWidth() * KEY_TRANSLATE_FACTOR, 0.0);
 				break;
 			case S:
-				translateMandelbrot(canvas, 0.0, canvas.getHeight() * KEY_TRANSLATE_FACTOR, 1);
+				translateMandelbrot(canvas, 0.0, canvas.getHeight() * KEY_TRANSLATE_FACTOR);
 				break;
 			case D:
-				translateMandelbrot(canvas, canvas.getWidth() * KEY_TRANSLATE_FACTOR, 0.0, 1);
+				translateMandelbrot(canvas, canvas.getWidth() * KEY_TRANSLATE_FACTOR, 0.0);
 				break;
 			default:
 			}
@@ -265,16 +319,16 @@ public class MandelbrotApp extends Application {
 		});
 		
 		crosshairProperty.addListener((observable, oldValue, newValue) -> {
-			drawMandelbrot(canvas);
+			drawMandelbrot();
 		});
 	}
 	
 	private void updatePalette(Canvas canvas) {
 		palette = new CachingPalette(new RandomPalette(paletteSeedProperty.get(), paletteStepProperty.get()));
-		calculateAndDrawMandelbrot(canvas, GOOD_QUALITY);
+		calculateAndDrawMandelbrot(canvas);
 	}
 
-	private void translateMandelbrot(Canvas canvas, double deltaPixelX, double deltaPixelY, int pixelSize) {
+	private void translateMandelbrot(Canvas canvas, double deltaPixelX, double deltaPixelY) {
 		double pixelWidth = canvas.getWidth();
 		double pixelHeight = canvas.getHeight();
 
@@ -284,54 +338,52 @@ public class MandelbrotApp extends Application {
 		xCenterProperty.set(xCenterProperty.get() + deltaX);
 		yCenterProperty.set(yCenterProperty.get() + deltaY);
 		
-		calculateAndDrawMandelbrot(canvas, pixelSize);
+		calculateAndDrawMandelbrot(canvas);
 	}
 
-	private void zoomScrollMandelbrot(Canvas canvas, double deltaPixelY, int pixelSize) {
+	private void zoomScrollMandelbrot(Canvas canvas, double deltaPixelY) {
 		double pixelHeight = canvas.getHeight();
 	
 		double deltaZ = deltaPixelY / pixelHeight * 2.0;
 		
 		radiusProperty.set(radiusProperty.get() * (1.0 + deltaZ));
 
-		calculateAndDrawMandelbrot(canvas, pixelSize);
+		calculateAndDrawMandelbrot(canvas);
 	}
 
-	private void zoomMandelbrot(Canvas canvas, double zoomFactor, int pixelSize) {
+	private void zoomMandelbrot(Canvas canvas, double zoomFactor) {
 		radiusProperty.set(radiusProperty.get() * zoomFactor);
 
-		calculateAndDrawMandelbrot(canvas, pixelSize);
+		calculateAndDrawMandelbrot(canvas);
 	}
 
-	private void calculateAndDrawMandelbrot(Canvas canvas, int pixelSize) {
-		calculateMandelbrot(pixelSize, MAX_ITERATION);
-		
-		drawMandelbrot(canvas);
+	private void calculateAndDrawMandelbrot(Canvas canvas) {
+		backgroundRenderer.triggerDraw(new DrawRequest(xCenterProperty.get(), yCenterProperty.get(), radiusProperty.get()));
 	}		
-
-	private void drawMandelbrot(Canvas canvas) {
-		GraphicsContext gc = canvas.getGraphicsContext2D();
+	
+	private void drawMandelbrot() {
+		GraphicsContext gc = mandelbrotCanvas.getGraphicsContext2D();
 		gc.drawImage(image, 0, 0);
 
 		if (crosshairProperty.get()) {
 			gc.setStroke(Color.WHITE);
-			gc.strokeLine(canvas.getWidth() / 2, 0, canvas.getWidth() / 2, canvas.getHeight());
-			gc.strokeLine(0, canvas.getHeight() / 2, canvas.getWidth(), canvas.getHeight() / 2);
+			gc.strokeLine(mandelbrotCanvas.getWidth() / 2, 0, mandelbrotCanvas.getWidth() / 2, mandelbrotCanvas.getHeight());
+			gc.strokeLine(0, mandelbrotCanvas.getHeight() / 2, mandelbrotCanvas.getWidth(), mandelbrotCanvas.getHeight() / 2);
 		}
 	}
 
-	private void calculateMandelbrot(int pixelSize, int maxIteration) {
+	private void calculateMandelbrot(DrawRequest drawRequest, int pixelSize, int maxIteration) {
 		PixelWriter pixelWriter = image.getPixelWriter();
 		
 		double pixelWidth = image.getWidth();
 		double pixelHeight = image.getHeight();
 
-		int centerPixelX = (int)pixelWidth / 2;
-		int centerPixelY = (int)pixelHeight / 2;
-		double xRadius = radiusProperty.get();
-		double yRadius = radiusProperty.get();
-		double xCenter = xCenterProperty.get();
-		double yCenter = yCenterProperty.get();
+//		int centerPixelX = (int)pixelWidth / 2;
+//		int centerPixelY = (int)pixelHeight / 2;
+		double xRadius = drawRequest.radius;
+		double yRadius = drawRequest.radius;
+		double xCenter = drawRequest.x;
+		double yCenter = drawRequest.y;
 		
 		double stepX = xRadius*2 / pixelWidth * pixelSize;
 		double stepY = yRadius*2 / pixelHeight * pixelSize;
@@ -356,9 +408,9 @@ public class MandelbrotApp extends Application {
 					yy = y*y;
 				}
 
-				if (pixelX == centerPixelX && pixelY == centerPixelY) {
-					iterationsProperty.set(iteration);
-				}
+//				if (pixelX == centerPixelX && pixelY == centerPixelY) {
+//					iterationsProperty.set(iteration);
+//				}
 				
 				Color color = iteration == maxIteration ? Color.BLACK : palette.getColor(iteration);
 				for (int pixelOffsetX = 0; pixelOffsetX < pixelSize; pixelOffsetX++) {
