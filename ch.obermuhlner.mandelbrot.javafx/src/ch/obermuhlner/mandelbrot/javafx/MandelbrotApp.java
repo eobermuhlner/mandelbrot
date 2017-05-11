@@ -37,7 +37,7 @@ import javafx.util.StringConverter;
  */
 public class MandelbrotApp extends Application {
 
-	private static final int MAX_ITERATION = 1000;
+	private static final int MAX_ITERATION = 1500;
 
 	private static final DecimalFormat INTEGER_FORMAT = new DecimalFormat("##0");
 	
@@ -335,16 +335,16 @@ public class MandelbrotApp extends Application {
 				zoomMandelbrot(canvas, KEY_ZOOM_FACTOR);
 				break;
 			case W:
-				translateMandelbrot(canvas, 0.0, -canvas.getHeight() * KEY_TRANSLATE_FACTOR);
-				break;
-			case A:
-				translateMandelbrot(canvas, -canvas.getWidth() * KEY_TRANSLATE_FACTOR, 0.0);
-				break;
-			case S:
 				translateMandelbrot(canvas, 0.0, canvas.getHeight() * KEY_TRANSLATE_FACTOR);
 				break;
-			case D:
+			case A:
 				translateMandelbrot(canvas, canvas.getWidth() * KEY_TRANSLATE_FACTOR, 0.0);
+				break;
+			case S:
+				translateMandelbrot(canvas, 0.0, -canvas.getHeight() * KEY_TRANSLATE_FACTOR);
+				break;
+			case D:
+				translateMandelbrot(canvas, -canvas.getWidth() * KEY_TRANSLATE_FACTOR, 0.0);
 				break;
 			default:
 			}
@@ -364,7 +364,12 @@ public class MandelbrotApp extends Application {
 	}
 	
 	private void updatePalette(Canvas canvas) {
-		palette = new CachingPalette(new RandomPalette(paletteSeedProperty.get(), paletteStepProperty.get()));
+		int seed = paletteSeedProperty.get();
+		int steps = paletteStepProperty.get();
+		if (steps <= 0) {
+			steps = 10;
+		}
+		palette = new CachingPalette(new RandomPalette(seed, steps));
 		calculateAndDrawMandelbrot(canvas);
 	}
 
