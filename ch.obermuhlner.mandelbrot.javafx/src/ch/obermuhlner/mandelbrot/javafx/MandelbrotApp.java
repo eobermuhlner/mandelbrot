@@ -190,70 +190,72 @@ public class MandelbrotApp extends Application {
 
 	private static final BlockRenderInfo[] BLOCK_RENDER_INFOS_16x16 = {
 			new BlockRenderInfo(16, 0, 0, 16),
+			
 			new BlockRenderInfo(16, 8, 8, 8),
 			new BlockRenderInfo(16, 0, 8, 8),
 			new BlockRenderInfo(16, 8, 0, 8),
+
+			new BlockRenderInfo(16, 4, 4, 4),
+			new BlockRenderInfo(16, 0, 4, 4),
+			new BlockRenderInfo(16, 4, 0, 4),	
+			new BlockRenderInfo(16, 4, 12, 4),	
+			new BlockRenderInfo(16, 4, 8, 4),	
+			new BlockRenderInfo(16, 0, 12, 4),	
+			new BlockRenderInfo(16, 12, 4, 4),	
+			new BlockRenderInfo(16, 12, 0, 4),	
+			new BlockRenderInfo(16, 8, 4, 4),	
+			new BlockRenderInfo(16, 12, 12, 4),	
+			new BlockRenderInfo(16, 8, 12, 4),	
+			new BlockRenderInfo(16, 12, 8, 4),
 
 			new BlockRenderInfo(16, 2, 2, 2),	
 			new BlockRenderInfo(16, 0, 2, 2),	
 			new BlockRenderInfo(16, 2, 0, 2),	
 
-			new BlockRenderInfo(16, 4, 4, 4),
 			new BlockRenderInfo(16, 6, 6, 2),	
 			new BlockRenderInfo(16, 4, 6, 2),	
 			new BlockRenderInfo(16, 6, 4, 2),	
-
-			new BlockRenderInfo(16, 0, 4, 4),	
+			
 			new BlockRenderInfo(16, 2, 6, 2),	
 			new BlockRenderInfo(16, 0, 6, 2),	
 			new BlockRenderInfo(16, 2, 4, 2),	
 
-			new BlockRenderInfo(16, 4, 0, 4),
 			new BlockRenderInfo(16, 6, 2, 2),	
 			new BlockRenderInfo(16, 4, 2, 2),	
 			new BlockRenderInfo(16, 6, 4, 2),	
 
-			new BlockRenderInfo(16, 4, 12, 4),	
 			new BlockRenderInfo(16, 6, 14, 2),	
 			new BlockRenderInfo(16, 4, 14, 2),	
 			new BlockRenderInfo(16, 6, 12, 2),	
 
-			new BlockRenderInfo(16, 4, 8, 4),	
 			new BlockRenderInfo(16, 6, 10, 2),	
 			new BlockRenderInfo(16, 4, 10, 2),	
 			new BlockRenderInfo(16, 6, 8, 2),	
 
-			new BlockRenderInfo(16, 0, 12, 4),	
 			new BlockRenderInfo(16, 2, 14, 2),	
 			new BlockRenderInfo(16, 0, 14, 2),	
 			new BlockRenderInfo(16, 2, 12, 2),	
 
-			new BlockRenderInfo(16, 12, 4, 4),	
 			new BlockRenderInfo(16, 14, 6, 2),	
 			new BlockRenderInfo(16, 12, 6, 2),	
 			new BlockRenderInfo(16, 14, 4, 2),	
 			
-			new BlockRenderInfo(16, 12, 0, 4),	
 			new BlockRenderInfo(16, 14, 2, 2),
 			new BlockRenderInfo(16, 12, 2, 2),
 			new BlockRenderInfo(16, 14, 0, 2),
 			
-			new BlockRenderInfo(16, 8, 4, 4),	
 			new BlockRenderInfo(16, 10, 6, 2),	
 			new BlockRenderInfo(16, 8, 6, 2),	
 			new BlockRenderInfo(16, 10, 4, 2),	
 
-			new BlockRenderInfo(16, 12, 12, 4),	
 			new BlockRenderInfo(16, 14, 14, 2),
 			new BlockRenderInfo(16, 12, 14, 2),
 			new BlockRenderInfo(16, 14, 12, 2),
 			
-			new BlockRenderInfo(16, 8, 12, 4),	
 			new BlockRenderInfo(16, 10, 14, 2),
 			new BlockRenderInfo(16, 8, 14, 2),
 			new BlockRenderInfo(16, 10, 12, 2),
 			
-			new BlockRenderInfo(16, 12, 8, 4),
 			new BlockRenderInfo(16, 14, 10, 2),
 			new BlockRenderInfo(16, 12, 10, 2),
 			new BlockRenderInfo(16, 14, 8, 2),
