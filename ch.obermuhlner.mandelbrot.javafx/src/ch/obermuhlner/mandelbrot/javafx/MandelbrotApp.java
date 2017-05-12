@@ -428,6 +428,11 @@ public class MandelbrotApp extends Application {
 	}
 
 	private void calculateMandelbrot(DrawRequest drawRequest, int blockSize, int blockPixelOffsetX, int blockPixelOffsetY, int pixelSize, int maxIteration) {
+		calculateMandelbrotDouble(drawRequest, blockSize, blockPixelOffsetX, blockPixelOffsetY, pixelSize, maxIteration);
+		//calculateMandelbrotBigDecimal(drawRequest, blockSize, blockPixelOffsetX, blockPixelOffsetY, pixelSize, maxIteration);
+	}
+	
+	private void calculateMandelbrotDouble(DrawRequest drawRequest, int blockSize, int blockPixelOffsetX, int blockPixelOffsetY, int pixelSize, int maxIteration) {
 		PixelWriter pixelWriter = image.getPixelWriter();
 		
 		double pixelWidth = image.getWidth();
@@ -461,6 +466,56 @@ public class MandelbrotApp extends Application {
 					
 					xx = x*x;
 					yy = y*y;
+				}
+
+				Color color = iteration == maxIteration ? Color.BLACK : palette.getColor(iteration);
+				for (int pixelOffsetX = 0; pixelOffsetX < pixelSize; pixelOffsetX++) {
+					for (int pixelOffsetY = 0; pixelOffsetY < pixelSize; pixelOffsetY++) {
+						pixelWriter.setColor(pixelX + pixelOffsetX, pixelY + pixelOffsetY, color);
+					}
+				}
+			}
+		}
+	}
+
+	private void calculateMandelbrotBigDecimal(DrawRequest drawRequest, int blockSize, int blockPixelOffsetX, int blockPixelOffsetY, int pixelSize, int maxIteration) {
+		PixelWriter pixelWriter = image.getPixelWriter();
+		
+		double pixelWidth = image.getWidth();
+		double pixelHeight = image.getHeight();
+		
+		MathContext mc = MathContext.DECIMAL64;
+
+		BigDecimal xRadius = drawRequest.radius;
+		BigDecimal yRadius = drawRequest.radius;
+		BigDecimal xCenter = drawRequest.x;
+		BigDecimal yCenter = drawRequest.y;
+		
+		BigDecimal two = new BigDecimal(2);
+		BigDecimal four = new BigDecimal(4);
+		BigDecimal pixelStepX = xRadius.multiply(two, mc).divide(BigDecimal.valueOf(pixelWidth), mc);
+		BigDecimal pixelStepY = yRadius.multiply(two, mc).divide(BigDecimal.valueOf(pixelHeight), mc);
+		BigDecimal blockStepX = pixelStepX.multiply(new BigDecimal(blockSize), mc);
+		BigDecimal blockStepY = pixelStepY.multiply(new BigDecimal(blockSize), mc);
+		BigDecimal x0 = pixelStepX.multiply(new BigDecimal(blockPixelOffsetX), mc).subtract(xCenter, mc).subtract(xRadius, mc);
+		
+		for (int pixelX = blockPixelOffsetX; pixelX < pixelWidth; pixelX+=blockSize) {
+			x0 = x0.add(blockStepX, mc);
+			BigDecimal y0 = pixelStepY.multiply(new BigDecimal(blockPixelOffsetY), mc).subtract(yCenter, mc).subtract(yRadius, mc);
+			for (int pixelY = blockPixelOffsetY; pixelY < pixelHeight; pixelY+=blockSize) {
+				y0 = y0.add(blockStepY, mc);
+				BigDecimal x = BigDecimal.ZERO;
+				BigDecimal y = BigDecimal.ZERO;
+				int iteration = 0;
+				BigDecimal xx = x;
+				BigDecimal yy = y;
+				while (xx.add(yy, mc).compareTo(four) < 0 && iteration < maxIteration) {
+					y = two.multiply(x, mc).multiply(y, mc).add(y0, mc);
+					x = xx.subtract(yy, mc).add(x0, mc);
+					iteration++;
+					
+					xx = x.multiply(x, mc);
+					yy = y.multiply(y, mc);
 				}
 
 				Color color = iteration == maxIteration ? Color.BLACK : palette.getColor(iteration);
