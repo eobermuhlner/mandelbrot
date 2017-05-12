@@ -43,7 +43,8 @@ public class MandelbrotApp extends Application {
 
 	private static final int MAX_ITERATION = 1500;
 
-	private static final BigDecimal DOUBLE_THRESHOLD = new BigDecimal("0.00000000002");
+	private static final BigDecimal BIGDECIMAL_THRESHOLD = new BigDecimal("0.00000000002");
+	private static final int BIGDECIMAL_PANIC_FACTOR = 8;
 
 	private static final DecimalFormat INTEGER_FORMAT = new DecimalFormat("##0");
 	
@@ -90,30 +91,70 @@ public class MandelbrotApp extends Application {
 		}
 	}
 	
-	private static final BlockRenderInfo[] BLOCK_RENDER_INFOS_4x4 = {
-			new BlockRenderInfo(4, 0, 0, 4),	
-			new BlockRenderInfo(4, 2, 2, 2),	
-			new BlockRenderInfo(4, 0, 2, 2),	
-			new BlockRenderInfo(4, 2, 0, 2),	
+	private static final BlockRenderInfo[] BLOCK_RENDER_INFOS_8x8 = {
+			new BlockRenderInfo(8, 0, 0, 8),
+			new BlockRenderInfo(8, 4, 4, 4),
+			new BlockRenderInfo(8, 0, 4, 4),
+			new BlockRenderInfo(8, 4, 0, 4),
 
-			new BlockRenderInfo(4, 1, 1, 1),	
-			new BlockRenderInfo(4, 0, 1, 1),	
-			new BlockRenderInfo(4, 1, 0, 1),	
+			new BlockRenderInfo(8, 2, 2, 2),
+			new BlockRenderInfo(8, 3, 3, 1),	
+			new BlockRenderInfo(8, 2, 3, 1),	
+			new BlockRenderInfo(8, 3, 2, 1),	
+			
+			new BlockRenderInfo(8, 0, 2, 2),	
+			new BlockRenderInfo(8, 2, 0, 2),	
+			new BlockRenderInfo(8, 3, 1, 1),	
+			new BlockRenderInfo(8, 2, 1, 1),	
+			new BlockRenderInfo(8, 3, 2, 1),	
 
-			new BlockRenderInfo(4, 1, 3, 1),	
-			new BlockRenderInfo(4, 1, 2, 1),	
-			new BlockRenderInfo(4, 0, 3, 1),	
+			new BlockRenderInfo(8, 2, 6, 2),	
+			new BlockRenderInfo(8, 3, 7, 1),	
+			new BlockRenderInfo(8, 2, 7, 1),	
+			new BlockRenderInfo(8, 3, 6, 1),	
 
-			new BlockRenderInfo(4, 3, 1, 1),	
-			new BlockRenderInfo(4, 3, 0, 1),	
-			new BlockRenderInfo(4, 2, 1, 1),	
+			new BlockRenderInfo(8, 2, 4, 2),	
+			new BlockRenderInfo(8, 3, 5, 1),	
+			new BlockRenderInfo(8, 2, 5, 1),	
+			new BlockRenderInfo(8, 3, 4, 1),	
 
-			new BlockRenderInfo(4, 3, 3, 1),	
-			new BlockRenderInfo(4, 2, 3, 1),	
-			new BlockRenderInfo(4, 3, 2, 1),
+			new BlockRenderInfo(8, 0, 6, 2),	
+			new BlockRenderInfo(8, 1, 7, 1),	
+			new BlockRenderInfo(8, 0, 7, 1),	
+			new BlockRenderInfo(8, 1, 6, 1),	
+
+			new BlockRenderInfo(8, 6, 2, 2),	
+			new BlockRenderInfo(8, 7, 3, 1),	
+			new BlockRenderInfo(8, 6, 3, 1),	
+			new BlockRenderInfo(8, 7, 2, 1),	
+			
+			new BlockRenderInfo(8, 6, 0, 2),	
+			new BlockRenderInfo(8, 7, 1, 1),
+			new BlockRenderInfo(8, 6, 1, 1),
+			new BlockRenderInfo(8, 7, 0, 1),
+			
+			new BlockRenderInfo(8, 4, 2, 2),	
+			new BlockRenderInfo(8, 5, 3, 1),	
+			new BlockRenderInfo(8, 4, 3, 1),	
+			new BlockRenderInfo(8, 5, 2, 1),	
+
+			new BlockRenderInfo(8, 6, 6, 2),	
+			new BlockRenderInfo(8, 7, 7, 1),
+			new BlockRenderInfo(8, 6, 7, 1),
+			new BlockRenderInfo(8, 7, 6, 1),
+			
+			new BlockRenderInfo(8, 4, 6, 2),	
+			new BlockRenderInfo(8, 5, 7, 1),
+			new BlockRenderInfo(8, 4, 7, 1),
+			new BlockRenderInfo(8, 5, 6, 1),
+			
+			new BlockRenderInfo(8, 6, 4, 2),
+			new BlockRenderInfo(8, 7, 5, 1),
+			new BlockRenderInfo(8, 6, 5, 1),
+			new BlockRenderInfo(8, 7, 4, 1),
 	};
-	
-	private static final BlockRenderInfo[] BLOCK_RENDER_INFOS = BLOCK_RENDER_INFOS_4x4;
+
+	private static final BlockRenderInfo[] BLOCK_RENDER_INFOS = BLOCK_RENDER_INFOS_8x8;
 
 	private class BackgroundRenderer extends Thread {
 		private boolean backgroundRunning;
@@ -432,11 +473,10 @@ public class MandelbrotApp extends Application {
 	}
 
 	private void calculateMandelbrot(DrawRequest drawRequest, int blockSize, int blockPixelOffsetX, int blockPixelOffsetY, int pixelSize, int maxIteration) {
-		if (drawRequest.radius.compareTo(DOUBLE_THRESHOLD) > 0) {
+		if (drawRequest.radius.compareTo(BIGDECIMAL_THRESHOLD) > 0) {
 			calculateMandelbrotDouble(drawRequest, blockSize, blockPixelOffsetX, blockPixelOffsetY, pixelSize, maxIteration);
 		} else {
-			int factor = 8;
-			calculateMandelbrotBigDecimal(drawRequest, blockSize * factor, blockPixelOffsetX * factor, blockPixelOffsetY * factor, pixelSize * factor, maxIteration);
+			calculateMandelbrotBigDecimal(drawRequest, blockSize * BIGDECIMAL_PANIC_FACTOR, blockPixelOffsetX * BIGDECIMAL_PANIC_FACTOR, blockPixelOffsetY * BIGDECIMAL_PANIC_FACTOR, pixelSize * BIGDECIMAL_PANIC_FACTOR, maxIteration);
 		}
 	}
 	
@@ -529,7 +569,9 @@ public class MandelbrotApp extends Application {
 				Color color = iteration == maxIteration ? Color.BLACK : palette.getColor(iteration);
 				for (int pixelOffsetX = 0; pixelOffsetX < pixelSize; pixelOffsetX++) {
 					for (int pixelOffsetY = 0; pixelOffsetY < pixelSize; pixelOffsetY++) {
-						pixelWriter.setColor(pixelX + pixelOffsetX, pixelY + pixelOffsetY, color);
+						if (pixelX + pixelOffsetX < pixelWidth && pixelY + pixelOffsetY < pixelHeight) {
+							pixelWriter.setColor(pixelX + pixelOffsetX, pixelY + pixelOffsetY, color);
+						}
 					}
 				}
 			}
