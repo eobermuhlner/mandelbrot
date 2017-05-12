@@ -92,7 +92,8 @@ public class MandelbrotApp extends Application {
 	}
 	
 	private static final BlockRenderInfo[] BLOCK_RENDER_INFOS_4x4 = {
-			new BlockRenderInfo(4, 0, 0, 4),	
+			new BlockRenderInfo(4, 0, 0, 4),
+			
 			new BlockRenderInfo(4, 2, 2, 2),	
 			new BlockRenderInfo(4, 0, 2, 2),	
 			new BlockRenderInfo(4, 2, 0, 2),	
@@ -116,66 +117,72 @@ public class MandelbrotApp extends Application {
 	
 	private static final BlockRenderInfo[] BLOCK_RENDER_INFOS_8x8 = {
 			new BlockRenderInfo(8, 0, 0, 8),
+			
 			new BlockRenderInfo(8, 4, 4, 4),
 			new BlockRenderInfo(8, 0, 4, 4),
 			new BlockRenderInfo(8, 4, 0, 4),
 
 			new BlockRenderInfo(8, 2, 2, 2),
+			new BlockRenderInfo(8, 0, 2, 2),
+			new BlockRenderInfo(8, 2, 0, 2),	
+			new BlockRenderInfo(8, 2, 6, 2),	
+			new BlockRenderInfo(8, 2, 4, 2),	
+			new BlockRenderInfo(8, 0, 6, 2),	
+			new BlockRenderInfo(8, 6, 2, 2),	
+			new BlockRenderInfo(8, 6, 0, 2),	
+			new BlockRenderInfo(8, 4, 2, 2),	
+			new BlockRenderInfo(8, 6, 6, 2),	
+			new BlockRenderInfo(8, 4, 6, 2),	
+			new BlockRenderInfo(8, 6, 4, 2),
+
+			new BlockRenderInfo(8, 1, 1, 1),	
+			new BlockRenderInfo(8, 0, 1, 1),	
+			new BlockRenderInfo(8, 1, 0, 1),	
+
 			new BlockRenderInfo(8, 3, 3, 1),	
 			new BlockRenderInfo(8, 2, 3, 1),	
 			new BlockRenderInfo(8, 3, 2, 1),	
 			
-			new BlockRenderInfo(8, 0, 2, 2),
-			new BlockRenderInfo(8, 1, 3, 2),	
-			new BlockRenderInfo(8, 0, 3, 2),	
-			new BlockRenderInfo(8, 1, 2, 2),	
+			new BlockRenderInfo(8, 1, 3, 1),	
+			new BlockRenderInfo(8, 0, 3, 1),	
+			new BlockRenderInfo(8, 1, 2, 1),	
 
-			new BlockRenderInfo(8, 2, 0, 2),	
 			new BlockRenderInfo(8, 3, 1, 1),	
 			new BlockRenderInfo(8, 2, 1, 1),	
 			new BlockRenderInfo(8, 3, 2, 1),	
 
-			new BlockRenderInfo(8, 2, 6, 2),	
 			new BlockRenderInfo(8, 3, 7, 1),	
 			new BlockRenderInfo(8, 2, 7, 1),	
 			new BlockRenderInfo(8, 3, 6, 1),	
 
-			new BlockRenderInfo(8, 2, 4, 2),	
 			new BlockRenderInfo(8, 3, 5, 1),	
 			new BlockRenderInfo(8, 2, 5, 1),	
 			new BlockRenderInfo(8, 3, 4, 1),	
 
-			new BlockRenderInfo(8, 0, 6, 2),	
 			new BlockRenderInfo(8, 1, 7, 1),	
 			new BlockRenderInfo(8, 0, 7, 1),	
 			new BlockRenderInfo(8, 1, 6, 1),	
 
-			new BlockRenderInfo(8, 6, 2, 2),	
 			new BlockRenderInfo(8, 7, 3, 1),	
 			new BlockRenderInfo(8, 6, 3, 1),	
 			new BlockRenderInfo(8, 7, 2, 1),	
 			
-			new BlockRenderInfo(8, 6, 0, 2),	
 			new BlockRenderInfo(8, 7, 1, 1),
 			new BlockRenderInfo(8, 6, 1, 1),
 			new BlockRenderInfo(8, 7, 0, 1),
 			
-			new BlockRenderInfo(8, 4, 2, 2),	
 			new BlockRenderInfo(8, 5, 3, 1),	
 			new BlockRenderInfo(8, 4, 3, 1),	
 			new BlockRenderInfo(8, 5, 2, 1),	
 
-			new BlockRenderInfo(8, 6, 6, 2),	
 			new BlockRenderInfo(8, 7, 7, 1),
 			new BlockRenderInfo(8, 6, 7, 1),
 			new BlockRenderInfo(8, 7, 6, 1),
 			
-			new BlockRenderInfo(8, 4, 6, 2),	
 			new BlockRenderInfo(8, 5, 7, 1),
 			new BlockRenderInfo(8, 4, 7, 1),
 			new BlockRenderInfo(8, 5, 6, 1),
 			
-			new BlockRenderInfo(8, 6, 4, 2),
 			new BlockRenderInfo(8, 7, 5, 1),
 			new BlockRenderInfo(8, 6, 5, 1),
 			new BlockRenderInfo(8, 7, 4, 1),
@@ -187,6 +194,10 @@ public class MandelbrotApp extends Application {
 			new BlockRenderInfo(16, 0, 8, 8),
 			new BlockRenderInfo(16, 8, 0, 8),
 
+			new BlockRenderInfo(16, 2, 2, 2),	
+			new BlockRenderInfo(16, 0, 2, 2),	
+			new BlockRenderInfo(16, 2, 0, 2),	
+
 			new BlockRenderInfo(16, 4, 4, 4),
 			new BlockRenderInfo(16, 6, 6, 2),	
 			new BlockRenderInfo(16, 4, 6, 2),	
@@ -197,8 +208,8 @@ public class MandelbrotApp extends Application {
 			new BlockRenderInfo(16, 0, 6, 2),	
 			new BlockRenderInfo(16, 2, 4, 2),	
 
-			new BlockRenderInfo(16, 4, 0, 2),
-			new BlockRenderInfo(16, 6, 3, 2),	
+			new BlockRenderInfo(16, 4, 0, 4),
+			new BlockRenderInfo(16, 6, 2, 2),	
 			new BlockRenderInfo(16, 4, 2, 2),	
 			new BlockRenderInfo(16, 6, 4, 2),	
 
