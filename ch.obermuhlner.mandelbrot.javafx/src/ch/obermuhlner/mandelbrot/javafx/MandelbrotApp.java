@@ -175,7 +175,6 @@ public class MandelbrotApp extends Application {
 	private ObjectProperty<BigDecimal> radiusProperty = new SimpleObjectProperty<BigDecimal>(BigDecimal.valueOf(2));
 	private IntegerProperty paletteSeedProperty = new SimpleIntegerProperty(14);
 	private IntegerProperty paletteStepProperty = new SimpleIntegerProperty(20);
-	private IntegerProperty iterationsProperty = new SimpleIntegerProperty(01);
 	
 	private BooleanProperty crosshairProperty = new SimpleBooleanProperty(true); 
 
@@ -278,12 +277,6 @@ public class MandelbrotApp extends Application {
 		TextField radiusTextField = new TextField();
 		gridPane.add(radiusTextField, 1, rowIndex);
 		Bindings.bindBidirectional(radiusTextField.textProperty(), radiusProperty, BIGDECIMAL_STRING_CONVERTER);
-		rowIndex++;
-
-		gridPane.add(new Label("Iterations:"), 0, rowIndex);
-		TextField iterationsTextField = new TextField();
-		gridPane.add(iterationsTextField, 1, rowIndex);
-		Bindings.bindBidirectional(iterationsTextField.textProperty(), iterationsProperty, INTEGER_FORMAT);
 		rowIndex++;
 
 		gridPane.add(new Label("Color Scheme:"), 0, rowIndex);
@@ -440,8 +433,6 @@ public class MandelbrotApp extends Application {
 		double pixelWidth = image.getWidth();
 		double pixelHeight = image.getHeight();
 
-//		int centerPixelX = (int)pixelWidth / 2;
-//		int centerPixelY = (int)pixelHeight / 2;
 		double xRadius = drawRequest.radius.doubleValue();
 		double yRadius = drawRequest.radius.doubleValue();
 		double xCenter = drawRequest.x.doubleValue();
@@ -472,10 +463,6 @@ public class MandelbrotApp extends Application {
 					yy = y*y;
 				}
 
-//				if (pixelX == centerPixelX && pixelY == centerPixelY) {
-//					iterationsProperty.set(iteration);
-//				}
-				
 				Color color = iteration == maxIteration ? Color.BLACK : palette.getColor(iteration);
 				for (int pixelOffsetX = 0; pixelOffsetX < pixelSize; pixelOffsetX++) {
 					for (int pixelOffsetY = 0; pixelOffsetY < pixelSize; pixelOffsetY++) {
