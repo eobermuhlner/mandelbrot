@@ -43,6 +43,8 @@ public class MandelbrotApp extends Application {
 
 	private static final int MAX_ITERATION = 1500;
 
+	private static final BigDecimal DOUBLE_THRESHOLD = new BigDecimal("0.00000000002");
+
 	private static final DecimalFormat INTEGER_FORMAT = new DecimalFormat("##0");
 	
 	private static final StringConverter<Number> DOUBLE_STRING_CONVERTER = new StringConverter<Number>() {
@@ -88,7 +90,7 @@ public class MandelbrotApp extends Application {
 		}
 	}
 	
-	private static final BlockRenderInfo[] blockRenderInfos = {
+	private static final BlockRenderInfo[] BLOCK_RENDER_INFOS_4x4 = {
 			new BlockRenderInfo(4, 0, 0, 4),	
 			new BlockRenderInfo(4, 2, 2, 2),	
 			new BlockRenderInfo(4, 0, 2, 2),	
@@ -108,9 +110,11 @@ public class MandelbrotApp extends Application {
 
 			new BlockRenderInfo(4, 3, 3, 1),	
 			new BlockRenderInfo(4, 2, 3, 1),	
-			new BlockRenderInfo(4, 3, 2, 1),	
+			new BlockRenderInfo(4, 3, 2, 1),
 	};
 	
+	private static final BlockRenderInfo[] BLOCK_RENDER_INFOS = BLOCK_RENDER_INFOS_4x4;
+
 	private class BackgroundRenderer extends Thread {
 		private boolean backgroundRunning;
 		private DrawRequest nextDrawRequest;
@@ -138,8 +142,8 @@ public class MandelbrotApp extends Application {
 				DrawRequest currentDrawRequest = getNextDrawRequest();
 				if (currentDrawRequest != null) {
 					int block = 0;
-					while (block < blockRenderInfos.length) {
-						BlockRenderInfo blockRenderInfo = blockRenderInfos[block];
+					while (block < BLOCK_RENDER_INFOS.length) {
+						BlockRenderInfo blockRenderInfo = BLOCK_RENDER_INFOS[block];
 						calculateMandelbrot(currentDrawRequest, blockRenderInfo.blockSize, blockRenderInfo.pixelOffsetX, blockRenderInfo.pixelOffsetY, blockRenderInfo.pixelSize, MAX_ITERATION);
 						Platform.runLater(() -> {
 							drawMandelbrot();
@@ -428,8 +432,12 @@ public class MandelbrotApp extends Application {
 	}
 
 	private void calculateMandelbrot(DrawRequest drawRequest, int blockSize, int blockPixelOffsetX, int blockPixelOffsetY, int pixelSize, int maxIteration) {
-		calculateMandelbrotDouble(drawRequest, blockSize, blockPixelOffsetX, blockPixelOffsetY, pixelSize, maxIteration);
-		//calculateMandelbrotBigDecimal(drawRequest, blockSize, blockPixelOffsetX, blockPixelOffsetY, pixelSize, maxIteration);
+		if (drawRequest.radius.compareTo(DOUBLE_THRESHOLD) > 0) {
+			calculateMandelbrotDouble(drawRequest, blockSize, blockPixelOffsetX, blockPixelOffsetY, pixelSize, maxIteration);
+		} else {
+			int factor = 8;
+			calculateMandelbrotBigDecimal(drawRequest, blockSize * factor, blockPixelOffsetX * factor, blockPixelOffsetY * factor, pixelSize * factor, maxIteration);
+		}
 	}
 	
 	private void calculateMandelbrotDouble(DrawRequest drawRequest, int blockSize, int blockPixelOffsetX, int blockPixelOffsetY, int pixelSize, int maxIteration) {
@@ -484,7 +492,7 @@ public class MandelbrotApp extends Application {
 		double pixelWidth = image.getWidth();
 		double pixelHeight = image.getHeight();
 		
-		MathContext mc = MathContext.DECIMAL64;
+		MathContext mc = MathContext.DECIMAL128;
 
 		BigDecimal xRadius = drawRequest.radius;
 		BigDecimal yRadius = drawRequest.radius;
