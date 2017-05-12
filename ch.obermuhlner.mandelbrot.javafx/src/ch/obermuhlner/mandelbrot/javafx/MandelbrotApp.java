@@ -1,5 +1,7 @@
 package ch.obermuhlner.mandelbrot.javafx;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
 import java.text.DecimalFormat;
 
 import javafx.application.Application;
@@ -8,9 +10,11 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -50,6 +54,18 @@ public class MandelbrotApp extends Application {
 		@Override
 		public Double fromString(String string) {
 			return Double.parseDouble(string);
+		}
+	};
+
+	private static final StringConverter<BigDecimal> BIGDECIMAL_STRING_CONVERTER = new StringConverter<BigDecimal>() {
+		@Override
+		public String toString(BigDecimal object) {
+			return object.toString();
+		}
+
+		@Override
+		public BigDecimal fromString(String string) {
+			return new BigDecimal(string);
 		}
 	};
 
@@ -153,10 +169,10 @@ public class MandelbrotApp extends Application {
 	private static final double KEY_TRANSLATE_FACTOR = 0.1;
 	private static final double KEY_ZOOM_FACTOR = 1.2;
 
-	private DoubleProperty xCenterProperty = new SimpleDoubleProperty(0.0);
-	private DoubleProperty yCenterProperty = new SimpleDoubleProperty(0.0);
+	private ObjectProperty<BigDecimal> xCenterProperty = new SimpleObjectProperty<BigDecimal>(BigDecimal.ZERO);
+	private ObjectProperty<BigDecimal> yCenterProperty = new SimpleObjectProperty<BigDecimal>(BigDecimal.ZERO);
 	private DoubleProperty zoomProperty = new SimpleDoubleProperty(0.0);
-	private DoubleProperty radiusProperty = new SimpleDoubleProperty(2.0);
+	private ObjectProperty<BigDecimal> radiusProperty = new SimpleObjectProperty<BigDecimal>(BigDecimal.valueOf(2));
 	private IntegerProperty paletteSeedProperty = new SimpleIntegerProperty(14);
 	private IntegerProperty paletteStepProperty = new SimpleIntegerProperty(20);
 	private IntegerProperty iterationsProperty = new SimpleIntegerProperty(01);
@@ -237,13 +253,13 @@ public class MandelbrotApp extends Application {
 		gridPane.add(new Label("X:"), 0, rowIndex);
 		TextField xCenterTextField = new TextField();
 		gridPane.add(xCenterTextField, 1, rowIndex);
-		Bindings.bindBidirectional(xCenterTextField.textProperty(), xCenterProperty, DOUBLE_STRING_CONVERTER);
+		Bindings.bindBidirectional(xCenterTextField.textProperty(), xCenterProperty, BIGDECIMAL_STRING_CONVERTER);
 		rowIndex++;
 		
 		gridPane.add(new Label("Y:"), 0, rowIndex);
 		TextField yCenterTextField = new TextField();
 		gridPane.add(yCenterTextField, 1, rowIndex);
-		Bindings.bindBidirectional(yCenterTextField.textProperty(), yCenterProperty, DOUBLE_STRING_CONVERTER);
+		Bindings.bindBidirectional(yCenterTextField.textProperty(), yCenterProperty, BIGDECIMAL_STRING_CONVERTER);
 		rowIndex++;
 		
 		gridPane.add(new Label("Zoom:"), 0, rowIndex);
@@ -261,7 +277,7 @@ public class MandelbrotApp extends Application {
 		gridPane.add(new Label("Radius:"), 0, rowIndex);
 		TextField radiusTextField = new TextField();
 		gridPane.add(radiusTextField, 1, rowIndex);
-		Bindings.bindBidirectional(radiusTextField.textProperty(), radiusProperty, DOUBLE_STRING_CONVERTER);
+		Bindings.bindBidirectional(radiusTextField.textProperty(), radiusProperty, BIGDECIMAL_STRING_CONVERTER);
 		rowIndex++;
 
 		gridPane.add(new Label("Iterations:"), 0, rowIndex);
@@ -375,14 +391,14 @@ public class MandelbrotApp extends Application {
 	}
 
 	private void translateMandelbrot(Canvas canvas, double deltaPixelX, double deltaPixelY) {
-		double pixelWidth = canvas.getWidth();
-		double pixelHeight = canvas.getHeight();
+		BigDecimal pixelWidth = BigDecimal.valueOf(canvas.getWidth());
+		BigDecimal pixelHeight = BigDecimal.valueOf(canvas.getHeight());
 
-		double deltaX = deltaPixelX / pixelWidth * radiusProperty.get();
-		double deltaY = deltaPixelY / pixelHeight * radiusProperty.get();
+		BigDecimal deltaX = BigDecimal.valueOf(deltaPixelX).divide(pixelWidth, MathContext.DECIMAL128).multiply(radiusProperty.get());
+		BigDecimal deltaY = BigDecimal.valueOf(deltaPixelY).divide(pixelHeight, MathContext.DECIMAL128).multiply(radiusProperty.get());
 		
-		xCenterProperty.set(xCenterProperty.get() + deltaX);
-		yCenterProperty.set(yCenterProperty.get() + deltaY);
+		xCenterProperty.set(xCenterProperty.get().add(deltaX));
+		yCenterProperty.set(yCenterProperty.get().add(deltaY));
 		
 		calculateAndDrawMandelbrot(canvas);
 	}
@@ -392,13 +408,13 @@ public class MandelbrotApp extends Application {
 	
 		double deltaZ = deltaPixelY / pixelHeight * 2.0;
 		
-		radiusProperty.set(radiusProperty.get() * (1.0 + deltaZ));
+		radiusProperty.set(radiusProperty.get().multiply(BigDecimal.valueOf(1.0 + deltaZ)));
 
 		calculateAndDrawMandelbrot(canvas);
 	}
 
 	private void zoomMandelbrot(Canvas canvas, double zoomFactor) {
-		radiusProperty.set(radiusProperty.get() * zoomFactor);
+		radiusProperty.set(radiusProperty.get().multiply(BigDecimal.valueOf(zoomFactor)));
 
 		calculateAndDrawMandelbrot(canvas);
 	}
@@ -426,10 +442,10 @@ public class MandelbrotApp extends Application {
 
 //		int centerPixelX = (int)pixelWidth / 2;
 //		int centerPixelY = (int)pixelHeight / 2;
-		double xRadius = drawRequest.radius;
-		double yRadius = drawRequest.radius;
-		double xCenter = drawRequest.x;
-		double yCenter = drawRequest.y;
+		double xRadius = drawRequest.radius.doubleValue();
+		double yRadius = drawRequest.radius.doubleValue();
+		double xCenter = drawRequest.x.doubleValue();
+		double yCenter = drawRequest.y.doubleValue();
 		
 		double pixelStepX = xRadius*2 / pixelWidth;
 		double pixelStepY = yRadius*2 / pixelHeight;

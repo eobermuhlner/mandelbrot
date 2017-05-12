@@ -1,11 +1,13 @@
 package ch.obermuhlner.mandelbrot.javafx;
 
-public class DrawRequest {
-	public final double x;
-	public final double y;
-	public final double radius;
+import java.math.BigDecimal;
 
-	public DrawRequest(double x, double y, double radius) {
+public class DrawRequest {
+	public final BigDecimal x;
+	public final BigDecimal y;
+	public final BigDecimal radius;
+
+	public DrawRequest(BigDecimal x, BigDecimal y, BigDecimal radius) {
 		this.x = x;
 		this.y = y;
 		this.radius = radius;
