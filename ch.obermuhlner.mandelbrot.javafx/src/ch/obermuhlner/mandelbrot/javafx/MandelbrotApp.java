@@ -804,10 +804,8 @@ public class MandelbrotApp extends Application {
 		double x0 = pixelStepX * blockPixelOffsetX - xCenter - xRadius;
 		
 		for (int pixelX = blockPixelOffsetX; pixelX < pixelWidth; pixelX+=blockSize) {
-			x0 += blockStepX;
 			double y0 = pixelStepY * blockPixelOffsetY - yCenter - yRadius; 
 			for (int pixelY = blockPixelOffsetY; pixelY < pixelHeight; pixelY+=blockSize) {
-				y0 += blockStepY;
 				double x = 0;
 				double y = 0;
 				int iteration = 0;
@@ -832,7 +830,9 @@ public class MandelbrotApp extends Application {
 						}
 					}
 				}
+				y0 += blockStepY;
 			}
+			x0 += blockStepX;
 		}
 	}
 
@@ -858,10 +858,8 @@ public class MandelbrotApp extends Application {
 		BigDecimal x0 = pixelStepX.multiply(new BigDecimal(blockPixelOffsetX), mc).subtract(xCenter, mc).subtract(xRadius, mc);
 		
 		for (int pixelX = blockPixelOffsetX; pixelX < pixelWidth; pixelX+=blockSize) {
-			x0 = x0.add(blockStepX, mc);
 			BigDecimal y0 = pixelStepY.multiply(new BigDecimal(blockPixelOffsetY), mc).subtract(yCenter, mc).subtract(yRadius, mc);
 			for (int pixelY = blockPixelOffsetY; pixelY < pixelHeight; pixelY+=blockSize) {
-				y0 = y0.add(blockStepY, mc);
 				BigDecimal x = BigDecimal.ZERO;
 				BigDecimal y = BigDecimal.ZERO;
 				int iteration = 0;
@@ -884,7 +882,9 @@ public class MandelbrotApp extends Application {
 						}
 					}
 				}
+				y0 = y0.add(blockStepY, mc);
 			}
+			x0 = x0.add(blockStepX, mc);
 		}
 	}
 

@@ -133,10 +133,8 @@ public class MandelbrotImageGenerator {
 		double x0 = 0 - xCenter - xRadius; 
 		
 		for (int pixelX = 0; pixelX < imageWidth; pixelX++) {
-			x0 += stepX;
 			double y0 = 0 - yCenter - yRadius; 
 			for (int pixelY = 0; pixelY < imageHeight; pixelY++) {
-				y0 += stepY;
 				double x = 0;
 				double y = 0;
 				int iterations = 0;
@@ -154,7 +152,10 @@ public class MandelbrotImageGenerator {
 				Color color = iterations == maxIterations ? Color.BLACK : palette.getColor(iterations);
 				gc.setColor(color);
 				gc.fillRect(pixelX, pixelY, 1, 1);
+
+				y0 += stepY;
 			}
+			x0 += stepX;
 		}
 
 		return image;
@@ -169,10 +170,8 @@ public class MandelbrotImageGenerator {
 		Apfloat x0 = xCenter.negate().subtract(xRadius); 
 		
 		for (int pixelX = 0; pixelX < imageWidth; pixelX++) {
-			x0 = x0.add(stepX);
 			Apfloat y0 = yCenter.negate().subtract(yRadius); 
 			for (int pixelY = 0; pixelY < imageHeight; pixelY++) {
-				y0 = y0.add(stepY);
 				Apfloat x = Apfloat.ZERO;
 				Apfloat y = Apfloat.ZERO;
 				int iterations = 0;
@@ -190,7 +189,10 @@ public class MandelbrotImageGenerator {
 				Color color = iterations == maxIterations ? Color.BLACK : palette.getColor(iterations);
 				gc.setColor(color);
 				gc.fillRect(pixelX, pixelY, 1, 1);
+
+				y0 = y0.add(stepY);
 			}
+			x0 = x0.add(stepX);
 		}
 		
 		return image;
@@ -215,10 +217,8 @@ public class MandelbrotImageGenerator {
 		BigDecimal x0 = xCenter.negate().subtract(xRadius, mc); 
 		
 		for (int pixelX = 0; pixelX < imageWidth; pixelX++) {
-			x0 = x0.add(stepX);
 			BigDecimal y0 = yCenter.negate().subtract(yRadius, mc); 
 			for (int pixelY = 0; pixelY < imageHeight; pixelY++) {
-				y0 = y0.add(stepY);
 				BigDecimal x = BigDecimal.ZERO;
 				BigDecimal y = BigDecimal.ZERO;
 				int iterations = 0;
@@ -236,7 +236,10 @@ public class MandelbrotImageGenerator {
 				Color color = iterations == maxIterations ? Color.BLACK : palette.getColor(iterations);
 				gc.setColor(color);
 				gc.fillRect(pixelX, pixelY, 1, 1);
+
+				y0 = y0.add(stepY);
 			}
+			x0 = x0.add(stepX);
 		}
 		
 		return image;
