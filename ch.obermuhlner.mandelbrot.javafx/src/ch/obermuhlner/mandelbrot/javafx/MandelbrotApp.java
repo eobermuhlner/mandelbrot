@@ -89,6 +89,10 @@ public class MandelbrotApp extends Application {
 			return "BlockRenderInfo [blockSize=" + blockSize + ", pixelOffsetX=" + pixelOffsetX + ", pixelOffsetY=" + pixelOffsetY + ", pixelSize=" + pixelSize + "]";
 		}
 	}
+
+	private static final BlockRenderInfo[] BLOCK_RENDER_INFOS_1x1 = {
+			new BlockRenderInfo(1, 0, 0, 1),
+	};
 	
 	private static final BlockRenderInfo[] BLOCK_RENDER_INFOS_4x4 = {
 			new BlockRenderInfo(4, 0, 0, 4),
@@ -459,7 +463,7 @@ public class MandelbrotApp extends Application {
 	private static final BlockRenderInfo[] BLOCK_RENDER_INFOS = BLOCK_RENDER_INFOS_16x16;
 	
 	private class BackgroundRenderer extends Thread {
-		private boolean backgroundRunning;
+		private volatile boolean backgroundRunning;
 		private DrawRequest nextDrawRequest;
 		
 		private synchronized  void triggerDraw(DrawRequest drawRequest) {
@@ -821,7 +825,11 @@ public class MandelbrotApp extends Application {
 				Color color = iteration == maxIteration ? Color.BLACK : palette.getColor(iteration);
 				for (int pixelOffsetX = 0; pixelOffsetX < pixelSize; pixelOffsetX++) {
 					for (int pixelOffsetY = 0; pixelOffsetY < pixelSize; pixelOffsetY++) {
-						pixelWriter.setColor(pixelX + pixelOffsetX, pixelY + pixelOffsetY, color);
+						int px = pixelX + pixelOffsetX;
+						int py = pixelY + pixelOffsetY;
+						if (px < pixelWidth && py < pixelHeight) {
+							pixelWriter.setColor(px, py, color);
+						}
 					}
 				}
 			}
