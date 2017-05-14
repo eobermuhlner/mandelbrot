@@ -16,6 +16,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.geometry.Orientation;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -44,6 +45,9 @@ import javafx.util.StringConverter;
 public class MandelbrotApp extends Application {
 
 	private static final int MAX_ITERATION = 2000;
+	private static final double KEY_TRANSLATE_FACTOR = 0.1;
+	private static final double KEY_ZOOM_STEP = 0.1;
+	private static final double SCROLL_ZOOM_STEP = 0.1;
 
 	private static final DecimalFormat INTEGER_FORMAT = new DecimalFormat("##0");
 	
@@ -129,13 +133,9 @@ public class MandelbrotApp extends Application {
 		}
 	}
 	
-	private static final double KEY_TRANSLATE_FACTOR = 0.1;
-	private static final double KEY_ZOOM_FACTOR = 1.2;
-
 	private ObjectProperty<BigDecimal> xCenterProperty = new SimpleObjectProperty<BigDecimal>(BigDecimal.ZERO);
 	private ObjectProperty<BigDecimal> yCenterProperty = new SimpleObjectProperty<BigDecimal>(BigDecimal.ZERO);
 	private DoubleProperty zoomProperty = new SimpleDoubleProperty(0.0);
-	private ObjectProperty<BigDecimal> radiusProperty = new SimpleObjectProperty<BigDecimal>(BigDecimal.valueOf(2));
 	private IntegerProperty paletteSeedProperty = new SimpleIntegerProperty(14);
 	private IntegerProperty paletteStepProperty = new SimpleIntegerProperty(20);
 	
@@ -226,36 +226,17 @@ public class MandelbrotApp extends Application {
 		
 		gridPane.add(new Label("Zoom:"), 0, rowIndex);
 		Slider zoomSlider = new Slider(0.0, 100.0, 0.0);
+		zoomSlider.setOrientation(Orientation.VERTICAL);
         zoomSlider.setShowTickMarks(true);
         zoomSlider.setShowTickLabels(true);
         zoomSlider.setMajorTickUnit(10.0f);
-        zoomSlider.setPrefWidth(400);
-        gridPane.add(zoomSlider, 1, rowIndex);
+        //zoomSlider.setPrefWidth(400);
+        gridPane.add(zoomSlider, 3, 0, 1, 7);
         Bindings.bindBidirectional(zoomProperty, zoomSlider.valueProperty());
-		rowIndex++;
 
 		TextField zoomTextField = new TextField();
 		gridPane.add(zoomTextField, 1, rowIndex);
 		Bindings.bindBidirectional(zoomTextField.textProperty(), zoomProperty, DOUBLE_STRING_CONVERTER);
-		zoomProperty.addListener((observable, oldValue, zoom) -> {
-			int precision = zoom.intValue() * 3 + 10;
-			MathContext mathContext = new MathContext(precision);
-			BigDecimal radius = BigDecimalMath.tenToThePowerOf(BigDecimal.valueOf(-zoom.doubleValue()), mathContext);
-			radiusProperty.set(radius);
-			calculateAndDrawMandelbrot(mandelbrotCanvas);
-		});
-//		radiusProperty.addListener((observable, oldValue, radius) -> {
-//			MathContext mathContext = new MathContext(50);
-//			BigDecimal zoom = BigDecimalMath.log10(radius, mathContext);
-//			zoomProperty.set(-zoom.doubleValue());
-//			calculateAndDrawMandelbrot(mandelbrotCanvas);
-//		});
-		rowIndex++;
-
-		gridPane.add(new Label("Radius:"), 0, rowIndex);
-		TextField radiusTextField = new TextField();
-		gridPane.add(radiusTextField, 1, rowIndex);
-		Bindings.bindBidirectional(radiusTextField.textProperty(), radiusProperty, BIGDECIMAL_STRING_CONVERTER);
 		rowIndex++;
 
 		gridPane.add(new Label("Color Scheme:"), 0, rowIndex);
@@ -301,7 +282,8 @@ public class MandelbrotApp extends Application {
 		});
 	
 		canvas.setOnZoom(event -> {
-			zoomMandelbrot(canvas, 1.0 / event.getZoomFactor());
+			double zoomStep = event.getZoomFactor() - 1.0;
+			zoomMandelbrot(canvas, zoomStep);
 		});
 		canvas.setOnZoomFinished(event -> {
 			calculateAndDrawMandelbrot(canvas);
@@ -318,10 +300,10 @@ public class MandelbrotApp extends Application {
 		canvas.setOnKeyPressed(event -> {
 			switch (event.getCode()) {
 			case UP:
-				zoomMandelbrot(canvas, 1.0/KEY_ZOOM_FACTOR);
+				zoomMandelbrot(canvas, KEY_ZOOM_STEP);
 				break;
 			case DOWN:
-				zoomMandelbrot(canvas, KEY_ZOOM_FACTOR);
+				zoomMandelbrot(canvas, -KEY_ZOOM_STEP);
 				break;
 			case W:
 				translateMandelbrot(canvas, 0.0, canvas.getHeight() * KEY_TRANSLATE_FACTOR);
@@ -346,6 +328,16 @@ public class MandelbrotApp extends Application {
 		paletteStepProperty.addListener((observable, oldValue, newValue) -> {
 			updatePalette(canvas);
 		});
+
+		xCenterProperty.addListener((observable, oldValue, newValue) -> {
+			calculateAndDrawMandelbrot(canvas);
+		});
+		yCenterProperty.addListener((observable, oldValue, newValue) -> {
+			calculateAndDrawMandelbrot(canvas);
+		});
+		zoomProperty.addListener((observable, oldValue, newValue) -> {
+			calculateAndDrawMandelbrot(canvas);
+		});
 		
 		crosshairProperty.addListener((observable, oldValue, newValue) -> {
 			drawMandelbrot();
@@ -366,8 +358,9 @@ public class MandelbrotApp extends Application {
 		BigDecimal pixelWidth = BigDecimal.valueOf(canvas.getWidth());
 		BigDecimal pixelHeight = BigDecimal.valueOf(canvas.getHeight());
 
-		BigDecimal deltaX = BigDecimal.valueOf(deltaPixelX).divide(pixelWidth, MathContext.DECIMAL128).multiply(radiusProperty.get());
-		BigDecimal deltaY = BigDecimal.valueOf(deltaPixelY).divide(pixelHeight, MathContext.DECIMAL128).multiply(radiusProperty.get());
+		BigDecimal radius = getRadius();
+		BigDecimal deltaX = BigDecimal.valueOf(deltaPixelX).divide(pixelWidth, MathContext.DECIMAL128).multiply(radius);
+		BigDecimal deltaY = BigDecimal.valueOf(deltaPixelY).divide(pixelHeight, MathContext.DECIMAL128).multiply(radius);
 		
 		xCenterProperty.set(xCenterProperty.get().add(deltaX));
 		yCenterProperty.set(yCenterProperty.get().add(deltaY));
@@ -379,20 +372,30 @@ public class MandelbrotApp extends Application {
 		double pixelHeight = canvas.getHeight();
 	
 		double deltaZ = deltaPixelY / pixelHeight * 2.0;
-		
-		radiusProperty.set(radiusProperty.get().multiply(BigDecimal.valueOf(1.0 + deltaZ)));
+
+		System.out.println("SCROLLSTEP " + deltaZ);
+		zoomProperty.set(zoomProperty.get() + deltaZ * SCROLL_ZOOM_STEP); // FIXME
+		//radiusProperty.set(radiusProperty.get().multiply(BigDecimal.valueOf(1.0 + deltaZ)));
 
 		calculateAndDrawMandelbrot(canvas);
 	}
 
-	private void zoomMandelbrot(Canvas canvas, double zoomFactor) {
-		radiusProperty.set(radiusProperty.get().multiply(BigDecimal.valueOf(zoomFactor)));
+	private void zoomMandelbrot(Canvas canvas, double zoomStep) {
+		zoomProperty.set(zoomProperty.get() + zoomStep);
 
 		calculateAndDrawMandelbrot(canvas);
+	}
+	
+	BigDecimal getRadius() {
+		double zoom = zoomProperty.get();
+		int precision = (int)(zoom * 3 + 10);
+		MathContext mathContext = new MathContext(precision);
+		BigDecimal radius = BigDecimalMath.tenToThePowerOf(BigDecimal.valueOf(-zoom), mathContext);
+		return radius;
 	}
 
 	private void calculateAndDrawMandelbrot(Canvas canvas) {
-		backgroundRenderer.triggerDraw(new DrawRequest(xCenterProperty.get(), yCenterProperty.get(), radiusProperty.get()));
+		backgroundRenderer.triggerDraw(new DrawRequest(xCenterProperty.get(), yCenterProperty.get(), getRadius()));
 	}		
 	
 	private void drawMandelbrot() {
