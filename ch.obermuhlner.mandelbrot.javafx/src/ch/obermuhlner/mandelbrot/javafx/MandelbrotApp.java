@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.text.DecimalFormat;
 
+import ch.obermuhlner.mandelbrot.math.BigDecimalMath;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -21,6 +22,7 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
+import javafx.scene.control.Slider;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
@@ -223,15 +225,31 @@ public class MandelbrotApp extends Application {
 		rowIndex++;
 		
 		gridPane.add(new Label("Zoom:"), 0, rowIndex);
-//		Slider zoomSlider = new Slider(0.0, 10.0, 0.0);
-//        zoomSlider.setShowTickMarks(true);
-//        zoomSlider.setShowTickLabels(true);
-//        zoomSlider.setMajorTickUnit(1.0f);
-//        gridPane.add(zoomSlider, 1, rowIndex);
-//        Bindings.bindBidirectional(zoomProperty, zoomSlider.valueProperty());
-        TextField zoomTextField = new TextField();
+		Slider zoomSlider = new Slider(0.0, 100.0, 0.0);
+        zoomSlider.setShowTickMarks(true);
+        zoomSlider.setShowTickLabels(true);
+        zoomSlider.setMajorTickUnit(10.0f);
+        zoomSlider.setPrefWidth(400);
+        gridPane.add(zoomSlider, 1, rowIndex);
+        Bindings.bindBidirectional(zoomProperty, zoomSlider.valueProperty());
+		rowIndex++;
+
+		TextField zoomTextField = new TextField();
 		gridPane.add(zoomTextField, 1, rowIndex);
 		Bindings.bindBidirectional(zoomTextField.textProperty(), zoomProperty, DOUBLE_STRING_CONVERTER);
+		zoomProperty.addListener((observable, oldValue, zoom) -> {
+			int precision = zoom.intValue() * 3 + 10;
+			MathContext mathContext = new MathContext(precision);
+			BigDecimal radius = BigDecimalMath.tenToThePowerOf(BigDecimal.valueOf(-zoom.doubleValue()), mathContext);
+			radiusProperty.set(radius);
+			calculateAndDrawMandelbrot(mandelbrotCanvas);
+		});
+//		radiusProperty.addListener((observable, oldValue, radius) -> {
+//			MathContext mathContext = new MathContext(50);
+//			BigDecimal zoom = BigDecimalMath.log10(radius, mathContext);
+//			zoomProperty.set(-zoom.doubleValue());
+//			calculateAndDrawMandelbrot(mandelbrotCanvas);
+//		});
 		rowIndex++;
 
 		gridPane.add(new Label("Radius:"), 0, rowIndex);
