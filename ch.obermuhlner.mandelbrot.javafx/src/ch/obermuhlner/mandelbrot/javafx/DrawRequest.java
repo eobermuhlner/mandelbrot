@@ -15,16 +15,16 @@ public class DrawRequest {
 
 	public final BigDecimal x;
 	public final BigDecimal y;
-	public final BigDecimal radius;
+	public final double zoom;
 
-	public DrawRequest(BigDecimal x, BigDecimal y, BigDecimal radius) {
+	public DrawRequest(BigDecimal x, BigDecimal y, double zoom) {
 		this.x = x;
 		this.y = y;
-		this.radius = radius;
+		this.zoom = zoom;
 	}
 
 	public boolean isInsideDoublePrecision() {
-		return radius.compareTo(BIGDECIMAL_THRESHOLD) > 0;
+		return getRadius().compareTo(BIGDECIMAL_THRESHOLD) > 0;
 	}
 
 	public BlockRenderInfo[] getProgressiveRenderInfo() {
@@ -34,10 +34,18 @@ public class DrawRequest {
 			return PROGRESSIVE_RENDERINFO_BIGDECIMAL;
 		}
 	}
+
+	public BigDecimal getRadius() {
+		return MandelbrotMath.getRadius(zoom);
+	}
+
+	public int getMaxIteration() {
+		return MandelbrotMath.getMaxIteration(zoom);
+	}
 	
 	@Override
 	public String toString() {
-		return "DrawRequest [x=" + x + ", y=" + y + ", radius=" + radius + "]";
+		return "DrawRequest [x=" + x + ", y=" + y + ", zoom=" + zoom + "]";
 	}
 
 	private static BlockRenderInfo[] createBlockRenderInfos(int blockSize) {
