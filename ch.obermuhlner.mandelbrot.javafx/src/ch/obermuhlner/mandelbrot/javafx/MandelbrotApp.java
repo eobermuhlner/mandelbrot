@@ -2,6 +2,7 @@ package ch.obermuhlner.mandelbrot.javafx;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 
 import javafx.application.Application;
@@ -48,7 +49,7 @@ public class MandelbrotApp extends Application {
 	private static final double SCROLL_ZOOM_STEP = 0.1;
 
 	private static final DecimalFormat INTEGER_FORMAT = new DecimalFormat("##0");
-	private static final DecimalFormat DOUBLE_FORMAT = new DecimalFormat("##0.000000");
+	private static final DecimalFormat DOUBLE_FORMAT = new DecimalFormat("##0.000");
 	
 	private static final StringConverter<BigDecimal> BIGDECIMAL_STRING_CONVERTER = new StringConverter<BigDecimal>() {
 		@Override
@@ -224,12 +225,16 @@ public class MandelbrotApp extends Application {
 		gridPane.add(yCenterTextField, 1, rowIndex);
 		Bindings.bindBidirectional(yCenterTextField.textProperty(), yCenterProperty, BIGDECIMAL_STRING_CONVERTER);
 		rowIndex++;
-		
+
 		gridPane.add(new Label("Zoom:"), 0, rowIndex);
 		TextField zoomTextField = new TextField();
 		gridPane.add(zoomTextField, 1, rowIndex);
 		Bindings.bindBidirectional(zoomTextField.textProperty(), zoomProperty, DOUBLE_FORMAT);
 		rowIndex++;
+
+		zoomProperty.addListener((observable, oldValue, newValue) -> {
+			updateCoordinatesPrecision();
+		});
 
 		gridPane.add(new Label("Color Scheme:"), 0, rowIndex);
 		Spinner<Integer> paletteSeedSpinner = new Spinner<Integer>(0, 999, paletteSeedProperty.get());
@@ -354,21 +359,28 @@ public class MandelbrotApp extends Application {
 		BigDecimal radius = MandelbrotMath.getRadius(zoomProperty.get());
 		BigDecimal deltaX = BigDecimal.valueOf(deltaPixelX).divide(pixelWidth, MathContext.DECIMAL128).multiply(radius);
 		BigDecimal deltaY = BigDecimal.valueOf(deltaPixelY).divide(pixelHeight, MathContext.DECIMAL128).multiply(radius);
-		
-		xCenterProperty.set(xCenterProperty.get().add(deltaX));
-		yCenterProperty.set(yCenterProperty.get().add(deltaY));
+
+		setCoordinates(xCenterProperty.get().add(deltaX), yCenterProperty.get().add(deltaY));
 		
 		calculateAndDrawMandelbrot(canvas);
 	}
+	
+	public void setCoordinates(BigDecimal xCenter, BigDecimal yCenter) {
+		int precision = MandelbrotMath.getCoordinatesPrecision(zoomProperty.get());
+		xCenterProperty.set(xCenter.setScale(precision, RoundingMode.HALF_UP));
+		yCenterProperty.set(yCenter.setScale(precision, RoundingMode.HALF_UP));
+	}
 
+	public void updateCoordinatesPrecision() {
+		setCoordinates(xCenterProperty.get(), yCenterProperty.get());
+	}
+	
 	private void zoomScrollMandelbrot(Canvas canvas, double deltaPixelY) {
 		double pixelHeight = canvas.getHeight();
 	
 		double deltaZ = deltaPixelY / pixelHeight * 2.0;
 
-		System.out.println("SCROLLSTEP " + deltaZ);
 		zoomProperty.set(zoomProperty.get() + deltaZ * SCROLL_ZOOM_STEP); // FIXME
-		//radiusProperty.set(radiusProperty.get().multiply(BigDecimal.valueOf(1.0 + deltaZ)));
 
 		calculateAndDrawMandelbrot(canvas);
 	}
@@ -459,7 +471,7 @@ public class MandelbrotApp extends Application {
 		double pixelWidth = image.getWidth();
 		double pixelHeight = image.getHeight();
 		
-		MathContext mc = MathContext.DECIMAL128;
+		MathContext mc = new MathContext(drawRequest.getPrecision());
 
 		BigDecimal xRadius = drawRequest.getRadius();
 		BigDecimal yRadius = xRadius;
