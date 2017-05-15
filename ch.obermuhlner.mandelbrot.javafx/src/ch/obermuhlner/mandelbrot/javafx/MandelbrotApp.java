@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import java.util.stream.IntStream;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -485,9 +486,11 @@ public class MandelbrotApp extends Application {
 		BigDecimal pixelStepY = yRadius.multiply(two, mc).divide(BigDecimal.valueOf(pixelHeight), mc);
 		BigDecimal blockStepX = pixelStepX.multiply(new BigDecimal(blockSize), mc);
 		BigDecimal blockStepY = pixelStepY.multiply(new BigDecimal(blockSize), mc);
-		BigDecimal x0 = pixelStepX.multiply(new BigDecimal(blockPixelOffsetX), mc).subtract(xCenter, mc).subtract(xRadius, mc);
-		
-		for (int pixelX = blockPixelOffsetX; pixelX < pixelWidth; pixelX+=blockSize) {
+		BigDecimal x0Start = pixelStepX.multiply(new BigDecimal(blockPixelOffsetX), mc).subtract(xCenter, mc).subtract(xRadius, mc);
+
+		IntStream.range(0, (int)(pixelWidth / blockSize)).parallel().forEach(indexPixelX -> {
+			int pixelX = blockPixelOffsetX + indexPixelX * blockSize;
+			BigDecimal x0 = x0Start.add(blockStepX.multiply(new BigDecimal(indexPixelX), mc), mc);
 			BigDecimal y0 = pixelStepY.multiply(new BigDecimal(blockPixelOffsetY), mc).subtract(yCenter, mc).subtract(yRadius, mc);
 			for (int pixelY = blockPixelOffsetY; pixelY < pixelHeight; pixelY+=blockSize) {
 				BigDecimal x = BigDecimal.ZERO;
@@ -516,8 +519,7 @@ public class MandelbrotApp extends Application {
 				}
 				y0 = y0.add(blockStepY, mc);
 			}
-			x0 = x0.add(blockStepX, mc);
-		}
+		});
 	}
 
 	public static void main(String[] args) {
