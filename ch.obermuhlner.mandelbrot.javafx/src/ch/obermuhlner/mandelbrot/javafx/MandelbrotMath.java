@@ -9,8 +9,13 @@ public class MandelbrotMath {
 
 	private static final BigDecimal TWO = new BigDecimal(2);
 
+	public static int getCoordinatesPrecision(double zoom) {
+		return Math.max(3, (int) (1.0 * zoom + 4));
+	}
+
+	
 	public static int getPrecision(double zoom) {
-		return Math.max(10, (int) (zoom * 3 + 10));
+		return getCoordinatesPrecision(zoom) + 6;
 	}
 
 	public static BigDecimal getRadius(double zoom) {
