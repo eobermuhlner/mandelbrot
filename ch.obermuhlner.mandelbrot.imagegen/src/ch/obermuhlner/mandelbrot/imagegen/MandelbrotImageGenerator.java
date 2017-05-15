@@ -14,8 +14,7 @@ import java.util.stream.IntStream;
 
 import javax.imageio.ImageIO;
 
-import org.apfloat.Apfloat;
-import org.apfloat.ApfloatMath;
+import ch.obermuhlner.mandelbrot.math.BigDecimalMath;
 
 // http://www.apfloat.org/apfloat_java/tutorial.html
 
@@ -24,20 +23,20 @@ import org.apfloat.ApfloatMath;
 
 public class MandelbrotImageGenerator {
 
-	private static final Apfloat TWO = new Apfloat(2);
-	private static final Apfloat TWO_SQUARE = new Apfloat(2*2);
+	private static final BigDecimal TWO = new BigDecimal(2);
+	private static final BigDecimal TWO_SQUARE = new BigDecimal(2*2);
 
-	private static final Apfloat DOUBLE_THRESHOLD = new Apfloat("0.00000000002");
+	private static final BigDecimal DOUBLE_THRESHOLD = new BigDecimal("0.00000000002");
 
 	public static void main(String[] args) {
 //		renderZoomImages(
-//				"1.7497219297423385717104386951868287166821567562234308144552652007051737509332",
-//				"-0.0000290166477536876274764422704374969315895481370276256407423549503316886795",
-//				"5",
-//				"0.01",
-//				10,
-//				1500,
-//				"zoom1");
+//		"1.7497219297423385717104386951868287166821567562234308144552652007051737509332",
+//		"-0.0000290166477536876274764422704374969315895481370276256407423549503316886795",
+//		"5",
+//		"0.01",
+//		10,
+//		1500,
+//		"zoom1");
 
 		//renderZoomImages("-0.04729622199", "-0.66103581600", "5", "0.005", 1000, 10, "zoom2");
 		//renderZoomImages("0.7436438885706", "0.1318259043124", "5", "0.01", 1000, 10, "zoom3");
@@ -47,7 +46,7 @@ public class MandelbrotImageGenerator {
 		//renderZoomImages("1.6206014961291328", "0.006846323168828212", "5", "0.005", 10, 2200, "zoom6.2");
 		
 		//renderZoomImages("-0.26345476786999406", "-0.0027125008489098756", "5", "1", 10, 16, "zoom7_steps");
-		renderZoomImages("-0.26345476786999406", "-0.0027125008489098756", "5", "0.005", 10, 2300, "zoom7");
+		//renderZoomImages("-0.26345476786999406", "-0.0027125008489098756", "5", "0.005", 10, 2300, "zoom7");
 
 		// 0.049882468660064516 0.6745302994618768
 		
@@ -78,38 +77,39 @@ public class MandelbrotImageGenerator {
 
 		StopWatch stopWatch = new StopWatch();
 
-		Apfloat xCenter = new Apfloat(xCenterString);
-		Apfloat yCenter = new Apfloat(yCenterString);
-		Apfloat zoomStart = new Apfloat(zoomStartString, 10);
-		Apfloat zoomStep = new Apfloat(zoomStepString, 10);
+		BigDecimal xCenter = new BigDecimal(xCenterString);
+		BigDecimal yCenter = new BigDecimal(yCenterString);
+		BigDecimal zoomStart = new BigDecimal(zoomStartString);
+		BigDecimal zoomStep = new BigDecimal(zoomStepString);
 
 		IntStream.range(0, imageCount).parallel().forEach(index -> {
 			String filename = String.format("mandelbrot%04d.png", index);
 			File file = outDir.resolve(filename).toFile();
-			Apfloat zoomPower = zoomStep.multiply(new Apfloat(index));
+			BigDecimal zoomPower = zoomStep.multiply(new BigDecimal(index));
 			renderImage(file, xCenter, yCenter, zoomStart, zoomPower, palette);
 		});
 
 		System.out.println("Calculated all " + imageCount + " images for " + directoryName + " in " + stopWatch);
 	}
 
-	private static void renderImage(File file, Apfloat xCenter, Apfloat yCenter, Apfloat zoomStart, Apfloat zoomPower, Palette palette) {
+	private static void renderImage(File file, BigDecimal xCenter, BigDecimal yCenter, BigDecimal zoomStart, BigDecimal zoomPower, Palette palette) {
 		if (file.exists()) {
-			System.out.println("Already calculated " + file.getName() + " with zoom " + zoomPower.toString(true));
+			System.out.println("Already calculated " + file.getName() + " with zoom " + zoomPower.toPlainString());
 			return;
 		}
 
 		StopWatch stopWatch = new StopWatch();
 
 		int precision = zoomPower.intValue() * 1 + 10;
-		Apfloat radius = zoomStart.multiply(ApfloatMath.pow(new Apfloat(10, precision), zoomPower.negate().precision(precision)));
+		MathContext mc = new MathContext(precision, RoundingMode.HALF_UP);
+		BigDecimal radius = zoomStart.multiply(BigDecimalMath.tenToThePowerOf(zoomPower.negate(), mc));
 		int maxIterations = 1000 + zoomPower.intValue() * 100;
 		int imageWidth = 800;
 		int imageHeight = 800;
 
 		BufferedImage image = drawMandelbrot(
-				xCenter.precision(precision),
-				yCenter.precision(precision),
+				xCenter,
+				yCenter,
 				radius,
 				radius,
 				precision,
@@ -119,18 +119,17 @@ public class MandelbrotImageGenerator {
 				palette);
 		
 		try {
-			System.out.println("Calculated " + file.getName() + " with zoom " + zoomPower.toString(true) + " in " + stopWatch);
+			System.out.println("Calculated " + file.getName() + " with zoom " + zoomPower.toPlainString() + " in " + stopWatch);
 			ImageIO.write(image, "png", file);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
-	private static BufferedImage drawMandelbrot(Apfloat xCenter, Apfloat yCenter, Apfloat xRadius, Apfloat yRadius, int precision, int maxIterations, int imageWidth, int imageHeight, Palette palette) {
+	private static BufferedImage drawMandelbrot(BigDecimal xCenter, BigDecimal yCenter, BigDecimal xRadius, BigDecimal yRadius, int precision, int maxIterations, int imageWidth, int imageHeight, Palette palette) {
 		if (xRadius.compareTo(DOUBLE_THRESHOLD) > 0 && yRadius.compareTo(DOUBLE_THRESHOLD) > 0) {
 			return drawMandelbrotDouble(xCenter.doubleValue(), yCenter.doubleValue(), xRadius.doubleValue(), yRadius.doubleValue(), maxIterations, imageWidth, imageHeight, palette);
 		} else {
-			//return drawMandelbrotApfloat(xCenter, yCenter, xRadius, yRadius, maxIterations, imageWidth, imageHeight, palette);
 			return drawMandelbrotBigDecimal(xCenter, yCenter, xRadius, yRadius, precision, maxIterations, imageWidth, imageHeight, palette);
 		}
 	}
@@ -172,59 +171,19 @@ public class MandelbrotImageGenerator {
 		return image;
 	}	
 	
-	private static BufferedImage drawMandelbrotApfloat(Apfloat xCenter, Apfloat yCenter, Apfloat xRadius, Apfloat yRadius, int maxIterations, int imageWidth, int imageHeight, Palette palette) {
-		BufferedImage image = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_RGB);
-		Graphics2D gc = image.createGraphics();
-		
-		Apfloat stepX = xRadius.multiply(TWO).divide(new Apfloat(imageWidth));
-		Apfloat stepY = yRadius.multiply(TWO).divide(new Apfloat(imageHeight));
-		Apfloat x0 = xCenter.negate().subtract(xRadius); 
-		
-		for (int pixelX = 0; pixelX < imageWidth; pixelX++) {
-			Apfloat y0 = yCenter.negate().subtract(yRadius); 
-			for (int pixelY = 0; pixelY < imageHeight; pixelY++) {
-				Apfloat x = Apfloat.ZERO;
-				Apfloat y = Apfloat.ZERO;
-				int iterations = 0;
-				Apfloat xx = x.multiply(x);
-				Apfloat yy = y.multiply(y);
-				while (xx.add(yy).compareTo(TWO_SQUARE) < 0 && iterations < maxIterations) {
-					y = TWO.multiply(x).multiply(y).add(y0);
-					x = xx.subtract(yy).add(x0);
-					iterations++;
-					
-					xx = x.multiply(x);
-					yy = y.multiply(y);
-				}
-
-				Color color = iterations == maxIterations ? Color.BLACK : palette.getColor(iterations);
-				gc.setColor(color);
-				gc.fillRect(pixelX, pixelY, 1, 1);
-
-				y0 = y0.add(stepY);
-			}
-			x0 = x0.add(stepX);
-		}
-		
-		return image;
-	}
-
-	private static BufferedImage drawMandelbrotBigDecimal(Apfloat xCenterApfloat, Apfloat yCenterApfloat, Apfloat xRadiusApfloat, Apfloat yRadiusApfloat, int precision, int maxIterations, int imageWidth, int imageHeight, Palette palette) {
+	private static BufferedImage drawMandelbrotBigDecimal(BigDecimal xCenterBigDecimal, BigDecimal yCenterBigDecimal, BigDecimal xRadiusBigDecimal, BigDecimal yRadiusBigDecimal, int precision, int maxIterations, int imageWidth, int imageHeight, Palette palette) {
 		BufferedImage image = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_RGB);
 		Graphics2D gc = image.createGraphics();
 		
 		MathContext mc = new MathContext(precision, RoundingMode.HALF_EVEN);
 		
-		BigDecimal two = new BigDecimal(2);
-		BigDecimal twoSquare = new BigDecimal(2*2);
-		
-		BigDecimal xCenter = new BigDecimal(xCenterApfloat.toString());
-		BigDecimal yCenter = new BigDecimal(yCenterApfloat.toString());
-		BigDecimal xRadius = new BigDecimal(xRadiusApfloat.toString());
-		BigDecimal yRadius = new BigDecimal(xRadiusApfloat.toString());
+		BigDecimal xCenter = new BigDecimal(xCenterBigDecimal.toString());
+		BigDecimal yCenter = new BigDecimal(yCenterBigDecimal.toString());
+		BigDecimal xRadius = new BigDecimal(xRadiusBigDecimal.toString());
+		BigDecimal yRadius = new BigDecimal(xRadiusBigDecimal.toString());
 
-		BigDecimal stepX = xRadius.multiply(two, mc).divide(BigDecimal.valueOf(imageWidth), mc);
-		BigDecimal stepY = yRadius.multiply(two, mc).divide(BigDecimal.valueOf(imageHeight), mc);
+		BigDecimal stepX = xRadius.multiply(TWO, mc).divide(BigDecimal.valueOf(imageWidth), mc);
+		BigDecimal stepY = yRadius.multiply(TWO, mc).divide(BigDecimal.valueOf(imageHeight), mc);
 		BigDecimal x0 = xCenter.negate().subtract(xRadius, mc); 
 		
 		for (int pixelX = 0; pixelX < imageWidth; pixelX++) {
@@ -235,8 +194,8 @@ public class MandelbrotImageGenerator {
 				int iterations = 0;
 				BigDecimal xx = x.multiply(x, mc);
 				BigDecimal yy = y.multiply(y, mc);
-				while (xx.add(yy, mc).compareTo(twoSquare) < 0 && iterations < maxIterations) {
-					y = two.multiply(x, mc).multiply(y, mc).add(y0, mc);
+				while (xx.add(yy, mc).compareTo(TWO_SQUARE) < 0 && iterations < maxIterations) {
+					y = TWO.multiply(x, mc).multiply(y, mc).add(y0, mc);
 					x = xx.subtract(yy, mc).add(x0, mc);
 					iterations++;
 					
