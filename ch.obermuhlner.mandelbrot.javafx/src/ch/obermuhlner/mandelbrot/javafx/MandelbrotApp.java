@@ -2,7 +2,6 @@ package ch.obermuhlner.mandelbrot.javafx;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
-import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.stream.IntStream;
 
@@ -49,6 +48,8 @@ public class MandelbrotApp extends Application {
 	private static final double KEY_ZOOM_STEP = 0.1;
 	private static final double SCROLL_ZOOM_STEP = 0.1;
 
+	private static final int IMAGE_SIZE = 512+256;
+	
 	private static final DecimalFormat INTEGER_FORMAT = new DecimalFormat("##0");
 	private static final DecimalFormat DOUBLE_FORMAT = new DecimalFormat("##0.000");
 	
@@ -137,7 +138,7 @@ public class MandelbrotApp extends Application {
 	private Palette palette;
 
 	private Canvas mandelbrotCanvas;
-	private WritableImage image = new WritableImage(800, 800);
+	private WritableImage image = new WritableImage(IMAGE_SIZE, IMAGE_SIZE);
 	
 	private BackgroundRenderer backgroundRenderer;
 
@@ -175,8 +176,8 @@ public class MandelbrotApp extends Application {
 	}
 	
 	private Canvas createMandelbrotCanvas() {
-		double height = 800;
-		double width = 800;
+		double height = IMAGE_SIZE;
+		double width = IMAGE_SIZE;
 		
 		Canvas canvas = new Canvas(width, height);
 		canvas.setFocusTraversable(true);
@@ -232,10 +233,6 @@ public class MandelbrotApp extends Application {
 		gridPane.add(zoomTextField, 1, rowIndex);
 		Bindings.bindBidirectional(zoomTextField.textProperty(), zoomProperty, DOUBLE_FORMAT);
 		rowIndex++;
-
-		zoomProperty.addListener((observable, oldValue, newValue) -> {
-			updateCoordinatesPrecision();
-		});
 
 		gridPane.add(new Label("Color Scheme:"), 0, rowIndex);
 		Spinner<Integer> paletteSeedSpinner = new Spinner<Integer>(0, 999, paletteSeedProperty.get());
@@ -367,15 +364,10 @@ public class MandelbrotApp extends Application {
 	}
 	
 	public void setCoordinates(BigDecimal xCenter, BigDecimal yCenter) {
-		int precision = MandelbrotMath.getCoordinatesPrecision(zoomProperty.get());
-		xCenterProperty.set(xCenter.setScale(precision, RoundingMode.HALF_UP));
-		yCenterProperty.set(yCenter.setScale(precision, RoundingMode.HALF_UP));
+		xCenterProperty.set(xCenter);
+		yCenterProperty.set(yCenter);
 	}
 
-	public void updateCoordinatesPrecision() {
-		setCoordinates(xCenterProperty.get(), yCenterProperty.get());
-	}
-	
 	private void zoomScrollMandelbrot(Canvas canvas, double deltaPixelY) {
 		double pixelHeight = canvas.getHeight();
 	

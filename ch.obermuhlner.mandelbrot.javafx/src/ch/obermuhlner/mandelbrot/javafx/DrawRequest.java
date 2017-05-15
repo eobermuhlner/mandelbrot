@@ -7,11 +7,11 @@ import java.util.List;
 public class DrawRequest {
 	private static final BigDecimal BIGDECIMAL_THRESHOLD = new BigDecimal("0.00000000002");
 
-	private static final int PROGRESSIVE_BLOCKS_DOUBLE = 4;
-	private static final int PROGRESSIVE_BLOCKS_BIGDECIMAL = 16;
-
-	private static final BlockRenderInfo[] PROGRESSIVE_RENDERINFO_DOUBLE = createBlockRenderInfos(PROGRESSIVE_BLOCKS_DOUBLE);
-	private static final BlockRenderInfo[] PROGRESSIVE_RENDERINFO_BIGDECIMAL = createBlockRenderInfos(PROGRESSIVE_BLOCKS_BIGDECIMAL);
+	private static final BlockRenderInfo[] PROGRESSIVE_RENDERINFO_DOUBLE = createBlockRenderInfos(4);
+	private static final BlockRenderInfo[] PROGRESSIVE_RENDERINFO_BIGDECIMAL_ZOOM_30 = createBlockRenderInfos(16);
+	private static final BlockRenderInfo[] PROGRESSIVE_RENDERINFO_BIGDECIMAL_ZOOM_60 = createBlockRenderInfos(32);
+	private static final BlockRenderInfo[] PROGRESSIVE_RENDERINFO_BIGDECIMAL_ZOOM_100 = createBlockRenderInfos(64);
+	private static final BlockRenderInfo[] PROGRESSIVE_RENDERINFO_BIGDECIMAL_ZOOM_DEEP = createBlockRenderInfos(128);
 
 	public final BigDecimal x;
 	public final BigDecimal y;
@@ -31,7 +31,15 @@ public class DrawRequest {
 		if (isInsideDoublePrecision()) {
 			return PROGRESSIVE_RENDERINFO_DOUBLE;
 		} else {
-			return PROGRESSIVE_RENDERINFO_BIGDECIMAL;
+			if (zoom < 30) {
+				return PROGRESSIVE_RENDERINFO_BIGDECIMAL_ZOOM_30;
+			} else if (zoom < 60) {
+				return PROGRESSIVE_RENDERINFO_BIGDECIMAL_ZOOM_60;
+			} else if (zoom < 100) {
+				return PROGRESSIVE_RENDERINFO_BIGDECIMAL_ZOOM_100;
+			} else {
+				return PROGRESSIVE_RENDERINFO_BIGDECIMAL_ZOOM_DEEP;
+			}
 		}
 	}
 
