@@ -8,7 +8,7 @@ public class DrawRequest {
 	private static final BigDecimal BIGDECIMAL_THRESHOLD = new BigDecimal("0.00000000002");
 
 	private static final int PROGRESSIVE_BLOCKS_DOUBLE = 4;
-	private static final int PROGRESSIVE_BLOCKS_BIGDECIMAL = 64;
+	private static final int PROGRESSIVE_BLOCKS_BIGDECIMAL = 256;
 
 	private static final BlockRenderInfo[] PROGRESSIVE_RENDERINFO_DOUBLE = createBlockRenderInfos(PROGRESSIVE_BLOCKS_DOUBLE);
 	private static final BlockRenderInfo[] PROGRESSIVE_RENDERINFO_BIGDECIMAL = createBlockRenderInfos(PROGRESSIVE_BLOCKS_BIGDECIMAL);
@@ -35,6 +35,10 @@ public class DrawRequest {
 		}
 	}
 
+	public int getPrecision() {
+		return MandelbrotMath.getPrecision(zoom);
+	}
+	
 	public BigDecimal getRadius() {
 		return MandelbrotMath.getRadius(zoom);
 	}
