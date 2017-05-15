@@ -47,16 +47,27 @@ public class MandelbrotImageGenerator {
 		//renderZoomImages("1.6206014961291328", "0.006846323168828212", "5", "0.005", 10, 2200, "zoom6.2");
 		
 		//renderZoomImages("-0.26345476786999406", "-0.0027125008489098756", "5", "1", 10, 16, "zoom7_steps");
-		renderZoomImages("-0.26345476786999406", "-0.0027125008489098756", "5", "0.005", 10, 2400, "zoom7");
+		renderZoomImages("-0.26345476786999406", "-0.0027125008489098756", "5", "0.005", 10, 2300, "zoom7");
 
 		// 0.049882468660064516 0.6745302994618768
 		
 		// 0.6156881882771636231743241163427195861 0.674900407359391227191516992928547498
+
+		// very deep zoom from youtube
+		// 1.740062382579339905220844167065825638296641720436171866879862418461182919644153056054840718339483225743450008259172138785492983677893366503417299549623738838303346465461290768441055486136870719850559269507357211790243666940134793753068611574745943820712885258222629105433648695946003865
+		// 0.0281753397792110489924115211443195096875390767429906085704013095958801743240920186385400814658560553615695084486774077000669037710191665338060418999324320867147028768983704831316527873719459264592084600433150333362859318102017032958074799966721030307082150171994798478089798638258639934
+
+		// very promising
+		// 0.017919288259557892593847458731183211530081342400985
+		// 1.011760975319870618534630909564772864062575481894402
 		
 		// first own deep zoom:
 		// 1.6287436846258729580610678388260222631726264724258645100203844759630133245709586211806133286205124241241813
 		// 0.0332156753545004949728396914777113920345351956506525205222378018672436406655074779379413131235765564138898
-		
+
+		// second deep zoom
+		// 0.1739728951498616963982454198157626114689177807861745241100
+		// 1.0873453915892155149725651368666330505026663476226736229695
 	}
 	
 	public static void renderZoomImages(String xCenterString, String yCenterString, String zoomStartString, String zoomStepString, int paletteStep, int imageCount, String directoryName) {
@@ -90,7 +101,7 @@ public class MandelbrotImageGenerator {
 
 		StopWatch stopWatch = new StopWatch();
 
-		int precision = zoomPower.intValue() * 2 + 10;
+		int precision = zoomPower.intValue() * 1 + 10;
 		Apfloat radius = zoomStart.multiply(ApfloatMath.pow(new Apfloat(10, precision), zoomPower.negate().precision(precision)));
 		int maxIterations = 1000 + zoomPower.intValue() * 100;
 		int imageWidth = 800;
@@ -119,8 +130,8 @@ public class MandelbrotImageGenerator {
 		if (xRadius.compareTo(DOUBLE_THRESHOLD) > 0 && yRadius.compareTo(DOUBLE_THRESHOLD) > 0) {
 			return drawMandelbrotDouble(xCenter.doubleValue(), yCenter.doubleValue(), xRadius.doubleValue(), yRadius.doubleValue(), maxIterations, imageWidth, imageHeight, palette);
 		} else {
-			return drawMandelbrotApfloat(xCenter, yCenter, xRadius, yRadius, maxIterations, imageWidth, imageHeight, palette);
-			//return drawMandelbrotBigDecimal(xCenter, yCenter, xRadius, yRadius, precision, maxIterations, imageWidth, imageHeight, palette);
+			//return drawMandelbrotApfloat(xCenter, yCenter, xRadius, yRadius, maxIterations, imageWidth, imageHeight, palette);
+			return drawMandelbrotBigDecimal(xCenter, yCenter, xRadius, yRadius, precision, maxIterations, imageWidth, imageHeight, palette);
 		}
 	}
 	
