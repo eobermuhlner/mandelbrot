@@ -71,6 +71,8 @@ public class MandelbrotApp extends Application {
 			}
 		}
 	};
+	private static final Color WHITE_90 = new Color(1.0, 1.0, 1.0, 0.9);
+	private static final Color WHITE_20 = new Color(1.0, 1.0, 1.0, 0.2);
 
 	private class BackgroundRenderer extends Thread {
 		private volatile boolean backgroundRunning;
@@ -156,9 +158,9 @@ public class MandelbrotApp extends Application {
 	private static PointOfInterest[] POINTS_OF_INTEREST = {
 			new PointOfInterest(
 					"Curved Swords",
-					new BigDecimal("0.0179192882595578925938474587311708582087467946670848691400101897019416719778851754919698228156812350931414148350238075513926058220832212830960888"),
-					new BigDecimal("1.0117609753198706185346309095646294083917550368436536403558509402018726412225270317936655933880814954921202272550506585502495064948850908957534534"),
-					10.9, // until 95
+					new BigDecimal("0.017919288259557892593847458731170858208746794667084869140010189701941671977885175491969822815680324822695703303994612753773916901726488514999932436890"),
+					new BigDecimal("1.011760975319870618534630909564629408391755036843653640355850940201872641222527031793665593388080854231137835177185531026500538033949104973217479327210"),
+					10.9, // until 101
 					1,
 					10),
 			new PointOfInterest(
@@ -191,30 +193,30 @@ public class MandelbrotApp extends Application {
 					10),
 			new PointOfInterest(
 					"Wheels of Fire",
-					new BigDecimal("1.3482970614556051"),
-					new BigDecimal("0.04900840524463914"),
-					9.8,
+					new BigDecimal("1.348297061455330911551814316377597957726489116406445444186894528900140472"),
+					new BigDecimal("0.049008405244229690790778032639417178346556340335816072865655769089707512"),
+					9.8, // until 23
 					8,
 					200),
 			new PointOfInterest(
 					"Endless Spirals",
-					new BigDecimal("-0.3277232503080546"),
-					new BigDecimal("0.037120106058309704"),
-					10.0,
+					new BigDecimal("-0.327723250308055864649016619795523424768319176482519467731956421519920253447363086958917926666960824258120609388163651727300535678400149632928730434212900"),
+					new BigDecimal("0.0371201060581503985963131260660658234700437982666285956535462383384890416047297529586437189049645110208865816021476356710788140673394527005494736015790"),
+					9.0, // until 100
 					30,
 					20),
 			new PointOfInterest(
 					"Jelly Fish",
-					new BigDecimal("1.6206014961291328"),
-					new BigDecimal("0.006846323168828212"),
-					10.0,
-					1,
-					10),
+					new BigDecimal("1.62060149612909895334558638175468271327989345822610379886703941363672342"),
+					new BigDecimal("0.00684632316877134945739460204744981575825547591137510013929931504873578"),
+					10.0, // until 20
+					3,
+					30),
 			new PointOfInterest(
 					"Nested Spirals",
-					new BigDecimal("0.049882468660064516"),
-					new BigDecimal("0.6745302994618768"),
-					10.0,
+					new BigDecimal("0.2634547678695909194010687726751533781415432231241472469588605765799937908732975296976"),
+					new BigDecimal("-0.002712500848707182783444349630487751292325741805030146491993712187120378441317722930"),
+					8.0,
 					6,
 					40),
 			new PointOfInterest(
@@ -233,9 +235,9 @@ public class MandelbrotApp extends Application {
 					10),
 			new PointOfInterest(
 					"Deep Zoom 2",
-					new BigDecimal("0.1739728951498616963982454198157626114689177807861745241100"),
-					new BigDecimal("1.0873453915892155149725651368666330505026663476226736229695"),
-					10.0,
+					new BigDecimal("0.17397289514986169639824541981576261104970879121077891755416819503195995848966918072069375867181800169256166"),
+					new BigDecimal("1.08734539158921551497256513686663305175779943810201126120006971717150493897765399921888763638520188629833582"),
+					4.0, // until 57
 					1,
 					10),
 			new PointOfInterest(
@@ -245,7 +247,15 @@ public class MandelbrotApp extends Application {
 					5.0,
 					1,
 					5),
+			new PointOfInterest(
+					"Close to the Tip",
+					new BigDecimal("1.999774075531510062196466924922751584703084668836849819676693632045811372575383342685205522372465313107518959003812"),
+					new BigDecimal("3.375402489828553121033532529759462615490836723815772824E"),
+					5.0, // until 18
+					1,
+					5),
 	};
+	
 	
 	private ObjectProperty<BigDecimal> xCenterProperty = new SimpleObjectProperty<BigDecimal>(BigDecimal.ZERO);
 	private ObjectProperty<BigDecimal> yCenterProperty = new SimpleObjectProperty<BigDecimal>(BigDecimal.ZERO);
@@ -254,6 +264,7 @@ public class MandelbrotApp extends Application {
 	private IntegerProperty paletteStepProperty = new SimpleIntegerProperty(20);
 	
 	private BooleanProperty crosshairProperty = new SimpleBooleanProperty(true); 
+	private BooleanProperty gridProperty = new SimpleBooleanProperty(false); 
 
 	private Palette palette;
 
@@ -315,6 +326,10 @@ public class MandelbrotApp extends Application {
 		ToggleButton crosshairToggleButton = new ToggleButton("Crosshair");
 		box.getChildren().add(crosshairToggleButton);
 		Bindings.bindBidirectional(crosshairToggleButton.selectedProperty(), crosshairProperty);
+		
+		ToggleButton gridToggleButton = new ToggleButton("Grid");
+		box.getChildren().add(gridToggleButton);
+		Bindings.bindBidirectional(gridToggleButton.selectedProperty(), gridProperty);
 		
 		ComboBox<PointOfInterest> pointsOfInterestComboBox = new ComboBox<>(FXCollections.observableList(Arrays.asList(POINTS_OF_INTEREST)));
 		box.getChildren().add(pointsOfInterestComboBox);
@@ -468,6 +483,9 @@ public class MandelbrotApp extends Application {
 		crosshairProperty.addListener((observable, oldValue, newValue) -> {
 			drawMandelbrot();
 		});
+		gridProperty.addListener((observable, oldValue, newValue) -> {
+			drawMandelbrot();
+		});
 	}
 	
 	private void updatePalette(Canvas canvas) {
@@ -524,9 +542,18 @@ public class MandelbrotApp extends Application {
 		gc.drawImage(image, 0, 0);
 
 		if (crosshairProperty.get()) {
-			gc.setStroke(Color.WHITE);
+			gc.setStroke(WHITE_90);
 			gc.strokeLine(mandelbrotCanvas.getWidth() / 2, 0, mandelbrotCanvas.getWidth() / 2, mandelbrotCanvas.getHeight());
 			gc.strokeLine(0, mandelbrotCanvas.getHeight() / 2, mandelbrotCanvas.getWidth(), mandelbrotCanvas.getHeight() / 2);
+		}
+
+		if (gridProperty.get()) {
+			gc.setStroke(WHITE_20);
+			int n = 20;
+			for (int i = 0; i < n; i++) {
+				gc.strokeLine(mandelbrotCanvas.getWidth() / n * i, 0, mandelbrotCanvas.getWidth() / n * i, mandelbrotCanvas.getHeight());
+				gc.strokeLine(0, mandelbrotCanvas.getHeight() / n * i, mandelbrotCanvas.getWidth(), mandelbrotCanvas.getHeight() / n * i);
+			}
 		}
 	}
 
