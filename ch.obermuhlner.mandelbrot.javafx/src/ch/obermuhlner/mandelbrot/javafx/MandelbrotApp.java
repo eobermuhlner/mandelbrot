@@ -3,6 +3,7 @@ package ch.obermuhlner.mandelbrot.javafx;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.text.DecimalFormat;
+import java.util.Arrays;
 import java.util.stream.IntStream;
 
 import javafx.application.Application;
@@ -16,12 +17,14 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.FXCollections;
 import javafx.geometry.Orientation;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.control.Spinner;
@@ -127,6 +130,123 @@ public class MandelbrotApp extends Application {
 		}
 	}
 	
+	private static class PointOfInterest {
+		public final String name;
+		public final BigDecimal x;
+		public final BigDecimal y;
+		public final double zoom;
+		public final int paletteSeed;
+		public final int paletteStep;
+
+		public PointOfInterest(String name, BigDecimal x, BigDecimal y, double zoom, int paletteSeed, int paletteStep) {
+			this.name = name;
+			this.x = x;
+			this.y = y;
+			this.zoom = zoom;
+			this.paletteSeed = paletteSeed;
+			this.paletteStep = paletteStep;
+		}
+		
+		@Override
+		public String toString() {
+			return name;
+		}
+	}
+
+	private static PointOfInterest[] POINTS_OF_INTEREST = {
+			new PointOfInterest(
+					"Curved Swords",
+					new BigDecimal("0.017919288259557892593847458731170858210748924454868784878591413479676366860805981502570"),
+					new BigDecimal("1.01176097531987061853463090956462940839148314775967469615985232868737845286411137201606"),
+					10.9, // until 37
+					1,
+					10),
+			new PointOfInterest(
+					"Snail Shell",
+					new BigDecimal("1.74972192974233857132851218320479685207010404588970504566538777023661204494590978"),
+					new BigDecimal("-0.00002901664775368608454536093263140271210486528355244763337706390646279434621122"),
+					10.0, // until 30
+					4,
+					20),
+			new PointOfInterest(
+					"Chaotic Spirals",
+					new BigDecimal("-0.2634547678695909194066896880514263352460531386654479061034372986938"),
+					new BigDecimal("-0.002712500848707182758893848976049032980969922260445790785383665852890"),
+					4.9, // until 19
+					12,
+					100),
+			new PointOfInterest(
+					"Hydra",
+					new BigDecimal("-0.047296221989823492360680509805723234463608050671596296439830057098"),
+					new BigDecimal("-0.66103581599868663245324926435494860068349798558883084891691182468"),
+					10.0, // until 17
+					7,
+					50),
+			new PointOfInterest(
+					"Nautilus Swarm",
+					new BigDecimal("0.74364388856444046004654780500276747265963221621866228900489806506969863376"),
+					new BigDecimal("0.13182590425618977278061359608949824676900962922349361652463219715391690224"),
+					9.8, // until 25
+					1,
+					10),
+			new PointOfInterest(
+					"Wheels of Fire",
+					new BigDecimal("1.3482970614556051"),
+					new BigDecimal("0.04900840524463914"),
+					9.8,
+					1,
+					10),
+			new PointOfInterest(
+					"Endless Spirals",
+					new BigDecimal("-0.3277232503080546"),
+					new BigDecimal("0.037120106058309704"),
+					10.0,
+					1,
+					10),
+			new PointOfInterest(
+					"Jelly Fish",
+					new BigDecimal("1.6206014961291328"),
+					new BigDecimal("0.006846323168828212"),
+					10.0,
+					1,
+					10),
+			new PointOfInterest(
+					"Nested Spirals",
+					new BigDecimal("0.049882468660064516"),
+					new BigDecimal("0.6745302994618768"),
+					10.0,
+					6,
+					40),
+			new PointOfInterest(
+					"Thorns",
+					new BigDecimal("0.6156881882771651368740954356343166824243905327338704334095602362"),
+					new BigDecimal("0.67490040735939139935516524107132991514169897692181761211725061908"),
+					8.4, // until 16
+					1,
+					10),
+			new PointOfInterest(
+					"Deep Zoom 1",
+					new BigDecimal("1.6287436846258729580610678388260222631726264724258645100203844759630133245709586211806133286205124241241813"),
+					new BigDecimal("0.0332156753545004949728396914777113920345351956506525205222378018672436406655074779379413131235765564138898"),
+					10.0,
+					1,
+					10),
+			new PointOfInterest(
+					"Deep Zoom 2",
+					new BigDecimal("0.1739728951498616963982454198157626114689177807861745241100"),
+					new BigDecimal("1.0873453915892155149725651368666330505026663476226736229695"),
+					10.0,
+					1,
+					10),
+			new PointOfInterest(
+					"Classic Deep",
+					new BigDecimal("1.740062382579339905220844167065825638296641720436171866879862418461182919644153056054840718339483225743450008259172138785492983677893366503417299549623738838303346465461290768441055486136870719850559269507357211790243666940134793753068611574745943820712885258222629105433648695946003865"),
+					new BigDecimal("0.0281753397792110489924115211443195096875390767429906085704013095958801743240920186385400814658560553615695084486774077000669037710191665338060418999324320867147028768983704831316527873719459264592084600433150333362859318102017032958074799966721030307082150171994798478089798638258639934"),
+					5.0,
+					1,
+					5),
+	};
+	
 	private ObjectProperty<BigDecimal> xCenterProperty = new SimpleObjectProperty<BigDecimal>(BigDecimal.ZERO);
 	private ObjectProperty<BigDecimal> yCenterProperty = new SimpleObjectProperty<BigDecimal>(BigDecimal.ZERO);
 	private DoubleProperty zoomProperty = new SimpleDoubleProperty(0.0);
@@ -195,6 +315,17 @@ public class MandelbrotApp extends Application {
 		ToggleButton crosshairToggleButton = new ToggleButton("Crosshair");
 		box.getChildren().add(crosshairToggleButton);
 		Bindings.bindBidirectional(crosshairToggleButton.selectedProperty(), crosshairProperty);
+		
+		ComboBox<PointOfInterest> pointsOfInterestComboBox = new ComboBox<>(FXCollections.observableList(Arrays.asList(POINTS_OF_INTEREST)));
+		box.getChildren().add(pointsOfInterestComboBox);
+		pointsOfInterestComboBox.setOnAction(event -> {
+			PointOfInterest pointOfInterest = pointsOfInterestComboBox.getValue();
+			xCenterProperty.set(pointOfInterest.x);
+			yCenterProperty.set(pointOfInterest.y);
+			zoomProperty.set(pointOfInterest.zoom);
+			paletteSeedProperty.set(pointOfInterest.paletteSeed);
+			paletteStepProperty.set(pointOfInterest.paletteStep);
+		});
 		
 		return box;
 	}
