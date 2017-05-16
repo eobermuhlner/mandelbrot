@@ -10,7 +10,7 @@ public class DrawRequest {
 	private static final BlockRenderInfo[] PROGRESSIVE_RENDERINFO_DOUBLE = createBlockRenderInfos(4);
 	private static final BlockRenderInfo[] PROGRESSIVE_RENDERINFO_BIGDECIMAL_ZOOM_30 = createBlockRenderInfos(16);
 	private static final BlockRenderInfo[] PROGRESSIVE_RENDERINFO_BIGDECIMAL_ZOOM_60 = createBlockRenderInfos(32);
-	private static final BlockRenderInfo[] PROGRESSIVE_RENDERINFO_BIGDECIMAL_ZOOM_100 = createBlockRenderInfos(64);
+	private static final BlockRenderInfo[] PROGRESSIVE_RENDERINFO_BIGDECIMAL_ZOOM_80 = createBlockRenderInfos(64);
 	private static final BlockRenderInfo[] PROGRESSIVE_RENDERINFO_BIGDECIMAL_ZOOM_DEEP = createBlockRenderInfos(128);
 
 	public final BigDecimal x;
@@ -35,8 +35,8 @@ public class DrawRequest {
 				return PROGRESSIVE_RENDERINFO_BIGDECIMAL_ZOOM_30;
 			} else if (zoom < 60) {
 				return PROGRESSIVE_RENDERINFO_BIGDECIMAL_ZOOM_60;
-			} else if (zoom < 100) {
-				return PROGRESSIVE_RENDERINFO_BIGDECIMAL_ZOOM_100;
+			} else if (zoom < 80) {
+				return PROGRESSIVE_RENDERINFO_BIGDECIMAL_ZOOM_80;
 			} else {
 				return PROGRESSIVE_RENDERINFO_BIGDECIMAL_ZOOM_DEEP;
 			}
