@@ -26,7 +26,7 @@ public class MandelbrotMath {
 	}
 	
 	public static int getMaxIteration(double zoom) {
-		return (int) (zoom * 100 + 1000);
+		return (int) (zoom * 200 + 1000);
 	}
 
 
