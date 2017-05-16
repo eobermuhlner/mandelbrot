@@ -20,7 +20,7 @@ The interactive viewer allows user interaction using mouse interaction, touch ge
 ![Mandelbrot Curved Swords at zoom 10^-13](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_curved_swords_zoom13.png?raw=true)
 ![Mandelbrot Curved Swords at zoom 10^-15](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_curved_swords_zoom15.png?raw=true)
 
-![Mandelbrot Jelly Fish at zoom 10^-10](ch.obermuhlner.mandelbrot.docs/images/?mandelbrot_jelly_fish_zoom10.pngraw=true)
+![Mandelbrot Jelly Fish at zoom 10^-10](ch.obermuhlner.mandelbrot.docs/images/?mandelbrot_jelly_fish_zoom10.png?raw=true)
 
 ![Mandelbrot Chaotic Spirals at zoom 10^-9](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_chaotic_spirals_zoom9.png?raw=true)
 
