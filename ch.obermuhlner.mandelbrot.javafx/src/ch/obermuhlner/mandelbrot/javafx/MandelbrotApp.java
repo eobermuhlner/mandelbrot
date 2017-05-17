@@ -537,7 +537,7 @@ public class MandelbrotApp extends Application {
 			palette = new CachingPalette(new InterpolatingPalette(new RandomPalette(seed, 0f, 360f, 0.0f, 0.3f, 0.2f, 1.0f), steps));
 			break;
 		case IsoLine:
-			palette = new CyclingPalette(Color.BLACK, Color.WHITE, steps);
+			palette = new CyclingPalette(Color.WHITE, steps, Color.LIGHTGREY, Color.GRAY, Color.DARKGRAY, Color.BLACK);
 			break;
 		case Fire:
 			palette = new CachingPalette(new InterpolatingPalette(new CyclingPalette(Color.RED, Color.YELLOW, Color.DARKRED, Color.ORANGE, Color.gray(0.1)), steps));

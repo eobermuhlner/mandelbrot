@@ -10,8 +10,8 @@ public class CyclingPalette implements Palette {
 		this.colors = colors;
 	}
 	
-	public CyclingPalette(Color singleColor, Color repeatColor, int steps) {
-		this.colors = createColors(singleColor, repeatColor, steps);
+	public CyclingPalette(Color repeatColor, int steps, Color... colors) {
+		this.colors = createColors(repeatColor, steps, colors);
 	}
 	
 	@Override
@@ -20,12 +20,14 @@ public class CyclingPalette implements Palette {
 		return colors[index];
 	}
 
-	private static Color[] createColors(Color singleColor, Color repeatColor, int steps) {
-		Color[] colors = new Color[steps + 1];
-		colors[0] = singleColor;
-		for (int i = 1; i < colors.length; i++) {
-			colors[i] = repeatColor;
+	private static Color[] createColors(Color repeatColor, int steps, Color... colors) {
+		Color[] result = new Color[steps + colors.length];
+		for (int i = 0; i < steps; i++) {
+			result[i] = repeatColor;
 		}
-		return colors;
+		for (int i = 0; i < colors.length; i++) {
+			result[steps + i] = colors[i];
+		}
+		return result;
 	}
 }
