@@ -122,7 +122,7 @@ public class MandelbrotApp extends Application {
 					BlockRenderInfo[] progressiveRenderInfos = currentDrawRequest.getProgressiveRenderInfo();
 					
 					int block = 0;
-					while (block < progressiveRenderInfos.length) {
+					while (backgroundRunning && block < progressiveRenderInfos.length) {
 						BlockRenderInfo blockRenderInfo = progressiveRenderInfos[block];
 						calculateMandelbrot(currentDrawRequest, blockRenderInfo.blockSize, blockRenderInfo.pixelOffsetX, blockRenderInfo.pixelOffsetY, blockRenderInfo.pixelSize);
 						Platform.runLater(() -> {
@@ -140,12 +140,14 @@ public class MandelbrotApp extends Application {
 					}
 				}
 				
-				try {
-					synchronized(this) {
-						wait();
+				if (backgroundRunning) {
+					try {
+						synchronized(this) {
+							wait();
+						}
+					} catch (Exception e) {
+						throw new RuntimeException(e);
 					}
-				} catch (Exception e) {
-					throw new RuntimeException(e);
 				}
 			}
 		}
@@ -622,7 +624,7 @@ public class MandelbrotApp extends Application {
 		if (drawRequest.isInsideDoublePrecision()) {
 			calculateMandelbrotDouble(drawRequest, blockSize, blockPixelOffsetX, blockPixelOffsetY, pixelSize);
 		} else {
-			calculateMandelbrotBigDecimal(drawRequest, blockSize, blockPixelOffsetX, blockPixelOffsetY, pixelSize);
+			calculateMandelbrotBigDecimal(drawRequest, blockSize, blockPixelOffsetX, blockPixelOffsetY, pixelSize, true);
 		}
 	}
 	
@@ -647,21 +649,9 @@ public class MandelbrotApp extends Application {
 		for (int pixelX = blockPixelOffsetX; pixelX < pixelWidth; pixelX+=blockSize) {
 			double y0 = pixelStepY * blockPixelOffsetY - yCenter - yRadius; 
 			for (int pixelY = blockPixelOffsetY; pixelY < pixelHeight; pixelY+=blockSize) {
-				double x = 0;
-				double y = 0;
-				int iteration = 0;
-				double xx = x*x;
-				double yy = y*y;
-				while (xx + yy < 2*2 && iteration < maxIteration) {
-					y = 2*x*y + y0;
-					x = xx - yy + x0;
-					iteration++;
-					
-					xx = x*x;
-					yy = y*y;
-				}
+				int iterations = MandelbrotMath.calculateMandelbrotIterations(x0, y0, maxIteration);
 
-				Color color = iteration == maxIteration ? Color.BLACK : palette.getColor(iteration);
+				Color color = iterations == maxIteration ? Color.BLACK : palette.getColor(iterations);
 				for (int pixelOffsetX = 0; pixelOffsetX < pixelSize; pixelOffsetX++) {
 					for (int pixelOffsetY = 0; pixelOffsetY < pixelSize; pixelOffsetY++) {
 						int px = pixelX + pixelOffsetX;
@@ -677,7 +667,7 @@ public class MandelbrotApp extends Application {
 		}
 	}
 
-	private void calculateMandelbrotBigDecimal(DrawRequest drawRequest, int blockSize, int blockPixelOffsetX, int blockPixelOffsetY, int pixelSize) {
+	private void calculateMandelbrotBigDecimal(DrawRequest drawRequest, int blockSize, int blockPixelOffsetX, int blockPixelOffsetY, int pixelSize, boolean parallel) {
 		PixelWriter pixelWriter = image.getPixelWriter();
 		
 		double pixelWidth = image.getWidth();
@@ -692,33 +682,24 @@ public class MandelbrotApp extends Application {
 		int maxIteration = drawRequest.getMaxIteration();
 		
 		BigDecimal two = new BigDecimal(2);
-		BigDecimal four = new BigDecimal(4);
 		BigDecimal pixelStepX = xRadius.multiply(two, mc).divide(BigDecimal.valueOf(pixelWidth), mc);
 		BigDecimal pixelStepY = yRadius.multiply(two, mc).divide(BigDecimal.valueOf(pixelHeight), mc);
 		BigDecimal blockStepX = pixelStepX.multiply(new BigDecimal(blockSize), mc);
 		BigDecimal blockStepY = pixelStepY.multiply(new BigDecimal(blockSize), mc);
 		BigDecimal x0Start = pixelStepX.multiply(new BigDecimal(blockPixelOffsetX), mc).subtract(xCenter, mc).subtract(xRadius, mc);
 
-		IntStream.range(0, (int)(pixelWidth / blockSize)).parallel().forEach(indexPixelX -> {
+		IntStream range = IntStream.range(0, (int)(pixelWidth / blockSize));
+		if (parallel) {
+			range = range.parallel();
+		}
+		range.forEach(indexPixelX -> {
 			int pixelX = blockPixelOffsetX + indexPixelX * blockSize;
 			BigDecimal x0 = x0Start.add(blockStepX.multiply(new BigDecimal(indexPixelX), mc), mc);
 			BigDecimal y0 = pixelStepY.multiply(new BigDecimal(blockPixelOffsetY), mc).subtract(yCenter, mc).subtract(yRadius, mc);
 			for (int pixelY = blockPixelOffsetY; pixelY < pixelHeight; pixelY+=blockSize) {
-				BigDecimal x = BigDecimal.ZERO;
-				BigDecimal y = BigDecimal.ZERO;
-				int iteration = 0;
-				BigDecimal xx = x;
-				BigDecimal yy = y;
-				while (xx.add(yy, mc).compareTo(four) < 0 && iteration < maxIteration) {
-					y = two.multiply(x, mc).multiply(y, mc).add(y0, mc);
-					x = xx.subtract(yy, mc).add(x0, mc);
-					iteration++;
-					
-					xx = x.multiply(x, mc);
-					yy = y.multiply(y, mc);
-				}
-
-				Color color = iteration == maxIteration ? Color.BLACK : palette.getColor(iteration);
+				int iterations = MandelbrotMath.calculateMandelbrotIterations(x0, y0, maxIteration, mc);
+				
+				Color color = iterations == maxIteration ? Color.BLACK : palette.getColor(iterations);
 				for (int pixelOffsetX = 0; pixelOffsetX < pixelSize; pixelOffsetX++) {
 					for (int pixelOffsetY = 0; pixelOffsetY < pixelSize; pixelOffsetY++) {
 						int px = pixelX + pixelOffsetX;
@@ -728,6 +709,7 @@ public class MandelbrotApp extends Application {
 						}
 					}
 				}
+				
 				y0 = y0.add(blockStepY, mc);
 			}
 		});
