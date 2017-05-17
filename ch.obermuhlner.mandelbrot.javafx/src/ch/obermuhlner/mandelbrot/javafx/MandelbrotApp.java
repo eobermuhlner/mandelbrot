@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.stream.IntStream;
 
 import ch.obermuhlner.mandelbrot.javafx.palette.CachingPalette;
+import ch.obermuhlner.mandelbrot.javafx.palette.CyclingPalette;
 import ch.obermuhlner.mandelbrot.javafx.palette.InterpolatingPalette;
 import ch.obermuhlner.mandelbrot.javafx.palette.Palette;
 import ch.obermuhlner.mandelbrot.javafx.palette.RandomPalette;
@@ -65,7 +66,12 @@ public class MandelbrotApp extends Application {
 
 	private enum PaletteType {
 		RandomColor,
-		RandomGray
+		RandomGray,
+		RandomPastell,
+		IsoLine,
+		Fire,
+		Ice,
+		StarryNight,
 	}
 	
 	private static final StringConverter<BigDecimal> BIGDECIMAL_STRING_CONVERTER = new StringConverter<BigDecimal>() {
@@ -224,7 +230,7 @@ public class MandelbrotApp extends Application {
 					30),
 			new PointOfInterest(
 					"Nested Spirals",
-					new BigDecimal("0.2634547678695909194010687726751533781415432231241472469588605765799937908732975296976"),
+					new BigDecimal("-0.2634547678695909194010687726751533781415432231241472469588605765799937908732975296976"),
 					new BigDecimal("-0.002712500848707182783444349630487751292325741805030146491993712187120378441317722930"),
 					8.0,
 					6,
@@ -523,6 +529,21 @@ public class MandelbrotApp extends Application {
 			break;
 		case RandomGray:
 			palette = new CachingPalette(new InterpolatingPalette(new RandomPalette(seed, 0f, 360f, 0.0f, 0.0f, 0.2f, 1.0f), steps));
+			break;
+		case RandomPastell:
+			palette = new CachingPalette(new InterpolatingPalette(new RandomPalette(seed, 0f, 360f, 0.0f, 0.3f, 0.2f, 1.0f), steps));
+			break;
+		case IsoLine:
+			palette = new CyclingPalette(Color.BLACK, Color.WHITE, steps);
+			break;
+		case Fire:
+			palette = new CachingPalette(new InterpolatingPalette(new CyclingPalette(Color.RED, Color.YELLOW, Color.DARKRED, Color.ORANGE, Color.gray(0.1)), steps));
+			break;
+		case Ice:
+			palette = new CachingPalette(new InterpolatingPalette(new CyclingPalette(Color.BLUE, Color.LIGHTBLUE, Color.DARKBLUE, Color.CYAN, Color.gray(0.1)), steps));
+			break;
+		case StarryNight:
+			palette = new CachingPalette(new InterpolatingPalette(new CyclingPalette(Color.WHITE, Color.gray(0.1)), steps));
 			break;
 		}
 		
