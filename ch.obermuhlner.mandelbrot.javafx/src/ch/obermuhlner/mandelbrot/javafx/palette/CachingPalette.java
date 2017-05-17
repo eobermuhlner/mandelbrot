@@ -1,4 +1,4 @@
-package ch.obermuhlner.mandelbrot.javafx;
+package ch.obermuhlner.mandelbrot.javafx.palette;
 
 import java.util.HashMap;
 import java.util.Map;

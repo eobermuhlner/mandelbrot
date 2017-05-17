@@ -6,6 +6,10 @@ import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.stream.IntStream;
 
+import ch.obermuhlner.mandelbrot.javafx.palette.CachingPalette;
+import ch.obermuhlner.mandelbrot.javafx.palette.InterpolatingPalette;
+import ch.obermuhlner.mandelbrot.javafx.palette.Palette;
+import ch.obermuhlner.mandelbrot.javafx.palette.RandomPalette;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
