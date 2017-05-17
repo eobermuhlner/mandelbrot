@@ -56,6 +56,14 @@ public class MandelbrotApp extends Application {
 	private static final DecimalFormat INTEGER_FORMAT = new DecimalFormat("##0");
 	private static final DecimalFormat DOUBLE_FORMAT = new DecimalFormat("##0.000");
 	
+	private static final Color WHITE_90 = new Color(1.0, 1.0, 1.0, 0.9);
+	private static final Color WHITE_20 = new Color(1.0, 1.0, 1.0, 0.2);
+
+	private enum PaletteType {
+		RandomColor,
+		RandomGray
+	}
+	
 	private static final StringConverter<BigDecimal> BIGDECIMAL_STRING_CONVERTER = new StringConverter<BigDecimal>() {
 		@Override
 		public String toString(BigDecimal object) {
@@ -71,8 +79,6 @@ public class MandelbrotApp extends Application {
 			}
 		}
 	};
-	private static final Color WHITE_90 = new Color(1.0, 1.0, 1.0, 0.9);
-	private static final Color WHITE_20 = new Color(1.0, 1.0, 1.0, 0.2);
 
 	private class BackgroundRenderer extends Thread {
 		private volatile boolean backgroundRunning;
@@ -250,7 +256,7 @@ public class MandelbrotApp extends Application {
 			new PointOfInterest(
 					"Close to the Tip",
 					new BigDecimal("1.999774075531510062196466924922751584703084668836849819676693632045811372575383342685205522372465313107518959003812"),
-					new BigDecimal("3.375402489828553121033532529759462615490836723815772824E"),
+					new BigDecimal("3.375402489828553121033532529759462615490836723815772824E-60"),
 					5.0, // until 18
 					1,
 					5),
@@ -260,6 +266,9 @@ public class MandelbrotApp extends Application {
 	private ObjectProperty<BigDecimal> xCenterProperty = new SimpleObjectProperty<BigDecimal>(BigDecimal.ZERO);
 	private ObjectProperty<BigDecimal> yCenterProperty = new SimpleObjectProperty<BigDecimal>(BigDecimal.ZERO);
 	private DoubleProperty zoomProperty = new SimpleDoubleProperty(0.0);
+	
+	
+	private ObjectProperty<PaletteType> paletteTypeProperty = new SimpleObjectProperty<PaletteType>(PaletteType.RandomColor);
 	private IntegerProperty paletteSeedProperty = new SimpleIntegerProperty(14);
 	private IntegerProperty paletteStepProperty = new SimpleIntegerProperty(20);
 	
@@ -380,6 +389,12 @@ public class MandelbrotApp extends Application {
 		Bindings.bindBidirectional(zoomTextField.textProperty(), zoomProperty, DOUBLE_FORMAT);
 		rowIndex++;
 
+		gridPane.add(new Label("Color Palette:"), 0, rowIndex);
+		ComboBox<PaletteType> paletteTypeComboBox = new ComboBox<>(FXCollections.observableArrayList(PaletteType.values()));
+		gridPane.add(paletteTypeComboBox, 1, rowIndex);
+		Bindings.bindBidirectional(paletteTypeComboBox.valueProperty(), paletteTypeProperty);
+		rowIndex++;
+		
 		gridPane.add(new Label("Color Scheme:"), 0, rowIndex);
 		Spinner<Integer> paletteSeedSpinner = new Spinner<Integer>(0, 999, paletteSeedProperty.get());
 		gridPane.add(paletteSeedSpinner, 1, rowIndex);
@@ -463,6 +478,9 @@ public class MandelbrotApp extends Application {
 			event.consume();
 		});
 
+		paletteTypeProperty.addListener((observable, oldValue, newValue) -> {
+			updatePalette(canvas);
+		});
 		paletteSeedProperty.addListener((observable, oldValue, newValue) -> {
 			updatePalette(canvas);
 		});
@@ -494,10 +512,19 @@ public class MandelbrotApp extends Application {
 		if (steps <= 0) {
 			steps = 10;
 		}
-		palette = new CachingPalette(new RandomPalette(seed, steps));
+		
+		switch (paletteTypeProperty.get()) {
+		case RandomColor:
+			palette = new CachingPalette(new InterpolatingPalette(new RandomPalette(seed), steps));
+			break;
+		case RandomGray:
+			palette = new CachingPalette(new InterpolatingPalette(new RandomPalette(seed, 0f, 360f, 0.0f, 0.0f, 0.2f, 1.0f), steps));
+			break;
+		}
+		
 		calculateAndDrawMandelbrot(canvas);
 	}
-
+	
 	private void translateMandelbrot(Canvas canvas, double deltaPixelX, double deltaPixelY) {
 		BigDecimal pixelWidth = BigDecimal.valueOf(canvas.getWidth());
 		BigDecimal pixelHeight = BigDecimal.valueOf(canvas.getHeight());
