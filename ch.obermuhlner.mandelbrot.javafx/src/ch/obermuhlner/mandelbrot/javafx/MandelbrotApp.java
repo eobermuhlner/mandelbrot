@@ -8,6 +8,7 @@ import java.util.stream.IntStream;
 
 import ch.obermuhlner.mandelbrot.javafx.palette.CachingPalette;
 import ch.obermuhlner.mandelbrot.javafx.palette.CyclingPalette;
+import ch.obermuhlner.mandelbrot.javafx.palette.HuePalette;
 import ch.obermuhlner.mandelbrot.javafx.palette.InterpolatingPalette;
 import ch.obermuhlner.mandelbrot.javafx.palette.Palette;
 import ch.obermuhlner.mandelbrot.javafx.palette.RandomPalette;
@@ -71,7 +72,9 @@ public class MandelbrotApp extends Application {
 		IsoLine,
 		Fire,
 		Ice,
+		Forest,
 		StarryNight,
+		Rainbow,
 	}
 	
 	private static final StringConverter<BigDecimal> BIGDECIMAL_STRING_CONVERTER = new StringConverter<BigDecimal>() {
@@ -539,11 +542,17 @@ public class MandelbrotApp extends Application {
 		case Fire:
 			palette = new CachingPalette(new InterpolatingPalette(new CyclingPalette(Color.RED, Color.YELLOW, Color.DARKRED, Color.ORANGE, Color.gray(0.1)), steps));
 			break;
+		case Forest:
+			palette = new CachingPalette(new InterpolatingPalette(new CyclingPalette(Color.GREENYELLOW, Color.GREEN, Color.DARKGREEN, Color.LIGHTGREEN, Color.gray(0.1)), steps));
+			break;
 		case Ice:
 			palette = new CachingPalette(new InterpolatingPalette(new CyclingPalette(Color.BLUE, Color.LIGHTBLUE, Color.DARKBLUE, Color.CYAN, Color.gray(0.1)), steps));
 			break;
 		case StarryNight:
 			palette = new CachingPalette(new InterpolatingPalette(new CyclingPalette(Color.WHITE, Color.gray(0.1)), steps));
+			break;
+		case Rainbow:
+			palette = new CachingPalette(new HuePalette(steps));
 			break;
 		}
 		
