@@ -1,7 +1,5 @@
 package ch.obermuhlner.mandelbrot.javafx.palette;
 
-import java.util.Random;
-
 import javafx.scene.paint.Color;
 
 public class InterpolatingPalette implements Palette {
