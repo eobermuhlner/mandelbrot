@@ -1,8 +1,10 @@
 package ch.obermuhlner.mandelbrot.javafx;
 
+import java.io.File;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.text.DecimalFormat;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.stream.IntStream;
 
@@ -13,7 +15,6 @@ import ch.obermuhlner.mandelbrot.javafx.palette.InterpolatingPalette;
 import ch.obermuhlner.mandelbrot.javafx.palette.Palette;
 import ch.obermuhlner.mandelbrot.javafx.palette.RandomPalette;
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
@@ -30,6 +31,7 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
@@ -92,89 +94,6 @@ public class MandelbrotApp extends Application {
 			}
 		}
 	};
-
-	private class BackgroundRenderer extends Thread {
-		private volatile boolean backgroundRunning;
-		private DrawRequest nextDrawRequest;
-		
-		private synchronized  void triggerDraw(DrawRequest drawRequest) {
-			nextDrawRequest = drawRequest;
-			notifyAll();
-		}
-		
-		private synchronized DrawRequest getNextDrawRequest() {
-			DrawRequest result = nextDrawRequest;
-			nextDrawRequest = null;
-			return result;
-		}
-		
-		public synchronized void stopRunning() {
-			backgroundRunning = false;
-			notifyAll();
-		}
-
-		public void run() {
-			backgroundRunning = true;
-
-			while (backgroundRunning) {
-				DrawRequest currentDrawRequest = getNextDrawRequest();
-				if (currentDrawRequest != null) {
-					BlockRenderInfo[] progressiveRenderInfos = currentDrawRequest.getProgressiveRenderInfo();
-					
-					int block = 0;
-					while (backgroundRunning && block < progressiveRenderInfos.length) {
-						BlockRenderInfo blockRenderInfo = progressiveRenderInfos[block];
-						calculateMandelbrot(currentDrawRequest, blockRenderInfo.blockSize, blockRenderInfo.pixelOffsetX, blockRenderInfo.pixelOffsetY, blockRenderInfo.pixelSize);
-						Platform.runLater(() -> {
-							drawMandelbrot();
-						});
-	
-						DrawRequest anotherDrawRequest = getNextDrawRequest();
-						if (anotherDrawRequest == null) {
-							block++;
-						} else {
-							currentDrawRequest = anotherDrawRequest;
-							progressiveRenderInfos = currentDrawRequest.getProgressiveRenderInfo();
-							block = 0;
-						}
-					}
-				}
-				
-				if (backgroundRunning) {
-					try {
-						synchronized(this) {
-							wait();
-						}
-					} catch (Exception e) {
-						throw new RuntimeException(e);
-					}
-				}
-			}
-		}
-	}
-	
-	private static class PointOfInterest {
-		public final String name;
-		public final BigDecimal x;
-		public final BigDecimal y;
-		public final double zoom;
-		public final int paletteSeed;
-		public final int paletteStep;
-
-		public PointOfInterest(String name, BigDecimal x, BigDecimal y, double zoom, int paletteSeed, int paletteStep) {
-			this.name = name;
-			this.x = x;
-			this.y = y;
-			this.zoom = zoom;
-			this.paletteSeed = paletteSeed;
-			this.paletteStep = paletteStep;
-		}
-		
-		@Override
-		public String toString() {
-			return name;
-		}
-	}
 
 	private static PointOfInterest[] POINTS_OF_INTEREST = {
 			new PointOfInterest(
@@ -282,7 +201,6 @@ public class MandelbrotApp extends Application {
 	private ObjectProperty<BigDecimal> yCenterProperty = new SimpleObjectProperty<BigDecimal>(BigDecimal.ZERO);
 	private DoubleProperty zoomProperty = new SimpleDoubleProperty(0.0);
 	
-	
 	private ObjectProperty<PaletteType> paletteTypeProperty = new SimpleObjectProperty<PaletteType>(PaletteType.RandomColor);
 	private IntegerProperty paletteSeedProperty = new SimpleIntegerProperty(14);
 	private IntegerProperty paletteStepProperty = new SimpleIntegerProperty(20);
@@ -295,13 +213,17 @@ public class MandelbrotApp extends Application {
 	private Canvas mandelbrotCanvas;
 	private WritableImage image = new WritableImage(IMAGE_SIZE, IMAGE_SIZE);
 	
-	private BackgroundRenderer backgroundRenderer;
+	private BackgroundProgressiveRenderer backgroundProgressiveRenderer;
+	private BackgroundSnapshotRenderer backgroundSnapshotRenderer;
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-		backgroundRenderer = new BackgroundRenderer();
-		backgroundRenderer.start();
+		backgroundProgressiveRenderer = new BackgroundProgressiveRenderer(this);
+		backgroundProgressiveRenderer.start();
 
+		backgroundSnapshotRenderer = new BackgroundSnapshotRenderer();
+		backgroundSnapshotRenderer.start();
+		
 		Group root = new Group();
 		Scene scene = new Scene(root);
 		
@@ -325,7 +247,8 @@ public class MandelbrotApp extends Application {
 
 	@Override
 	public void stop() throws Exception {
-		backgroundRenderer.stopRunning();
+		backgroundProgressiveRenderer.stopRunning();
+		backgroundSnapshotRenderer.stopRunning();
 		
 		super.stop();
 	}
@@ -364,6 +287,14 @@ public class MandelbrotApp extends Application {
 			zoomProperty.set(pointOfInterest.zoom);
 			paletteSeedProperty.set(pointOfInterest.paletteSeed);
 			paletteStepProperty.set(pointOfInterest.paletteStep);
+		});
+		
+		Button snapshotButton = new Button("Snapshot");
+		box.getChildren().add(snapshotButton);
+		snapshotButton.setOnAction(event -> {
+			DrawRequest drawRequest = new DrawRequest(xCenterProperty.get(), yCenterProperty.get(), zoomProperty.get());
+			String filename = "mandelbrot" + LocalDateTime.now().toString().replace(':', '_') + ".png";
+			backgroundSnapshotRenderer.addSnapshotRequest(new SnapshotRequest(drawRequest, palette, new File(filename)));
 		});
 		
 		return box;
@@ -597,10 +528,10 @@ public class MandelbrotApp extends Application {
 	}
 	
 	private void calculateAndDrawMandelbrot(Canvas canvas) {
-		backgroundRenderer.triggerDraw(new DrawRequest(xCenterProperty.get(), yCenterProperty.get(), zoomProperty.get()));
+		backgroundProgressiveRenderer.triggerDraw(new DrawRequest(xCenterProperty.get(), yCenterProperty.get(), zoomProperty.get()));
 	}		
 	
-	private void drawMandelbrot() {
+	void drawMandelbrot() {
 		GraphicsContext gc = mandelbrotCanvas.getGraphicsContext2D();
 		gc.drawImage(image, 0, 0);
 
@@ -620,7 +551,7 @@ public class MandelbrotApp extends Application {
 		}
 	}
 
-	private void calculateMandelbrot(DrawRequest drawRequest, int blockSize, int blockPixelOffsetX, int blockPixelOffsetY, int pixelSize) {
+	void calculateMandelbrot(DrawRequest drawRequest, int blockSize, int blockPixelOffsetX, int blockPixelOffsetY, int pixelSize) {
 		if (drawRequest.isInsideDoublePrecision()) {
 			calculateMandelbrotDouble(drawRequest, blockSize, blockPixelOffsetX, blockPixelOffsetY, pixelSize);
 		} else {
