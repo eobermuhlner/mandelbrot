@@ -12,6 +12,9 @@ import javax.imageio.ImageIO;
 
 import ch.obermuhlner.mandelbrot.javafx.palette.Palette;
 import ch.obermuhlner.mandelbrot.math.BigDecimalMath;
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
@@ -24,9 +27,15 @@ public class BackgroundSnapshotRenderer extends Thread {
 
 	private static final BigDecimal DOUBLE_THRESHOLD = new BigDecimal("0.00000000002");
 
-	private Deque<SnapshotRequest> snapshotRequests = new ArrayDeque<>();
+	private Deque<SnapshotRequest> pendingSnapshotRequests = new ArrayDeque<>();
 	private volatile boolean running;
 
+	private ObservableList<SnapshotRequest> snapshotRequests = FXCollections.observableArrayList(); 
+
+	public synchronized int getPendingSnapshotRequestCount() {
+		return pendingSnapshotRequests.size();
+	}
+	
 	public synchronized void stopRunning() {
 		running = false;
 		notifyAll();
@@ -34,6 +43,7 @@ public class BackgroundSnapshotRenderer extends Thread {
 
 	public synchronized void addSnapshotRequest(SnapshotRequest snapshotRequest) {
 		snapshotRequests.add(snapshotRequest);
+		pendingSnapshotRequests.add(snapshotRequest);
 		notifyAll();
 	}
 
@@ -45,8 +55,8 @@ public class BackgroundSnapshotRenderer extends Thread {
 			SnapshotRequest snapshotRequest = null;
 			
 			synchronized(this) {
-				if (!snapshotRequests.isEmpty()) {
-					snapshotRequest = snapshotRequests.pop();
+				if (!pendingSnapshotRequests.isEmpty()) {
+					snapshotRequest = pendingSnapshotRequests.pop();
 				}
 			}
 			
@@ -73,10 +83,11 @@ public class BackgroundSnapshotRenderer extends Thread {
 				snapshotRequest.drawRequest.y,
 				TWO,
 				BigDecimal.valueOf(snapshotRequest.drawRequest.zoom),
-				snapshotRequest.palette);
+				snapshotRequest.palette,
+				snapshotRequest);
 	}
 
-	private static void renderImage(File file, BigDecimal xCenter, BigDecimal yCenter, BigDecimal zoomStart, BigDecimal zoomPower, Palette palette) {
+	private static void renderImage(File file, BigDecimal xCenter, BigDecimal yCenter, BigDecimal zoomStart, BigDecimal zoomPower, Palette palette, Progress progress) {
 		if (file.exists()) {
 			System.out.println("Already calculated " + file.getName() + " with zoom " + zoomPower.toPlainString());
 			return;
@@ -98,7 +109,8 @@ public class BackgroundSnapshotRenderer extends Thread {
 				maxIterations,
 				imageWidth,
 				imageHeight,
-				palette);
+				palette,
+				progress);
 		
 		try {
 			ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", file);
@@ -107,15 +119,15 @@ public class BackgroundSnapshotRenderer extends Thread {
 		}
 	}
 
-	private static WritableImage drawMandelbrot(BigDecimal xCenter, BigDecimal yCenter, BigDecimal xRadius, BigDecimal yRadius, int precision, int maxIterations, int imageWidth, int imageHeight, Palette palette) {
+	private static WritableImage drawMandelbrot(BigDecimal xCenter, BigDecimal yCenter, BigDecimal xRadius, BigDecimal yRadius, int precision, int maxIterations, int imageWidth, int imageHeight, Palette palette, Progress progress) {
 		if (xRadius.compareTo(DOUBLE_THRESHOLD) > 0 && yRadius.compareTo(DOUBLE_THRESHOLD) > 0) {
-			return drawMandelbrotDouble(xCenter.doubleValue(), yCenter.doubleValue(), xRadius.doubleValue(), yRadius.doubleValue(), maxIterations, imageWidth, imageHeight, palette);
+			return drawMandelbrotDouble(xCenter.doubleValue(), yCenter.doubleValue(), xRadius.doubleValue(), yRadius.doubleValue(), maxIterations, imageWidth, imageHeight, palette, progress);
 		} else {
-			return drawMandelbrotBigDecimal(xCenter, yCenter, xRadius, yRadius, precision, maxIterations, imageWidth, imageHeight, palette);
+			return drawMandelbrotBigDecimal(xCenter, yCenter, xRadius, yRadius, precision, maxIterations, imageWidth, imageHeight, palette, progress);
 		}
 	}
 	
-	private static WritableImage drawMandelbrotDouble(double xCenter, double yCenter, double xRadius, double yRadius, int maxIterations, int imageWidth, int imageHeight, Palette palette) {
+	private static WritableImage drawMandelbrotDouble(double xCenter, double yCenter, double xRadius, double yRadius, int maxIterations, int imageWidth, int imageHeight, Palette palette, Progress progress) {
 		WritableImage image = new WritableImage(imageWidth, imageHeight);
 		PixelWriter pixelWriter = image.getPixelWriter();
 		
@@ -146,12 +158,21 @@ public class BackgroundSnapshotRenderer extends Thread {
 				y0 += stepY;
 			}
 			x0 += stepX;
+			
+			double progressValue = (double)pixelX / imageWidth;
+			Platform.runLater(() -> {
+				progress.setProgress(progressValue);
+			});
 		}
+		
+		Platform.runLater(() -> {
+			progress.setProgress(1.0);
+		});
 
 		return image;
 	}	
 	
-	private static WritableImage drawMandelbrotBigDecimal(BigDecimal xCenterBigDecimal, BigDecimal yCenterBigDecimal, BigDecimal xRadiusBigDecimal, BigDecimal yRadiusBigDecimal, int precision, int maxIterations, int imageWidth, int imageHeight, Palette palette) {
+	private static WritableImage drawMandelbrotBigDecimal(BigDecimal xCenterBigDecimal, BigDecimal yCenterBigDecimal, BigDecimal xRadiusBigDecimal, BigDecimal yRadiusBigDecimal, int precision, int maxIterations, int imageWidth, int imageHeight, Palette palette, Progress progress) {
 		WritableImage image = new WritableImage(imageWidth, imageHeight);
 		PixelWriter pixelWriter = image.getPixelWriter();
 		
@@ -189,8 +210,21 @@ public class BackgroundSnapshotRenderer extends Thread {
 				y0 = y0.add(stepY);
 			}
 			x0 = x0.add(stepX);
+
+			double progressValue = (double)pixelX / imageWidth;
+			Platform.runLater(() -> {
+				progress.setProgress(progressValue);
+			});
 		}
+
+		Platform.runLater(() -> {
+			progress.setProgress(1.0);
+		});
 		
 		return image;
+	}
+
+	public ObservableList<SnapshotRequest> getSnapshotRequests() {
+		return snapshotRequests;
 	}	
 }

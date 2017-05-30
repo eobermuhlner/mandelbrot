@@ -6,6 +6,7 @@ import java.math.MathContext;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.function.Function;
 import java.util.stream.IntStream;
 
 import ch.obermuhlner.mandelbrot.javafx.palette.CachingPalette;
@@ -20,10 +21,12 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.geometry.Orientation;
 import javafx.scene.Group;
@@ -36,6 +39,9 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.control.Spinner;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableColumn.CellDataFeatures;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.image.PixelWriter;
@@ -45,6 +51,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.util.Callback;
 import javafx.util.StringConverter;
 
 /*
@@ -63,6 +70,7 @@ public class MandelbrotApp extends Application {
 	
 	private static final DecimalFormat INTEGER_FORMAT = new DecimalFormat("##0");
 	private static final DecimalFormat DOUBLE_FORMAT = new DecimalFormat("##0.000");
+	private static final DecimalFormat DOUBLE_8DIGITS_FORMAT = new DecimalFormat("##0.00000000");
 	
 	private static final Color WHITE_90 = new Color(1.0, 1.0, 1.0, 0.9);
 	private static final Color WHITE_20 = new Color(1.0, 1.0, 1.0, 0.2);
@@ -191,7 +199,7 @@ public class MandelbrotApp extends Application {
 					"Close to the Tip",
 					new BigDecimal("1.999774075531510062196466924922751584703084668836849819676693632045811372575383342685205522372465313107518959003812"),
 					new BigDecimal("3.375402489828553121033532529759462615490836723815772824E-60"),
-					5.0, // until 18
+					3.0, // until 18
 					1,
 					5),
 	};
@@ -238,6 +246,9 @@ public class MandelbrotApp extends Application {
 
 		mandelbrotCanvas = createMandelbrotCanvas();
 		borderPane.setCenter(mandelbrotCanvas);
+		
+		Node status = createStatus();
+		borderPane.setBottom(status);
 		
 		primaryStage.setScene(scene);
 		primaryStage.show();
@@ -359,6 +370,46 @@ public class MandelbrotApp extends Application {
 		return box;
 	}
 
+	private Node createStatus() {
+		TableView<SnapshotRequest> snapshotTableView = new TableView<>(backgroundSnapshotRenderer.getSnapshotRequests());
+		snapshotTableView.setPrefHeight(100);
+		addTableColumn(snapshotTableView, "File", 250, snapshotRequest -> {
+			return new ReadOnlyStringWrapper(snapshotRequest.file.getName());
+		});
+		addTableColumn(snapshotTableView, "Progress", 100, snapshotRequest -> {
+			return snapshotRequest.progressProperty();
+		});
+		addTableColumn(snapshotTableView, "X", 100, snapshotRequest -> {
+			return new ReadOnlyStringWrapper(DOUBLE_8DIGITS_FORMAT.format(snapshotRequest.drawRequest.x));
+		});
+		addTableColumn(snapshotTableView, "Y", 100, snapshotRequest -> {
+			return new ReadOnlyStringWrapper(DOUBLE_8DIGITS_FORMAT.format(snapshotRequest.drawRequest.y));
+		});
+		addTableColumn(snapshotTableView, "Zoom", 60, snapshotRequest -> {
+			return new ReadOnlyStringWrapper(DOUBLE_FORMAT.format(snapshotRequest.drawRequest.zoom));
+		});
+		addTableColumn(snapshotTableView, "Width", 60, snapshotRequest -> {
+			return new ReadOnlyStringWrapper(INTEGER_FORMAT.format(snapshotRequest.width));
+		});
+		addTableColumn(snapshotTableView, "Height", 60, snapshotRequest -> {
+			return new ReadOnlyStringWrapper(INTEGER_FORMAT.format(snapshotRequest.height));
+		});
+
+		return snapshotTableView;
+	}
+
+	private <E, V> void addTableColumn(TableView<E> tableView, String header, double prefWidth, Function<E, ObservableValue<V>> valueFunction) {
+		TableColumn<E, V> column = new TableColumn<>(header);
+		column.setPrefWidth(prefWidth);
+		column.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<E,V>, ObservableValue<V>>() {
+			@Override
+			public ObservableValue<V> call(CellDataFeatures<E, V> cellData) {
+				return valueFunction.apply(cellData.getValue());
+			}
+		});
+		tableView.getColumns().add(column);
+	}
+	
 	double lastMouseDragX;
 	double lastMouseDragY;
 	private void setupCanvasEventHandlers(Canvas canvas) {
