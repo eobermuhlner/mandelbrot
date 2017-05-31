@@ -47,12 +47,9 @@ public class DoubleMandelbrotRenderer implements MandelbrotRenderer {
 			}
 			x0 += stepX;
 			
-			double progressValue = (double)pixelX / imageWidth;
-			progress.setProgress(progressValue);
+			progress.incrementProgress(imageWidth);
 		}
 		
-		progress.setProgress(1.0);
-
 		return image;
 	}	
 

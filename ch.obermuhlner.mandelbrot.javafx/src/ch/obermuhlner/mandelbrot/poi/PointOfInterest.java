@@ -1,4 +1,4 @@
-package ch.obermuhlner.mandelbrot.javafx;
+package ch.obermuhlner.mandelbrot.poi;
 
 import java.math.BigDecimal;
 

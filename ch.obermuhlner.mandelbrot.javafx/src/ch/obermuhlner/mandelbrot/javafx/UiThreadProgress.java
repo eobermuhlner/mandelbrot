@@ -9,6 +9,11 @@ public class UiThreadProgress implements Progress {
 	public UiThreadProgress(Progress decorated) {
 		this.decorated = decorated;
 	}
+
+	@Override
+	public void setTotalProgress(double totalProgress) {
+		decorated.setTotalProgress(totalProgress);
+	}
 	
 	@Override
 	public double getProgress() {
@@ -16,9 +21,9 @@ public class UiThreadProgress implements Progress {
 	}
 
 	@Override
-	public void setProgress(double progress) {
+	public void incrementProgress(double progress) {
 		Platform.runLater(() -> {
-			decorated.setProgress(progress);
+			decorated.incrementProgress(progress);
 		});
 	}
 

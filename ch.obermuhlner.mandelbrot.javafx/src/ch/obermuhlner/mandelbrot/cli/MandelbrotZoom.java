@@ -17,6 +17,8 @@ import ch.obermuhlner.mandelbrot.javafx.palette.InterpolatingPalette;
 import ch.obermuhlner.mandelbrot.javafx.palette.Palette;
 import ch.obermuhlner.mandelbrot.javafx.palette.RandomPalette;
 import ch.obermuhlner.mandelbrot.math.BigDecimalMath;
+import ch.obermuhlner.mandelbrot.poi.PointOfInterest;
+import ch.obermuhlner.mandelbrot.poi.StandardPointsOfInterest;
 import ch.obermuhlner.mandelbrot.render.AutoPrecisionMandelbrotRenderer;
 import ch.obermuhlner.mandelbrot.render.MandelbrotRenderer;
 import ch.obermuhlner.mandelbrot.util.StopWatch;
@@ -29,35 +31,42 @@ public class MandelbrotZoom {
 	
 	public static void main(String[] args) {
 		if (args.length == 0) {
-			renderDefaultImages();
+			renderZoomImagesPoi("Snail Shell");
 			return;
 		}
 		
 		if ("-h".equals(args[0])) {
 			System.out.println("Arguments: xCenter yCenter zoomStart zoomStep paletteStep imageCount directoryName");
 			return;
+		} else if ("-poi".equals(args[0])) {
+			renderZoomImagesPoi(args[1]);
+		} else {
+			String xCenterString = args[0];
+			String yCenterString = args[1];
+			String zoomStartString = args[2];
+			String zoomStepString = args[3];
+			int paletteStep = Integer.parseInt(args[4]);
+			int imageCount = Integer.parseInt(args[5]);
+			String directoryName = args[6];
+			
+			renderZoomImages(xCenterString, yCenterString, zoomStartString, zoomStepString, paletteStep, imageCount, directoryName);		
 		}
 		
-		String xCenterString = args[0];
-		String yCenterString = args[1];
-		String zoomStartString = args[2];
-		String zoomStepString = args[3];
-		int paletteStep = Integer.parseInt(args[4]);
-		int imageCount = Integer.parseInt(args[5]);
-		String directoryName = args[6];
-		
-		renderZoomImages(xCenterString, yCenterString, zoomStartString, zoomStepString, paletteStep, imageCount, directoryName);		
 	}
 	
-	public static void renderDefaultImages() {
-		renderZoomImages(
-				"0.017919288259557892593847458731170858210748924454868784878591413479676366860805981502570",
-				"1.01176097531987061853463090956462940839148314775967469615985232868737845286411137201606",
-				"2",
-				"0.1",
-				20,
-				10,
-				"curved_swords");
+	private static void renderZoomImagesPoi(String pointOfInterestPattern) {
+		for (PointOfInterest pointOfInterest : StandardPointsOfInterest.POINTS_OF_INTEREST) {
+			if (pointOfInterestPattern.equals("") || pointOfInterestPattern.equals(pointOfInterest.name)) {
+				renderZoomImages(
+						pointOfInterest.x.toPlainString(),
+						pointOfInterest.y.toPlainString(),
+						"5",
+						"0.1",
+						pointOfInterest.paletteStep,
+						120,
+						pointOfInterest.name);
+			}
+		}
 	}
 
 	public static void renderZoomImages(String xCenterString, String yCenterString, String zoomStartString, String zoomStepString, int paletteStep, int imageCount, String directoryName) {
@@ -73,7 +82,7 @@ public class MandelbrotZoom {
 		BigDecimal zoomStart = new BigDecimal(zoomStartString);
 		BigDecimal zoomStep = new BigDecimal(zoomStepString);
 
-		IntStream.range(0, imageCount).parallel().forEach(index -> {
+		IntStream.range(0, imageCount).forEach(index -> {
 			String filename = String.format("mandelbrot%04d.png", index);
 			File file = outDir.resolve(filename).toFile();
 			BigDecimal zoomPower = zoomStep.multiply(new BigDecimal(index));
@@ -100,10 +109,13 @@ public class MandelbrotZoom {
 
 		Progress progress = new Progress() {
 			@Override
-			public void setProgress(double progress) {
+			public void setTotalProgress(double totalProgress) {
 				// ignore
 			}
-			
+			@Override
+			public void incrementProgress(double progress) {
+				// ignore
+			}
 			@Override
 			public double getProgress() {
 				return 1.0;
