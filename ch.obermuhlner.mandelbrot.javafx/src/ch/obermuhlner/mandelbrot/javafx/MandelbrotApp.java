@@ -64,7 +64,7 @@ public class MandelbrotApp extends Application {
 
 	private static final double KEY_TRANSLATE_FACTOR = 0.1;
 	private static final double KEY_ZOOM_STEP = 0.1;
-	private static final double SCROLL_ZOOM_STEP = 0.1;
+	private static final double SCROLL_ZOOM_STEP = 0.5;
 
 	private static final int IMAGE_SIZE = 512+256;
 	
@@ -521,7 +521,7 @@ public class MandelbrotApp extends Application {
 			palette = new CachingPalette(new InterpolatingPalette(new RandomPalette(seed, 0f, 360f, 0.0f, 0.3f, 0.2f, 1.0f), steps));
 			break;
 		case IsoLine:
-			palette = new CyclingPalette(Color.WHITE, steps, Color.LIGHTGREY, Color.GRAY, Color.DARKGRAY, Color.BLACK);
+			palette = new CyclingPalette(Color.WHITE, steps, Color.gray(0.8), Color.gray(0.6), Color.gray(0.4), Color.gray(0.2), Color.gray(0.0), Color.gray(0.2), Color.gray(0.4), Color.gray(0.6), Color.gray(0.8));
 			break;
 		case Fire:
 			palette = new CachingPalette(new InterpolatingPalette(new CyclingPalette(Color.RED, Color.YELLOW, Color.DARKRED, Color.ORANGE, Color.gray(0.1)), steps));
