@@ -278,11 +278,17 @@ public class MandelbrotApp extends Application {
 		addTableColumn(snapshotTableView, "File", 250, snapshotRequest -> {
 			return new ReadOnlyStringWrapper(snapshotRequest.file.getName());
 		});
-//		addTableColumn(snapshotTableView, "Progress", 100, snapshotRequest -> {
-//			return snapshotRequest.progressProperty();
-//		});
+		addTableColumn(snapshotTableView, "Status", 100, snapshotRequest -> {
+			return snapshotRequest.snapshotStatusProperty();
+		});
 		addProgressBarTableColumn(snapshotTableView, "Progress", 100, snapshotRequest -> {
 			return snapshotRequest.progressProperty().asObject();
+		});
+		addTableColumn(snapshotTableView, "%", 60, snapshotRequest -> {
+			return snapshotRequest.progressProperty().multiply(100);
+		});
+		addTableColumn(snapshotTableView, "Calculation Time", 100, snapshotRequest -> {
+			return snapshotRequest.calculationMillisProperty();
 		});
 		addTableColumn(snapshotTableView, "X", 100, snapshotRequest -> {
 			return new ReadOnlyStringWrapper(DOUBLE_8DIGITS_FORMAT.format(snapshotRequest.drawRequest.x));

@@ -3,7 +3,7 @@ package ch.obermuhlner.mandelbrot.util;
 public class StopWatch {
 	private long startTime = System.nanoTime();
 
-	double getElapsedMilliseconds() {
+	public double getElapsedMilliseconds() {
 		long endTime = System.nanoTime();
 		
 		return (endTime - startTime) / 1000000.0;

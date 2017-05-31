@@ -4,7 +4,9 @@ import java.io.File;
 
 import ch.obermuhlner.mandelbrot.javafx.palette.Palette;
 import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleObjectProperty;
 
 public class SnapshotRequest implements Progress {
 	public final DrawRequest drawRequest;
@@ -16,6 +18,8 @@ public class SnapshotRequest implements Progress {
 	private double totalProgress = width * height;
 	private double currentProgress;
 	private final DoubleProperty progressProperty = new SimpleDoubleProperty();
+	private final DoubleProperty calculationMillisProperty = new SimpleDoubleProperty();
+	private final ObjectProperty<SnapshotStatus> snapshotStatusProperty = new SimpleObjectProperty<>(SnapshotStatus.Waiting);
 	
 	public SnapshotRequest(DrawRequest drawRequest, Palette palette, File file) {
 		this.drawRequest = drawRequest;
@@ -42,5 +46,13 @@ public class SnapshotRequest implements Progress {
 	
 	public DoubleProperty progressProperty() {
 		return progressProperty;
+	}
+	
+	public DoubleProperty calculationMillisProperty() {
+		return calculationMillisProperty;
+	}
+	
+	public ObjectProperty<SnapshotStatus> snapshotStatusProperty() {
+		return snapshotStatusProperty;
 	}
 }

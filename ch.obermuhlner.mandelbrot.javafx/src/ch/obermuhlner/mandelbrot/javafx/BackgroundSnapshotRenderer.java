@@ -14,6 +14,7 @@ import ch.obermuhlner.mandelbrot.javafx.palette.Palette;
 import ch.obermuhlner.mandelbrot.math.BigDecimalMath;
 import ch.obermuhlner.mandelbrot.render.AutoPrecisionMandelbrotRenderer;
 import ch.obermuhlner.mandelbrot.render.MandelbrotRenderer;
+import ch.obermuhlner.mandelbrot.util.StopWatch;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
@@ -75,6 +76,8 @@ public class BackgroundSnapshotRenderer extends Thread {
 	}
 
 	private void draw(SnapshotRequest snapshotRequest) {
+		StopWatch stopWatch = new StopWatch();
+		snapshotRequest.snapshotStatusProperty().set(SnapshotStatus.Calculating);
 		renderImage(
 				snapshotRequest.file,
 				snapshotRequest.drawRequest.x,
@@ -83,6 +86,8 @@ public class BackgroundSnapshotRenderer extends Thread {
 				BigDecimal.valueOf(snapshotRequest.drawRequest.zoom),
 				snapshotRequest.palette,
 				new UiThreadProgress(snapshotRequest));
+		snapshotRequest.snapshotStatusProperty().set(SnapshotStatus.Done);
+		snapshotRequest.calculationMillisProperty().set(stopWatch.getElapsedMilliseconds());
 	}
 
 	private void renderImage(File file, BigDecimal xCenter, BigDecimal yCenter, BigDecimal zoomStart, BigDecimal zoomPower, Palette palette, Progress progress) {
