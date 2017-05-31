@@ -31,7 +31,7 @@ public class MandelbrotZoom {
 	
 	public static void main(String[] args) {
 		if (args.length == 0) {
-			renderZoomImagesPoi("Snail Shell");
+			renderZoomImagesPoi("Snail Shell", 100);
 			return;
 		}
 		
@@ -39,22 +39,35 @@ public class MandelbrotZoom {
 			System.out.println("Arguments: xCenter yCenter zoomStart zoomStep paletteStep imageCount directoryName");
 			return;
 		} else if ("-poi".equals(args[0])) {
-			renderZoomImagesPoi(args[1]);
+			String poiName = stringArgument(args, 1, "Snail Shell");
+			int imageCount = integerArgument(args, 2, 100);
+			renderZoomImagesPoi(poiName, imageCount);
 		} else {
-			String xCenterString = args[0];
-			String yCenterString = args[1];
-			String zoomStartString = args[2];
-			String zoomStepString = args[3];
-			int paletteStep = Integer.parseInt(args[4]);
-			int imageCount = Integer.parseInt(args[5]);
-			String directoryName = args[6];
+			String xCenterString = stringArgument(args, 0, "0");
+			String yCenterString = stringArgument(args, 1, "0");
+			String zoomStartString = stringArgument(args, 2, "5");
+			String zoomStepString = stringArgument(args, 3, "0.1");
+			int paletteStep = integerArgument(args, 4, 10);
+			int imageCount = integerArgument(args, 5, 100);
+			String directoryName = stringArgument(args, 6, "zoom");
 			
 			renderZoomImages(xCenterString, yCenterString, zoomStartString, zoomStepString, paletteStep, imageCount, directoryName);		
 		}
-		
 	}
 	
-	private static void renderZoomImagesPoi(String pointOfInterestPattern) {
+	private static String stringArgument(String[] args, int index, String defaultValue) {
+		if (args.length < index) {
+			return args[index];
+		} else {
+			return defaultValue;
+		}
+	}
+	
+	private static int integerArgument(String[] args, int index, int defaultValue) {
+		return Integer.parseInt(stringArgument(args, index, String.valueOf(defaultValue)));
+	}
+	
+	private static void renderZoomImagesPoi(String pointOfInterestPattern, int imageCount) {
 		for (PointOfInterest pointOfInterest : StandardPointsOfInterest.POINTS_OF_INTEREST) {
 			if (pointOfInterestPattern.equals("") || pointOfInterestPattern.equals(pointOfInterest.name)) {
 				renderZoomImages(
@@ -63,7 +76,7 @@ public class MandelbrotZoom {
 						"5",
 						"0.1",
 						pointOfInterest.paletteStep,
-						120,
+						imageCount,
 						pointOfInterest.name);
 			}
 		}
