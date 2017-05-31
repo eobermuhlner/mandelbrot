@@ -10,8 +10,11 @@ public class SnapshotRequest implements Progress {
 	public final DrawRequest drawRequest;
 	public final Palette palette;
 	public final File file;
-	public final int width = 1200;
-	public final int height = 900;
+	public final int width = 800;
+	public final int height = 800;
+	
+	private double totalProgress = width * height;
+	private double currentProgress;
 	private final DoubleProperty progressProperty = new SimpleDoubleProperty();
 	
 	public SnapshotRequest(DrawRequest drawRequest, Palette palette, File file) {
@@ -21,13 +24,20 @@ public class SnapshotRequest implements Progress {
 	}
 	
 	@Override
+	public void setTotalProgress(double totalProgress) {
+		this.totalProgress = totalProgress;
+	}
+	
+	@Override
 	public double getProgress() {
 		return progressProperty.get();
 	}
 	
 	@Override
-	public void setProgress(double progress) {
-		progressProperty.set(progress);
+	public void incrementProgress(double progress) {
+		currentProgress += progress;
+		double relativeProgress = Math.min(1.0, currentProgress / totalProgress);
+		progressProperty.set(relativeProgress);
 	}
 	
 	public DoubleProperty progressProperty() {
