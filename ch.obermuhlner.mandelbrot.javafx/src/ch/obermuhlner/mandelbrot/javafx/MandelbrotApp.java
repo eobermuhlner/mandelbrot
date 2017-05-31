@@ -39,11 +39,13 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.control.Spinner;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
+import javafx.scene.control.cell.ProgressBarTableCell;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.BorderPane;
@@ -376,8 +378,11 @@ public class MandelbrotApp extends Application {
 		addTableColumn(snapshotTableView, "File", 250, snapshotRequest -> {
 			return new ReadOnlyStringWrapper(snapshotRequest.file.getName());
 		});
-		addTableColumn(snapshotTableView, "Progress", 100, snapshotRequest -> {
-			return snapshotRequest.progressProperty();
+//		addTableColumn(snapshotTableView, "Progress", 100, snapshotRequest -> {
+//			return snapshotRequest.progressProperty();
+//		});
+		addProgressBarTableColumn(snapshotTableView, "Progress", 100, snapshotRequest -> {
+			return snapshotRequest.progressProperty().asObject();
 		});
 		addTableColumn(snapshotTableView, "X", 100, snapshotRequest -> {
 			return new ReadOnlyStringWrapper(DOUBLE_8DIGITS_FORMAT.format(snapshotRequest.drawRequest.x));
@@ -398,7 +403,7 @@ public class MandelbrotApp extends Application {
 		return snapshotTableView;
 	}
 
-	private <E, V> void addTableColumn(TableView<E> tableView, String header, double prefWidth, Function<E, ObservableValue<V>> valueFunction) {
+	private <E, V> TableColumn<E, V> addTableColumn(TableView<E> tableView, String header, double prefWidth, Function<E, ObservableValue<V>> valueFunction) {
 		TableColumn<E, V> column = new TableColumn<>(header);
 		column.setPrefWidth(prefWidth);
 		column.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<E,V>, ObservableValue<V>>() {
@@ -408,6 +413,18 @@ public class MandelbrotApp extends Application {
 			}
 		});
 		tableView.getColumns().add(column);
+		return column;
+	}
+	
+	private <E> TableColumn<E, Double> addProgressBarTableColumn(TableView<E> tableView, String header, double prefWidth, Function<E, ObservableValue<Double>> valueFunction) {
+		TableColumn<E, Double> column = addTableColumn(tableView, header, prefWidth, valueFunction);
+		column.setCellFactory(new Callback<TableColumn<E,Double>, TableCell<E,Double>>() {
+			@Override
+			public TableCell<E, Double> call(TableColumn<E, Double> param) {
+				return new ProgressBarTableCell<E>();
+			}
+		});
+		return column;
 	}
 	
 	double lastMouseDragX;
