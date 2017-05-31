@@ -22,12 +22,13 @@ import javafx.scene.image.WritableImage;
 public class BackgroundSnapshotRenderer extends Thread {
 
 	private static final BigDecimal TWO = new BigDecimal(2);
+	
 	private Deque<SnapshotRequest> pendingSnapshotRequests = new ArrayDeque<>();
 	private volatile boolean running;
 
 	private ObservableList<SnapshotRequest> snapshotRequests = FXCollections.observableArrayList();
 	
-	private MandelbrotRenderer mandelbrotRenderer = new AutoPrecisionMandelbrotRenderer();
+	private final MandelbrotRenderer mandelbrotRenderer = new AutoPrecisionMandelbrotRenderer();
 
 	public synchronized int getPendingSnapshotRequestCount() {
 		return pendingSnapshotRequests.size();
