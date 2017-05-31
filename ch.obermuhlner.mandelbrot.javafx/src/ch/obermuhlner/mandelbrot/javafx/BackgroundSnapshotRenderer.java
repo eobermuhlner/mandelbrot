@@ -64,13 +64,13 @@ public class BackgroundSnapshotRenderer extends Thread {
 				draw(snapshotRequest);
 			}
 			
-			if (running) {
-				try {
-					synchronized(this) {
+			synchronized(this) {
+				if (running && pendingSnapshotRequests.isEmpty()) {
+					try {
 						wait();
+					} catch (Exception e) {
+						throw new RuntimeException(e);
 					}
-				} catch (Exception e) {
-					throw new RuntimeException(e);
 				}
 			}
 		}
