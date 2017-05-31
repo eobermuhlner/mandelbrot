@@ -36,7 +36,7 @@ public class MandelbrotZoom {
 		}
 		
 		if ("-h".equals(args[0])) {
-			System.out.println("Arguments: xCenter yCenter zoomStart zoomStep paletteStep imageCount directoryName");
+			System.out.println("Arguments: xCenter yCenter zoomStart zoomStep paletteSeed paletteStep imageCount directoryName");
 			return;
 		} else if ("-poi".equals(args[0])) {
 			String poiName = stringArgument(args, 1, "Snail Shell");
@@ -47,11 +47,13 @@ public class MandelbrotZoom {
 			String yCenterString = stringArgument(args, 1, "0");
 			String zoomStartString = stringArgument(args, 2, "5");
 			String zoomStepString = stringArgument(args, 3, "0.1");
-			int paletteStep = integerArgument(args, 4, 10);
-			int imageCount = integerArgument(args, 5, 100);
-			String directoryName = stringArgument(args, 6, "zoom");
+			int paletteSeed= integerArgument(args, 4, 14);
+			int paletteStep = integerArgument(args, 5, 20);
+			int imageCount = integerArgument(args, 6, 100);
+			String directoryName = stringArgument(args, 7, "zoom");
 			
-			renderZoomImages(xCenterString, yCenterString, zoomStartString, zoomStepString, paletteStep, imageCount, directoryName);		
+			Palette palette = new CachingPalette(new InterpolatingPalette(new RandomPalette(paletteSeed), paletteStep));
+			renderZoomImages(xCenterString, yCenterString, zoomStartString, zoomStepString, palette, imageCount, directoryName);		
 		}
 	}
 	
@@ -70,23 +72,23 @@ public class MandelbrotZoom {
 	private static void renderZoomImagesPoi(String pointOfInterestPattern, int imageCount) {
 		for (PointOfInterest pointOfInterest : StandardPointsOfInterest.POINTS_OF_INTEREST) {
 			if (pointOfInterestPattern.equals("") || pointOfInterestPattern.equals(pointOfInterest.name)) {
+				Palette palette = new CachingPalette(new InterpolatingPalette(new RandomPalette(pointOfInterest.paletteSeed), pointOfInterest.paletteStep));
+
 				renderZoomImages(
 						pointOfInterest.x.toPlainString(),
 						pointOfInterest.y.toPlainString(),
 						"5",
 						"0.1",
-						pointOfInterest.paletteStep,
+						palette,
 						imageCount,
 						pointOfInterest.name);
 			}
 		}
 	}
 
-	public static void renderZoomImages(String xCenterString, String yCenterString, String zoomStartString, String zoomStepString, int paletteStep, int imageCount, String directoryName) {
+	public static void renderZoomImages(String xCenterString, String yCenterString, String zoomStartString, String zoomStepString, Palette palette, int imageCount, String directoryName) {
 		Path outDir = Paths.get("images", directoryName);
 		outDir.toFile().mkdirs();
-
-		Palette palette = new CachingPalette(new InterpolatingPalette(new RandomPalette(1), paletteStep));
 
 		StopWatch stopWatch = new StopWatch();
 
