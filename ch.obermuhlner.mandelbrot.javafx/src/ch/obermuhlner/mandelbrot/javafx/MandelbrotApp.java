@@ -465,7 +465,7 @@ public class MandelbrotApp extends Application {
 			palette = new CachingPalette(new InterpolatingPalette(new CyclingPalette(Color.GREENYELLOW, Color.GREEN, Color.DARKGREEN, Color.LIGHTGREEN, Color.gray(0.1)), steps));
 			break;
 		case StarryNight:
-			palette = new CachingPalette(new InterpolatingPalette(new CyclingPalette(Color.WHITE, Color.gray(0.1)), steps));
+			palette = new CachingPalette(new InterpolatingPalette(new CyclingPalette(Color.gray(0.1), Color.WHITE, Color.gray(0.1)), steps));
 			break;
 		case Rainbow:
 			palette = new CachingPalette(new HuePalette(steps));
