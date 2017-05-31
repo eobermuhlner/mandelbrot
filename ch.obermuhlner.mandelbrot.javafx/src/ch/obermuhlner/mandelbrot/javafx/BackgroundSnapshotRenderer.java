@@ -12,7 +12,6 @@ import javax.imageio.ImageIO;
 
 import ch.obermuhlner.mandelbrot.javafx.palette.Palette;
 import ch.obermuhlner.mandelbrot.math.BigDecimalMath;
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
@@ -84,7 +83,7 @@ public class BackgroundSnapshotRenderer extends Thread {
 				TWO,
 				BigDecimal.valueOf(snapshotRequest.drawRequest.zoom),
 				snapshotRequest.palette,
-				snapshotRequest);
+				new UiThreadProgress(snapshotRequest));
 	}
 
 	private static void renderImage(File file, BigDecimal xCenter, BigDecimal yCenter, BigDecimal zoomStart, BigDecimal zoomPower, Palette palette, Progress progress) {
@@ -160,14 +159,10 @@ public class BackgroundSnapshotRenderer extends Thread {
 			x0 += stepX;
 			
 			double progressValue = (double)pixelX / imageWidth;
-			Platform.runLater(() -> {
-				progress.setProgress(progressValue);
-			});
+			progress.setProgress(progressValue);
 		}
 		
-		Platform.runLater(() -> {
-			progress.setProgress(1.0);
-		});
+		progress.setProgress(1.0);
 
 		return image;
 	}	
@@ -212,14 +207,10 @@ public class BackgroundSnapshotRenderer extends Thread {
 			x0 = x0.add(stepX);
 
 			double progressValue = (double)pixelX / imageWidth;
-			Platform.runLater(() -> {
-				progress.setProgress(progressValue);
-			});
+			progress.setProgress(progressValue);
 		}
 
-		Platform.runLater(() -> {
-			progress.setProgress(1.0);
-		});
+		progress.setProgress(1.0);
 		
 		return image;
 	}
