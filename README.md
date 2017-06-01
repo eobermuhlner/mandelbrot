@@ -81,7 +81,7 @@ ffmpeg -y -r 10 -start_number 0 -i mandelbrot%04d.png -s 800x800 -vcodec mpeg4 -
 ![Mandelbrot Palette Fire](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_snail_shell_zoom10_fire.png?raw=true "Mandelbrot Palette Fire")
 
 ### Palette Water
-![Mandelbrot Palette Water](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_snail_shell_zoom10_water_.png?raw=true "Mandelbrot Palette Water")
+![Mandelbrot Palette Water](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_snail_shell_zoom10_water.png?raw=true "Mandelbrot Palette Water")
 
 ### Palette Earth
 ![Mandelbrot Palette Earth](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_snail_shell_zoom10_earth.png?raw=true "Mandelbrot Palette Earth")
