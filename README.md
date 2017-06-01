@@ -12,6 +12,12 @@ Rendering is optimized so that the application stays responsive, although the co
 
 The interactive viewer allows to create snapshot image files which will be rendered in the background.
 
+To start the interactive viewer use the following command line:
+```shell
+java -cp mandelbrot.jar ch.obermuhlner.mandelbrot.javafx.MandelbrotApp
+```
+
+
 ![Screenshot Mandelbrot Viewer](ch.obermuhlner.mandelbrot.docs/screenshots/mandelbrot_snail_shell.png?raw=true)
 
 ## Command Line Tool
