@@ -85,12 +85,14 @@ public class BackgroundSnapshotRenderer extends Thread {
 				TWO,
 				BigDecimal.valueOf(snapshotRequest.drawRequest.zoom),
 				snapshotRequest.palette,
+				snapshotRequest.width,
+				snapshotRequest.height,
 				new UiThreadProgress(snapshotRequest));
 		snapshotRequest.snapshotStatusProperty().set(SnapshotStatus.Done);
 		snapshotRequest.calculationMillisProperty().set(stopWatch.getElapsedMilliseconds());
 	}
 
-	private void renderImage(File file, BigDecimal xCenter, BigDecimal yCenter, BigDecimal zoomStart, BigDecimal zoomPower, Palette palette, Progress progress) {
+	private void renderImage(File file, BigDecimal xCenter, BigDecimal yCenter, BigDecimal zoomStart, BigDecimal zoomPower, Palette palette, int imageWidth, int imageHeight, Progress progress) {
 		if (file.exists()) {
 			System.out.println("Already calculated " + file.getName() + " with zoom " + zoomPower.toPlainString());
 			return;
@@ -100,8 +102,6 @@ public class BackgroundSnapshotRenderer extends Thread {
 		MathContext mc = new MathContext(precision, RoundingMode.HALF_UP);
 		BigDecimal radius = zoomStart.multiply(BigDecimalMath.tenToThePowerOf(zoomPower.negate(), mc));
 		int maxIterations = 1000 + zoomPower.intValue() * 100;
-		int imageWidth = 800;
-		int imageHeight = 800;
 
 		WritableImage image = mandelbrotRenderer.drawMandelbrot(xCenter, yCenter, radius, radius, precision, maxIterations, imageWidth, imageHeight, palette, progress);
 		

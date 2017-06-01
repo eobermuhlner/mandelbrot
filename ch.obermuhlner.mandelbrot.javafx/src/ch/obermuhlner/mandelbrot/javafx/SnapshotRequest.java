@@ -11,20 +11,24 @@ import javafx.beans.property.SimpleObjectProperty;
 public class SnapshotRequest implements Progress {
 	public final DrawRequest drawRequest;
 	public final Palette palette;
+	public final int width;
+	public final int height;
 	public final File file;
-	public final int width = 800;
-	public final int height = 800;
 	
-	private double totalProgress = width * height;
+	private double totalProgress;
 	private double currentProgress;
 	private final DoubleProperty progressProperty = new SimpleDoubleProperty();
 	private final DoubleProperty calculationMillisProperty = new SimpleDoubleProperty();
 	private final ObjectProperty<SnapshotStatus> snapshotStatusProperty = new SimpleObjectProperty<>(SnapshotStatus.Waiting);
 	
-	public SnapshotRequest(DrawRequest drawRequest, Palette palette, File file) {
+	public SnapshotRequest(DrawRequest drawRequest, Palette palette, int width, int height, File file) {
 		this.drawRequest = drawRequest;
 		this.palette = palette;
+		this.width = width;
+		this.height = height;
 		this.file = file;
+		
+		totalProgress = width * height;
 	}
 	
 	@Override

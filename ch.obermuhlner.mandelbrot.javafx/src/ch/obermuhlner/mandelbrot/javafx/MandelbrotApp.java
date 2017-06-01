@@ -53,6 +53,7 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Callback;
@@ -120,6 +121,9 @@ public class MandelbrotApp extends Application {
 	private BooleanProperty crosshairProperty = new SimpleBooleanProperty(true); 
 	private BooleanProperty gridProperty = new SimpleBooleanProperty(false); 
 
+	private IntegerProperty snapshotWidthProperty = new SimpleIntegerProperty(800);
+	private IntegerProperty snapshotHeightProperty = new SimpleIntegerProperty(800);
+
 	private Palette palette;
 
 	private Canvas mandelbrotCanvas;
@@ -151,7 +155,7 @@ public class MandelbrotApp extends Application {
 		mandelbrotCanvas = createMandelbrotCanvas();
 		borderPane.setCenter(mandelbrotCanvas);
 		
-		Node status = createStatus();
+		Node status = createSnapshotEditor();
 		borderPane.setBottom(status);
 		
 		primaryStage.setScene(scene);
@@ -203,15 +207,7 @@ public class MandelbrotApp extends Application {
 			paletteSeedProperty.set(pointOfInterest.paletteSeed);
 			paletteStepProperty.set(pointOfInterest.paletteStep);
 		});
-		
-		Button snapshotButton = new Button("Snapshot");
-		box.getChildren().add(snapshotButton);
-		snapshotButton.setOnAction(event -> {
-			DrawRequest drawRequest = new DrawRequest(xCenterProperty.get(), yCenterProperty.get(), zoomProperty.get());
-			String filename = "mandelbrot" + LocalDateTime.now().toString().replace(':', '_') + ".png";
-			backgroundSnapshotRenderer.addSnapshotRequest(new SnapshotRequest(drawRequest, palette, new File(filename)));
-		});
-		
+				
 		return box;
 	}
 	
@@ -274,41 +270,73 @@ public class MandelbrotApp extends Application {
 		return box;
 	}
 
-	private Node createStatus() {
-		TableView<SnapshotRequest> snapshotTableView = new TableView<>(backgroundSnapshotRenderer.getSnapshotRequests());
-		snapshotTableView.setPrefHeight(100);
-		addTableColumn(snapshotTableView, "File", 250, snapshotRequest -> {
-			return new ReadOnlyStringWrapper(snapshotRequest.file.getName());
-		});
-		addTableColumn(snapshotTableView, "Status", 100, snapshotRequest -> {
-			return snapshotRequest.snapshotStatusProperty();
-		});
-		addProgressBarTableColumn(snapshotTableView, "Progress", 100, snapshotRequest -> {
-			return snapshotRequest.progressProperty().asObject();
-		});
-		addTableColumn(snapshotTableView, "%", 60, snapshotRequest -> {
-			return snapshotRequest.progressProperty().multiply(100);
-		});
-		addTableColumn(snapshotTableView, "Calculation Time", 100, snapshotRequest -> {
-			return snapshotRequest.calculationMillisProperty();
-		});
-		addTableColumn(snapshotTableView, "X", 100, snapshotRequest -> {
-			return new ReadOnlyStringWrapper(DOUBLE_8DIGITS_FORMAT.format(snapshotRequest.drawRequest.x));
-		});
-		addTableColumn(snapshotTableView, "Y", 100, snapshotRequest -> {
-			return new ReadOnlyStringWrapper(DOUBLE_8DIGITS_FORMAT.format(snapshotRequest.drawRequest.y));
-		});
-		addTableColumn(snapshotTableView, "Zoom", 60, snapshotRequest -> {
-			return new ReadOnlyStringWrapper(DOUBLE_FORMAT.format(snapshotRequest.drawRequest.zoom));
-		});
-		addTableColumn(snapshotTableView, "Width", 60, snapshotRequest -> {
-			return new ReadOnlyStringWrapper(INTEGER_FORMAT.format(snapshotRequest.width));
-		});
-		addTableColumn(snapshotTableView, "Height", 60, snapshotRequest -> {
-			return new ReadOnlyStringWrapper(INTEGER_FORMAT.format(snapshotRequest.height));
-		});
+	private Node createSnapshotEditor() {
+		VBox vBox = new VBox(4);
 
-		return snapshotTableView;
+		{
+			HBox hBox = new HBox(4);
+			vBox.getChildren().add(hBox);
+			
+			TextField widthTextField = new TextField();
+			widthTextField.setPrefWidth(60);
+			hBox.getChildren().add(widthTextField);
+			Bindings.bindBidirectional(widthTextField.textProperty(), snapshotWidthProperty, INTEGER_FORMAT);
+
+			hBox.getChildren().add(new Label("x"));
+
+			TextField heightTextField = new TextField();
+			heightTextField.setPrefWidth(60);
+			hBox.getChildren().add(heightTextField);
+			Bindings.bindBidirectional(heightTextField.textProperty(), snapshotHeightProperty, INTEGER_FORMAT);
+
+			Button snapshotButton = new Button("Snapshot");
+			hBox.getChildren().add(snapshotButton);
+			snapshotButton.setOnAction(event -> {
+				DrawRequest drawRequest = new DrawRequest(xCenterProperty.get(), yCenterProperty.get(), zoomProperty.get());
+				String filename = "mandelbrot" + LocalDateTime.now().toString().replace(':', '_') + ".png";
+				int width = snapshotWidthProperty.get();
+				int height = snapshotHeightProperty.get();
+				backgroundSnapshotRenderer.addSnapshotRequest(new SnapshotRequest(drawRequest, palette, width, height, new File(filename)));
+			});
+		}
+
+		{
+			TableView<SnapshotRequest> snapshotTableView = new TableView<>(backgroundSnapshotRenderer.getSnapshotRequests());
+			vBox.getChildren().add(snapshotTableView);
+			snapshotTableView.setPrefHeight(100);
+			addTableColumn(snapshotTableView, "File", 250, snapshotRequest -> {
+				return new ReadOnlyStringWrapper(snapshotRequest.file.getName());
+			});
+			addTableColumn(snapshotTableView, "Status", 100, snapshotRequest -> {
+				return snapshotRequest.snapshotStatusProperty();
+			});
+			addProgressBarTableColumn(snapshotTableView, "Progress", 100, snapshotRequest -> {
+				return snapshotRequest.progressProperty().asObject();
+			});
+			addTableColumn(snapshotTableView, "%", 60, snapshotRequest -> {
+				return snapshotRequest.progressProperty().multiply(100);
+			});
+			addTableColumn(snapshotTableView, "Calculation Time", 100, snapshotRequest -> {
+				return snapshotRequest.calculationMillisProperty();
+			});
+			addTableColumn(snapshotTableView, "X", 100, snapshotRequest -> {
+				return new ReadOnlyStringWrapper(DOUBLE_8DIGITS_FORMAT.format(snapshotRequest.drawRequest.x));
+			});
+			addTableColumn(snapshotTableView, "Y", 100, snapshotRequest -> {
+				return new ReadOnlyStringWrapper(DOUBLE_8DIGITS_FORMAT.format(snapshotRequest.drawRequest.y));
+			});
+			addTableColumn(snapshotTableView, "Zoom", 60, snapshotRequest -> {
+				return new ReadOnlyStringWrapper(DOUBLE_FORMAT.format(snapshotRequest.drawRequest.zoom));
+			});
+			addTableColumn(snapshotTableView, "Width", 60, snapshotRequest -> {
+				return new ReadOnlyStringWrapper(INTEGER_FORMAT.format(snapshotRequest.width));
+			});
+			addTableColumn(snapshotTableView, "Height", 60, snapshotRequest -> {
+				return new ReadOnlyStringWrapper(INTEGER_FORMAT.format(snapshotRequest.height));
+			});
+		}
+
+		return vBox;
 	}
 
 	private <E, V> TableColumn<E, V> addTableColumn(TableView<E> tableView, String header, double prefWidth, Function<E, ObservableValue<V>> valueFunction) {
