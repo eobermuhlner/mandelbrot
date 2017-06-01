@@ -25,77 +25,155 @@ import ch.obermuhlner.mandelbrot.util.StopWatch;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.WritableImage;
 
+// ffmpeg -y -r 10 -start_number 0 -i mandelbrot%04d.png -s 800x800 -vcodec mpeg4 -q:v 1 mandelbrot.mp4
+
 public class MandelbrotZoom {
 
 	private static final MandelbrotRenderer mandelbrotRenderer = new AutoPrecisionMandelbrotRenderer();
 	
 	public static void main(String[] args) {
 		if (args.length == 0) {
-			renderZoomImagesPoi("Snail Shell", 100);
+			printHelp();
 			return;
 		}
 		
-		if ("-h".equals(args[0])) {
-			System.out.println("Arguments: xCenter yCenter zoomStart zoomStep paletteSeed paletteStep imageCount directoryName");
-			return;
-		} else if ("-poi".equals(args[0])) {
-			String poiName = stringArgument(args, 1, "Snail Shell");
-			int imageCount = integerArgument(args, 2, 100);
-			renderZoomImagesPoi(poiName, imageCount);
-		} else {
-			String xCenterString = stringArgument(args, 0, "0");
-			String yCenterString = stringArgument(args, 1, "0");
-			String zoomStartString = stringArgument(args, 2, "5");
-			String zoomStepString = stringArgument(args, 3, "0.1");
-			int paletteSeed= integerArgument(args, 4, 14);
-			int paletteStep = integerArgument(args, 5, 20);
-			int imageCount = integerArgument(args, 6, 100);
-			String directoryName = stringArgument(args, 7, "zoom");
+		BigDecimal xCenter = new BigDecimal("0");
+		BigDecimal yCenter = new BigDecimal("0");
+		BigDecimal zoomStart = new BigDecimal("5");
+		BigDecimal zoomStep = new BigDecimal("0.1");
+		int paletteSeed= 14;
+		int paletteStep = 20;
+		int imageCount = 100;
+		String directoryName = "zoom";
+		
+		int argumentIndex = 0;
+		while(argumentIndex < args.length) {
+		
+			switch(args[argumentIndex]) {
+			case "-h":
+			case "-?":
+			case "--help":
+				printHelp();
+				return;
+				
+			case "-p":
+			case "--poi":
+				String poiName = stringArgument(args, ++argumentIndex, "Snail Shell");
+				PointOfInterest pointOfInterest = findPointOfInterest(poiName);
+				if (pointOfInterest != null) {
+					xCenter = pointOfInterest.x;
+					yCenter = pointOfInterest.y;
+					paletteSeed = pointOfInterest.paletteSeed;
+					paletteStep = pointOfInterest.paletteStep;
+					directoryName = pointOfInterest.name;
+				}
+				break;
+
+			case "-x":
+			case "--x":
+				xCenter = bigDecimalArgument(args, ++argumentIndex, BigDecimal.ZERO);
+				break;
+			case "-y":
+			case "--y":
+				yCenter = bigDecimalArgument(args, ++argumentIndex, BigDecimal.ZERO);
+				break;
+			case "-i":
+			case "--zoomStart":
+				zoomStart = bigDecimalArgument(args, ++argumentIndex, new BigDecimal("5"));
+				break;
+			case "-z":
+			case "--zoomStep":
+				zoomStep = bigDecimalArgument(args, ++argumentIndex, new BigDecimal("0.1"));
+				break;
+			case "-r":
+			case "--paletteSeed":
+				paletteSeed = integerArgument(args, ++argumentIndex, 14);
+				break;
+			case "-s":
+			case "--paletteStep":
+				paletteSeed = integerArgument(args, ++argumentIndex, 20);
+				break;
+			case "-c":
+			case "--count":
+			case "--imageCount":
+				imageCount = integerArgument(args, ++argumentIndex, 100);
+				break;
+			case "-n":
+			case "--name":
+			case "--directoryName":
+				directoryName = stringArgument(args, ++argumentIndex, "zoom");
+				break;
+			default:
+				System.out.println("Unknown option: " + args[argumentIndex]);
+				return;
+			}
 			
-			Palette palette = new CachingPalette(new InterpolatingPalette(new RandomPalette(paletteSeed), paletteStep));
-			renderZoomImages(xCenterString, yCenterString, zoomStartString, zoomStepString, palette, imageCount, directoryName);		
+			argumentIndex++;
 		}
+		
+		Palette palette = new CachingPalette(new InterpolatingPalette(new RandomPalette(paletteSeed), paletteStep));
+
+		renderZoomImages(xCenter, yCenter, zoomStart, zoomStep, palette, imageCount, directoryName);		
 	}
 	
+	private static void printHelp() {
+		System.out.println("Options:");
+		System.out.println("  -p");
+		System.out.println("  --poi              point of interest name (defines x, y, palette, name)");
+		System.out.println("  -x                 center x coordinate");
+		System.out.println("  -y                 center y coordinate");
+		System.out.println("  -i");
+		System.out.println("  --zoomStart        zoom start");
+		System.out.println("  -z");
+		System.out.println("  --zoomStep         zoom step");
+		System.out.println("  -r");
+		System.out.println("  --paletteSeed      palette random seed");
+		System.out.println("  -s");
+		System.out.println("  --paletteStep      palette step");
+		System.out.println("  -c");
+		System.out.println("  --count");
+		System.out.println("  --imageCount       image count");
+		System.out.println("  -n");
+		System.out.println("  --name");
+		System.out.println("  --directoryName    output directory name");
+		System.out.println();
+		System.out.println("Points of interest:");
+		for (PointOfInterest pointOfInterest : StandardPointsOfInterest.POINTS_OF_INTEREST) {
+			System.out.println("  " + pointOfInterest.name);
+		}
+	}
+
 	private static String stringArgument(String[] args, int index, String defaultValue) {
-		if (args.length < index) {
+		if (index < args.length) {
 			return args[index];
 		} else {
 			return defaultValue;
 		}
 	}
 	
+	private static BigDecimal bigDecimalArgument(String[] args, int index, BigDecimal defaultValue) {
+		return new BigDecimal(stringArgument(args, index, defaultValue.toString()));
+	}
+
 	private static int integerArgument(String[] args, int index, int defaultValue) {
 		return Integer.parseInt(stringArgument(args, index, String.valueOf(defaultValue)));
 	}
 	
-	private static void renderZoomImagesPoi(String pointOfInterestPattern, int imageCount) {
+	private static PointOfInterest findPointOfInterest(String poiName) {
 		for (PointOfInterest pointOfInterest : StandardPointsOfInterest.POINTS_OF_INTEREST) {
-			if (pointOfInterestPattern.equals("") || pointOfInterestPattern.equals(pointOfInterest.name)) {
-				Palette palette = new CachingPalette(new InterpolatingPalette(new RandomPalette(pointOfInterest.paletteSeed), pointOfInterest.paletteStep));
-
-				renderZoomImages(
-						pointOfInterest.x.toPlainString(),
-						pointOfInterest.y.toPlainString(),
-						"5",
-						"0.1",
-						palette,
-						imageCount,
-						pointOfInterest.name);
+			if (pointOfInterest.name.equals(poiName)) {
+				return pointOfInterest;
 			}
 		}
+		
+		return null;
 	}
-
-	public static void renderZoomImages(String xCenterString, String yCenterString, String zoomStartString, String zoomStepString, Palette palette, int imageCount, String directoryName) {
+	
+	public static void renderZoomImages(BigDecimal xCenter, BigDecimal yCenter, BigDecimal zoomStart, BigDecimal zoomStep, Palette palette, int imageCount, String directoryName) {
 		Path outDir = Paths.get("images", directoryName);
 		outDir.toFile().mkdirs();
 
 		StopWatch stopWatch = new StopWatch();
-
-		BigDecimal xCenter = new BigDecimal(xCenterString);
-		BigDecimal yCenter = new BigDecimal(yCenterString);
-		BigDecimal zoomStart = new BigDecimal(zoomStartString);
-		BigDecimal zoomStep = new BigDecimal(zoomStepString);
 
 		IntStream.range(0, imageCount).forEach(index -> {
 			String filename = String.format("mandelbrot%04d.png", index);
