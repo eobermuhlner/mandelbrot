@@ -199,6 +199,7 @@ public class MandelbrotApp extends Application {
 		
 		ComboBox<PointOfInterest> pointsOfInterestComboBox = new ComboBox<>(FXCollections.observableList(Arrays.asList(StandardPointsOfInterest.POINTS_OF_INTEREST)));
 		box.getChildren().add(pointsOfInterestComboBox);
+		pointsOfInterestComboBox.setValue(StandardPointsOfInterest.POINTS_OF_INTEREST[0]);
 		pointsOfInterestComboBox.setOnAction(event -> {
 			PointOfInterest pointOfInterest = pointsOfInterestComboBox.getValue();
 			xCenterProperty.set(pointOfInterest.x);
