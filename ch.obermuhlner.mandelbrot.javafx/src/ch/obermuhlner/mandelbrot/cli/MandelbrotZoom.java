@@ -60,13 +60,15 @@ public class MandelbrotZoom {
 			case "--poi":
 				String poiName = stringArgument(args, ++argumentIndex, "Snail Shell");
 				PointOfInterest pointOfInterest = findPointOfInterest(poiName);
-				if (pointOfInterest != null) {
-					xCenter = pointOfInterest.x;
-					yCenter = pointOfInterest.y;
-					paletteSeed = pointOfInterest.paletteSeed;
-					paletteStep = pointOfInterest.paletteStep;
-					directoryName = pointOfInterest.name;
-				}
+				if (pointOfInterest == null) {
+					System.out.println("Point of interest not found: " + poiName);
+					return;
+				} 
+				xCenter = pointOfInterest.x;
+				yCenter = pointOfInterest.y;
+				paletteSeed = pointOfInterest.paletteSeed;
+				paletteStep = pointOfInterest.paletteStep;
+				directoryName = pointOfInterest.name;
 				break;
 
 			case "-x":
@@ -112,6 +114,15 @@ public class MandelbrotZoom {
 		}
 		
 		Palette palette = new CachingPalette(new InterpolatingPalette(new RandomPalette(paletteSeed), paletteStep));
+
+		System.out.println("x :             " + xCenter);
+		System.out.println("y :             " + yCenter);
+		System.out.println("zoomStart :     " + zoomStart);
+		System.out.println("zoomStep :      " + zoomStep);
+		System.out.println("paletteSeed :   " + paletteSeed);
+		System.out.println("paletteStep :   " + paletteStep);
+		System.out.println("imageCount :    " + imageCount);
+		System.out.println("directoryName : " + directoryName);
 
 		renderZoomImages(xCenter, yCenter, zoomStart, zoomStep, palette, imageCount, directoryName);		
 	}
