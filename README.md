@@ -6,11 +6,13 @@ Interactive Mandelbrot Viewer and command line tool to generate zoom sequences i
 
 The interactive viewer allows user interaction using mouse interaction, touch gestures or the keyboard.
 
-It is possible to zoom interactively down to 10^-100, all calculations switch automatically from double to BigDecimal if more precision is needed.
+It is possible to zoom interactively down to 10<sup>-100</sup>, all calculations switch automatically from double to BigDecimal if more precision is needed.
 
 Rendering is optimized so that the application stays responsive, although the complete rendering of an image on zoom level 100 may surpass 1 hour.
 
 The interactive viewer allows to create snapshot image files which will be rendered in the background.
+
+Multiple palettes are supported.
 
 To start the interactive viewer use the following command line:
 ```shell
