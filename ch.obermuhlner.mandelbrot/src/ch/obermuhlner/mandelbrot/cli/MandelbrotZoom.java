@@ -11,6 +11,7 @@ import java.util.stream.IntStream;
 
 import javax.imageio.ImageIO;
 
+import ch.obermuhlner.mandelbrot.javafx.DummyProgress;
 import ch.obermuhlner.mandelbrot.javafx.Progress;
 import ch.obermuhlner.mandelbrot.javafx.palette.CachingPalette;
 import ch.obermuhlner.mandelbrot.javafx.palette.InterpolatingPalette;
@@ -59,7 +60,7 @@ public class MandelbrotZoom {
 			case "-p":
 			case "--poi":
 				String poiName = stringArgument(args, ++argumentIndex, "Snail Shell");
-				PointOfInterest pointOfInterest = findPointOfInterest(poiName);
+				PointOfInterest pointOfInterest = StandardPointsOfInterest.findPointOfInterest(poiName);
 				if (pointOfInterest == null) {
 					System.out.println("Point of interest not found: " + poiName);
 					return;
@@ -178,17 +179,7 @@ public class MandelbrotZoom {
 	private static int integerArgument(String[] args, int index, int defaultValue) {
 		return Integer.parseInt(stringArgument(args, index, String.valueOf(defaultValue)));
 	}
-	
-	private static PointOfInterest findPointOfInterest(String poiName) {
-		for (PointOfInterest pointOfInterest : StandardPointsOfInterest.POINTS_OF_INTEREST) {
-			if (pointOfInterest.name.equals(poiName)) {
-				return pointOfInterest;
-			}
-		}
 		
-		return null;
-	}
-	
 	public static void renderZoomImages(BigDecimal xCenter, BigDecimal yCenter, BigDecimal zoomStart, BigDecimal zoomStep, Palette palette, int imageCount, String directoryName) {
 		Path outDir = Paths.get("images", directoryName);
 		outDir.toFile().mkdirs();
@@ -220,20 +211,7 @@ public class MandelbrotZoom {
 		int imageWidth = 800;
 		int imageHeight = 800;
 
-		Progress progress = new Progress() {
-			@Override
-			public void setTotalProgress(double totalProgress) {
-				// ignore
-			}
-			@Override
-			public void incrementProgress(double progress) {
-				// ignore
-			}
-			@Override
-			public double getProgress() {
-				return 1.0;
-			}
-		};
+		Progress progress = new DummyProgress();
 		
 		WritableImage image = mandelbrotRenderer.drawMandelbrot(
 				xCenter,

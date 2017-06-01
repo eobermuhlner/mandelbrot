@@ -118,4 +118,14 @@ public class StandardPointsOfInterest {
 					24,
 					20),
 	};
+
+	public static PointOfInterest findPointOfInterest(String poiName) {
+		for (PointOfInterest pointOfInterest : StandardPointsOfInterest.POINTS_OF_INTEREST) {
+			if (pointOfInterest.name.equals(poiName)) {
+				return pointOfInterest;
+			}
+		}
+		
+		return null;
+	}
 }
