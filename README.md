@@ -4,15 +4,15 @@ Interactive Mandelbrot Viewer and command line tool to generate zoom sequences i
 
 ## Interactive Viewer
 
-The interactive viewer allows user interaction using mouse interaction, touch gestures or the keyboard.
+The interactive viewer allows user interaction using mouse, touch gestures or the keyboard.
 
-It is possible to zoom interactively down to 10<sup>-100</sup>, all calculations switch automatically from double to BigDecimal if more precision is needed.
+It is possible to zoom interactively down to 10<sup>-100</sup> and beyond, all calculations switch automatically from double to BigDecimal if more precision is needed.
 
-Rendering is optimized so that the application stays responsive, although the complete rendering of an image on zoom level 100 may surpass 1 hour.
+Rendering is progressive and optimized so that the application stays responsive, although the complete rendering of an image on zoom level 100 may surpass 1 hour.
 
-The interactive viewer allows to create snapshot image files which will be rendered in the background.
+The viewer allows to create snapshot image files which will be rendered in the background.
 
-Multiple palettes are supported.
+Multiple color palette variations are supported.
 
 To start the interactive viewer use the following command line:
 ```bash
@@ -42,9 +42,9 @@ java -cp mandelbrot.jar ch.obermuhlner.mandelbrot.cli.MandelbrotZoom \
     --paletteSeed 1 \
     --paletteStep 10 \
     --imageCount 100 \
-    --directoryName Thorns \
+    --directoryName Thorns
 ```
-This will create a folder containing 100 images.
+This will create a folder containing 100 images starting with a radius of 5, incrementing the zoom level by 0.1 every image.
 
 You can create a video from these images using the `ffmpeg` tool:
 ```bash
@@ -81,7 +81,7 @@ ffmpeg -y -r 10 -start_number 0 -i mandelbrot%04d.png -s 800x800 -vcodec mpeg4 -
 ![Mandelbrot Palette Fire](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_snail_shell_zoom10_fire.png?raw=true "Mandelbrot Palette Fire")
 
 ### Palette Water
-![Mandelbrot Palette Water](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_snail_shell_zoom10_water_.png?raw=true "Mandelbrot Palette Water")
+![Mandelbrot Palette Water](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_snail_shell_zoom10_water.png?raw=true "Mandelbrot Palette Water")
 
 ### Palette Earth
 ![Mandelbrot Palette Earth](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_snail_shell_zoom10_earth.png?raw=true "Mandelbrot Palette Earth")
