@@ -231,7 +231,7 @@ public class MandelbrotZoom {
 
 		StopWatch stopWatch = new StopWatch();
 
-		IntStream.range(imageCountStart, imageCount - imageCountStart).forEach(index -> {
+		IntStream.range(imageCountStart, imageCount).forEach(index -> {
 			String filename = String.format("mandelbrot%04d.png", index);
 			File file = outDir.resolve(filename).toFile();
 			BigDecimal zoomPower = zoomStep.multiply(new BigDecimal(index));
