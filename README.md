@@ -51,6 +51,10 @@ You can create a video from these images using the `ffmpeg` tool:
 ffmpeg -y -r 10 -start_number 0 -i mandelbrot%04d.png -s 800x800 -vcodec mpeg4 -q:v 1 mandelbrot.mp4
 ```
 
+## Video Gallery 
+
+[![Video - Wheels on Fire](https://img.youtube.com/vi/p3Zv8fSEsSg/0.jpg)](https://www.youtube.com/watch?v=p3Zv8fSEsSg "Wheels on Fire")
+
 ## Gallery
 
 ![Mandelbrot Curved Swords at zoom 10^-4](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_curved_swords_zoom4.png?raw=true "Mandelbrot Curved Swords at zoom 10^-4")
