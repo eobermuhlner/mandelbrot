@@ -1,5 +1,6 @@
 package ch.obermuhlner.mandelbrot.cli;
 
+import java.awt.image.BufferedImage;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -16,7 +17,6 @@ import javax.imageio.ImageIO;
 
 import ch.obermuhlner.mandelbrot.javafx.DummyProgress;
 import ch.obermuhlner.mandelbrot.javafx.Progress;
-import ch.obermuhlner.mandelbrot.javafx.WritableImageMandelbrotResult;
 import ch.obermuhlner.mandelbrot.math.BigDecimalMath;
 import ch.obermuhlner.mandelbrot.palette.CachingPalette;
 import ch.obermuhlner.mandelbrot.palette.InterpolatingPalette;
@@ -28,8 +28,6 @@ import ch.obermuhlner.mandelbrot.poi.StandardPointsOfInterest;
 import ch.obermuhlner.mandelbrot.render.AutoPrecisionMandelbrotRenderer;
 import ch.obermuhlner.mandelbrot.render.MandelbrotRenderer;
 import ch.obermuhlner.mandelbrot.util.StopWatch;
-import javafx.embed.swing.SwingFXUtils;
-import javafx.scene.image.WritableImage;
 
 // ffmpeg -y -r 10 -start_number 0 -i mandelbrot%04d.png -s 800x800 -vcodec mpeg4 -q:v 1 mandelbrot.mp4
 
@@ -231,8 +229,8 @@ public class MandelbrotZoom {
 
 		Progress progress = new DummyProgress();
 		
-		WritableImage image = new WritableImage(imageWidth, imageHeight);
-		WritableImageMandelbrotResult result = new WritableImageMandelbrotResult(image, palette);
+		BufferedImage image = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_RGB);
+		BufferedImageMandelbrotResult result = new BufferedImageMandelbrotResult(image, palette);
 		mandelbrotRenderer.drawMandelbrot(
 				result,
 				xCenter,
@@ -247,7 +245,7 @@ public class MandelbrotZoom {
 		
 		try {
 			System.out.println("Calculated " + file.getName() + " with zoom " + zoomPower.toPlainString() + " in " + stopWatch);
-			ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", file);
+			ImageIO.write(image, "png", file);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}		
