@@ -43,11 +43,11 @@ public class MandelbrotZoom {
 		BigDecimal xCenter = new BigDecimal("0");
 		BigDecimal yCenter = new BigDecimal("0");
 		BigDecimal zoomStart = new BigDecimal("5");
-		BigDecimal zoomStep = new BigDecimal("0.1");
+		BigDecimal zoomStep = new BigDecimal("0.01");
 		PaletteType paletteType = PaletteType.RandomColor;
 		int paletteSeed = 14;
 		int paletteStep = 20;
-		int imageCount = 100;
+		int imageCount = 1000;
 		String directoryName = "zoom";
 		
 		int argumentIndex = 0;
@@ -90,7 +90,7 @@ public class MandelbrotZoom {
 				break;
 			case "-z":
 			case "--zoomStep":
-				zoomStep = bigDecimalArgument(args, ++argumentIndex, new BigDecimal("0.1"));
+				zoomStep = bigDecimalArgument(args, ++argumentIndex, new BigDecimal("0.01"));
 				break;
 			case "-t":
 			case "--paletteType":
@@ -107,7 +107,7 @@ public class MandelbrotZoom {
 			case "-c":
 			case "--count":
 			case "--imageCount":
-				imageCount = integerArgument(args, ++argumentIndex, 100);
+				imageCount = integerArgument(args, ++argumentIndex, 1000);
 				break;
 			case "-n":
 			case "--name":
