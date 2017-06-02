@@ -1,5 +1,6 @@
 package ch.obermuhlner.mandelbrot.javafx;
 
+import java.awt.Desktop;
 import java.io.File;
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -46,6 +47,7 @@ import javafx.scene.control.Spinner;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellDataFeatures;
+import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
@@ -300,6 +302,22 @@ public class MandelbrotApp extends Application {
 			TableView<SnapshotRequest> snapshotTableView = new TableView<>(backgroundSnapshotRenderer.getSnapshotRequests());
 			vBox.getChildren().add(snapshotTableView);
 			snapshotTableView.setPrefHeight(100);
+			snapshotTableView.setRowFactory(new Callback<TableView<SnapshotRequest>, TableRow<SnapshotRequest>>() {
+				@Override
+				public TableRow<SnapshotRequest> call(TableView<SnapshotRequest> param) {
+					TableRow<SnapshotRequest> tableRow = new TableRow<>();
+					tableRow.setOnMouseClicked(event -> {
+						if (event.getClickCount() == 2) {
+							try {
+								Desktop.getDesktop().open(tableRow.getItem().file);
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
+						}
+					});
+					return tableRow;
+				}
+			});
 			addTableColumn(snapshotTableView, "File", 250, snapshotRequest -> {
 				return new ReadOnlyStringWrapper(snapshotRequest.file.getName());
 			});
