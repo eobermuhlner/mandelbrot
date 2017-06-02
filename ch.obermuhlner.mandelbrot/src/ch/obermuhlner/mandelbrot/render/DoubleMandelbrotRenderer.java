@@ -2,24 +2,16 @@ package ch.obermuhlner.mandelbrot.render;
 
 import java.math.BigDecimal;
 
-import ch.obermuhlner.mandelbrot.javafx.ColorUtil;
 import ch.obermuhlner.mandelbrot.javafx.Progress;
-import ch.obermuhlner.mandelbrot.palette.Color;
-import ch.obermuhlner.mandelbrot.palette.Palette;
-import javafx.scene.image.PixelWriter;
-import javafx.scene.image.WritableImage;
 
 public class DoubleMandelbrotRenderer implements MandelbrotRenderer {
 
 	@Override
-	public WritableImage drawMandelbrot(BigDecimal xCenter, BigDecimal yCenter, BigDecimal xRadius, BigDecimal yRadius, int precision, int maxIterations, int imageWidth, int imageHeight, Palette palette, Progress progress) {
-		return drawMandelbrotDouble(xCenter.doubleValue(), yCenter.doubleValue(), xRadius.doubleValue(), yRadius.doubleValue(), maxIterations, imageWidth, imageHeight, palette, progress);
+	public void drawMandelbrot(MandelbrotResult result, BigDecimal xCenter, BigDecimal yCenter, BigDecimal xRadius, BigDecimal yRadius, int precision, int maxIterations, int imageWidth, int imageHeight, Progress progress) {
+		drawMandelbrotDouble(result, xCenter.doubleValue(), yCenter.doubleValue(), xRadius.doubleValue(), yRadius.doubleValue(), maxIterations, imageWidth, imageHeight, progress);
 	}
 
-	private WritableImage drawMandelbrotDouble(double xCenter, double yCenter, double xRadius, double yRadius, int maxIterations, int imageWidth, int imageHeight, Palette palette, Progress progress) {
-		WritableImage image = new WritableImage(imageWidth, imageHeight);
-		PixelWriter pixelWriter = image.getPixelWriter();
-		
+	private void drawMandelbrotDouble(MandelbrotResult result, double xCenter, double yCenter, double xRadius, double yRadius, int maxIterations, int imageWidth, int imageHeight, Progress progress) {
 		double stepX = xRadius*2 / imageWidth;
 		double stepY = yRadius*2 / imageHeight;
 		double x0 = 0 - xCenter - xRadius; 
@@ -41,8 +33,8 @@ public class DoubleMandelbrotRenderer implements MandelbrotRenderer {
 					yy = y*y;
 				}
 
-				Color color = iterations == maxIterations ? Color.BLACK : palette.getColor(iterations);
-				pixelWriter.setColor(pixelX, pixelY, ColorUtil.toJavafxColor(color));
+				iterations = iterations == maxIterations ? Integer.MAX_VALUE : iterations;
+				result.setIterations(pixelX, pixelY, iterations);
 
 				y0 += stepY;
 			}
@@ -50,8 +42,6 @@ public class DoubleMandelbrotRenderer implements MandelbrotRenderer {
 			
 			progress.incrementProgress(imageWidth);
 		}
-		
-		return image;
 	}	
 
 	

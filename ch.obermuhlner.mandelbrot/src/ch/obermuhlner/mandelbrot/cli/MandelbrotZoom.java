@@ -13,9 +13,11 @@ import javax.imageio.ImageIO;
 
 import ch.obermuhlner.mandelbrot.javafx.DummyProgress;
 import ch.obermuhlner.mandelbrot.javafx.Progress;
+import ch.obermuhlner.mandelbrot.javafx.WritableImageMandelbrotResult;
 import ch.obermuhlner.mandelbrot.math.BigDecimalMath;
 import ch.obermuhlner.mandelbrot.palette.CachingPalette;
 import ch.obermuhlner.mandelbrot.palette.InterpolatingPalette;
+import ch.obermuhlner.mandelbrot.palette.MaxValuePalette;
 import ch.obermuhlner.mandelbrot.palette.Palette;
 import ch.obermuhlner.mandelbrot.palette.RandomPalette;
 import ch.obermuhlner.mandelbrot.poi.PointOfInterest;
@@ -114,7 +116,7 @@ public class MandelbrotZoom {
 			argumentIndex++;
 		}
 		
-		Palette palette = new CachingPalette(new InterpolatingPalette(new RandomPalette(paletteSeed), paletteStep));
+		Palette palette = new MaxValuePalette(new CachingPalette(new InterpolatingPalette(new RandomPalette(paletteSeed), paletteStep)));
 
 		System.out.println("x :             " + xCenter);
 		System.out.println("y :             " + yCenter);
@@ -213,7 +215,10 @@ public class MandelbrotZoom {
 
 		Progress progress = new DummyProgress();
 		
-		WritableImage image = mandelbrotRenderer.drawMandelbrot(
+		WritableImage image = new WritableImage(imageWidth, imageHeight);
+		WritableImageMandelbrotResult result = new WritableImageMandelbrotResult(image, palette);
+		mandelbrotRenderer.drawMandelbrot(
+				result,
 				xCenter,
 				yCenter,
 				radius,
@@ -222,7 +227,6 @@ public class MandelbrotZoom {
 				maxIterations,
 				imageWidth,
 				imageHeight,
-				palette,
 				progress);
 		
 		try {
