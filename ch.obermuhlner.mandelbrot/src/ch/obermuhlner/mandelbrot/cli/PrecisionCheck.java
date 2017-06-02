@@ -21,6 +21,12 @@ import ch.obermuhlner.mandelbrot.render.BigDecimalMandelbrotRenderer;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.WritableImage;
 
+/**
+ * Creates the same image for every zoom level multiple times with various precisions.
+ * This is useful to verify that the calculation at a specific zoom level are done with the optimum precision.
+ * 
+ * Experiments show that a precision of zoomLevel+5 should be accurate enough.
+ */
 public class PrecisionCheck {
 
 	public static void main(String[] args) {
