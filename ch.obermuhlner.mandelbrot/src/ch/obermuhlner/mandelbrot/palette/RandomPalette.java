@@ -1,8 +1,6 @@
-package ch.obermuhlner.mandelbrot.javafx.palette;
+package ch.obermuhlner.mandelbrot.palette;
 
 import java.util.Random;
-
-import javafx.scene.paint.Color;
 
 public class RandomPalette implements Palette {
 

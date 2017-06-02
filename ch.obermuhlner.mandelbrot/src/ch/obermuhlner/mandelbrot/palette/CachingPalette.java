@@ -1,9 +1,8 @@
-package ch.obermuhlner.mandelbrot.javafx.palette;
+package ch.obermuhlner.mandelbrot.palette;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import javafx.scene.paint.Color;
 
 public class CachingPalette implements Palette {
 

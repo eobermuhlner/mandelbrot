@@ -10,8 +10,8 @@ import java.util.Deque;
 
 import javax.imageio.ImageIO;
 
-import ch.obermuhlner.mandelbrot.javafx.palette.Palette;
 import ch.obermuhlner.mandelbrot.math.BigDecimalMath;
+import ch.obermuhlner.mandelbrot.palette.Palette;
 import ch.obermuhlner.mandelbrot.render.AutoPrecisionMandelbrotRenderer;
 import ch.obermuhlner.mandelbrot.render.MandelbrotRenderer;
 import ch.obermuhlner.mandelbrot.util.StopWatch;

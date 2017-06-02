@@ -1,6 +1,4 @@
-package ch.obermuhlner.mandelbrot.javafx.palette;
-
-import javafx.scene.paint.Color;
+package ch.obermuhlner.mandelbrot.palette;
 
 public class CyclingPalette implements Palette {
 

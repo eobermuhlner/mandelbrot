@@ -16,11 +16,11 @@ import javax.imageio.ImageIO;
 
 import ch.obermuhlner.mandelbrot.javafx.DummyProgress;
 import ch.obermuhlner.mandelbrot.javafx.Progress;
-import ch.obermuhlner.mandelbrot.javafx.palette.CachingPalette;
-import ch.obermuhlner.mandelbrot.javafx.palette.InterpolatingPalette;
-import ch.obermuhlner.mandelbrot.javafx.palette.Palette;
-import ch.obermuhlner.mandelbrot.javafx.palette.RandomPalette;
 import ch.obermuhlner.mandelbrot.math.BigDecimalMath;
+import ch.obermuhlner.mandelbrot.palette.CachingPalette;
+import ch.obermuhlner.mandelbrot.palette.InterpolatingPalette;
+import ch.obermuhlner.mandelbrot.palette.Palette;
+import ch.obermuhlner.mandelbrot.palette.RandomPalette;
 import ch.obermuhlner.mandelbrot.poi.PointOfInterest;
 import ch.obermuhlner.mandelbrot.poi.StandardPointsOfInterest;
 import ch.obermuhlner.mandelbrot.render.AutoPrecisionMandelbrotRenderer;
