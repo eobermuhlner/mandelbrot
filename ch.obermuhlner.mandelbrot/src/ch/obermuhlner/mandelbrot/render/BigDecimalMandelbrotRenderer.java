@@ -5,12 +5,7 @@ import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.stream.IntStream;
 
-import ch.obermuhlner.mandelbrot.javafx.ColorUtil;
 import ch.obermuhlner.mandelbrot.javafx.Progress;
-import ch.obermuhlner.mandelbrot.palette.Color;
-import ch.obermuhlner.mandelbrot.palette.Palette;
-import javafx.scene.image.PixelWriter;
-import javafx.scene.image.WritableImage;
 
 public class BigDecimalMandelbrotRenderer implements MandelbrotRenderer {
 
@@ -18,10 +13,7 @@ public class BigDecimalMandelbrotRenderer implements MandelbrotRenderer {
 	private static final BigDecimal TWO_SQUARE = new BigDecimal(2*2);
 
 	@Override
-	public WritableImage drawMandelbrot(BigDecimal xCenter, BigDecimal yCenter, BigDecimal xRadius, BigDecimal yRadius, int precision, int maxIterations, int imageWidth, int imageHeight, Palette palette, Progress progress) {
-		WritableImage image = new WritableImage(imageWidth, imageHeight);
-		PixelWriter pixelWriter = image.getPixelWriter();
-		
+	public void drawMandelbrot(MandelbrotResult result, BigDecimal xCenter, BigDecimal yCenter, BigDecimal xRadius, BigDecimal yRadius, int precision, int maxIterations, int imageWidth, int imageHeight, Progress progress) {
 		MathContext mc = new MathContext(precision, RoundingMode.HALF_EVEN);
 		
 		BigDecimal stepX = xRadius.multiply(TWO, mc).divide(BigDecimal.valueOf(imageWidth), mc);
@@ -46,16 +38,14 @@ public class BigDecimalMandelbrotRenderer implements MandelbrotRenderer {
 					yy = y.multiply(y, mc);
 				}
 
-				Color color = iterations == maxIterations ? Color.BLACK : palette.getColor(iterations);
-				pixelWriter.setColor(pixelX, pixelY, ColorUtil.toJavafxColor(color));
+				iterations = iterations == maxIterations ? Integer.MAX_VALUE : iterations;
+				result.setIterations(pixelX, pixelY, iterations);
 
 				y0 = y0.add(stepY);
 			}
 
 			progress.incrementProgress(imageWidth);
 		});
-
-		return image;
 	}
 
 }

@@ -10,9 +10,11 @@ import javax.imageio.ImageIO;
 
 import ch.obermuhlner.mandelbrot.javafx.DummyProgress;
 import ch.obermuhlner.mandelbrot.javafx.Progress;
+import ch.obermuhlner.mandelbrot.javafx.WritableImageMandelbrotResult;
 import ch.obermuhlner.mandelbrot.math.BigDecimalMath;
 import ch.obermuhlner.mandelbrot.palette.CachingPalette;
 import ch.obermuhlner.mandelbrot.palette.InterpolatingPalette;
+import ch.obermuhlner.mandelbrot.palette.MaxValuePalette;
 import ch.obermuhlner.mandelbrot.palette.Palette;
 import ch.obermuhlner.mandelbrot.palette.RandomPalette;
 import ch.obermuhlner.mandelbrot.poi.PointOfInterest;
@@ -45,7 +47,7 @@ public class PrecisionCheck {
 		int paletteStep = pointOfInterest.paletteStep;
 		
 		BigDecimal zoomStart = new BigDecimal("5");
-		Palette palette = new CachingPalette(new InterpolatingPalette(new RandomPalette(paletteSeed), paletteStep));
+		Palette palette = new MaxValuePalette(new CachingPalette(new InterpolatingPalette(new RandomPalette(paletteSeed), paletteStep)));
 
 		Progress progress = new DummyProgress();
 
@@ -62,7 +64,9 @@ public class PrecisionCheck {
 				
 				File file = new File("check_zoom" + zoomPower + "_precision" + precision + ".png");
 				if (!file.exists()) {
-					WritableImage image = mandelbrotRenderer.drawMandelbrot(xCenter, yCenter, radius, radius, precision, maxIterations, imageSize, imageSize, palette, progress);
+					WritableImage image = new WritableImage(imageSize, imageSize);
+					WritableImageMandelbrotResult result = new WritableImageMandelbrotResult(image, palette);
+					mandelbrotRenderer.drawMandelbrot(result, xCenter, yCenter, radius, radius, precision, maxIterations, imageSize, imageSize, progress);
 
 					System.out.println("Calculating " + file);
 					try {

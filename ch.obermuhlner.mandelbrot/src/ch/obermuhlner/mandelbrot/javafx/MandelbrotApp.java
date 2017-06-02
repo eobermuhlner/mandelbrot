@@ -14,6 +14,7 @@ import ch.obermuhlner.mandelbrot.palette.Color;
 import ch.obermuhlner.mandelbrot.palette.CyclingPalette;
 import ch.obermuhlner.mandelbrot.palette.HuePalette;
 import ch.obermuhlner.mandelbrot.palette.InterpolatingPalette;
+import ch.obermuhlner.mandelbrot.palette.MaxValuePalette;
 import ch.obermuhlner.mandelbrot.palette.Palette;
 import ch.obermuhlner.mandelbrot.palette.RandomPalette;
 import ch.obermuhlner.mandelbrot.poi.PointOfInterest;
@@ -461,37 +462,37 @@ public class MandelbrotApp extends Application {
 		
 		switch (paletteTypeProperty.get()) {
 		case RandomColor:
-			palette = new CachingPalette(new InterpolatingPalette(new RandomPalette(seed), steps));
+			palette = new MaxValuePalette(new CachingPalette(new InterpolatingPalette(new RandomPalette(seed), steps)));
 			break;
 		case RandomGray:
-			palette = new CachingPalette(new InterpolatingPalette(new RandomPalette(seed, 0f, 360f, 0.0f, 0.0f, 0.2f, 1.0f), steps));
+			palette = new MaxValuePalette(new CachingPalette(new InterpolatingPalette(new RandomPalette(seed, 0f, 360f, 0.0f, 0.0f, 0.2f, 1.0f), steps)));
 			break;
 		case RandomPastell:
-			palette = new CachingPalette(new InterpolatingPalette(new RandomPalette(seed, 0f, 360f, 0.0f, 0.3f, 0.2f, 1.0f), steps));
+			palette = new MaxValuePalette(new CachingPalette(new InterpolatingPalette(new RandomPalette(seed, 0f, 360f, 0.0f, 0.3f, 0.2f, 1.0f), steps)));
 			break;
 		case Drawing:
-			palette = new CyclingPalette(Color.WHITE, steps, Color.gray(0.8), Color.gray(0.6), Color.gray(0.4), Color.gray(0.2), Color.gray(0.0), Color.gray(0.2), Color.gray(0.4), Color.gray(0.6), Color.gray(0.8));
+			palette = new MaxValuePalette(new CyclingPalette(Color.WHITE, steps, Color.gray(0.8), Color.gray(0.6), Color.gray(0.4), Color.gray(0.2), Color.gray(0.0), Color.gray(0.2), Color.gray(0.4), Color.gray(0.6), Color.gray(0.8)));
 			break;
 		case Fire:
-			palette = new CachingPalette(new InterpolatingPalette(new CyclingPalette(Color.RED, Color.YELLOW, Color.DARKRED, Color.ORANGE, Color.gray(0.1)), steps));
+			palette = new MaxValuePalette(new CachingPalette(new InterpolatingPalette(new CyclingPalette(Color.RED, Color.YELLOW, Color.DARKRED, Color.ORANGE, Color.gray(0.1)), steps)));
 			break;
 		case Water:
-			palette = new CachingPalette(new InterpolatingPalette(new CyclingPalette(Color.BLUE, Color.LIGHTBLUE, Color.DARKBLUE, Color.CYAN, Color.gray(0.1)), steps));
+			palette = new MaxValuePalette(new CachingPalette(new InterpolatingPalette(new CyclingPalette(Color.BLUE, Color.LIGHTBLUE, Color.DARKBLUE, Color.CYAN, Color.gray(0.1)), steps)));
 			break;
 		case Air:
-			palette = new CachingPalette(new InterpolatingPalette(new CyclingPalette(Color.LIGHTBLUE, Color.WHITE, Color.BLUE, Color.WHITE, Color.CYAN), steps));
+			palette = new MaxValuePalette(new CachingPalette(new InterpolatingPalette(new CyclingPalette(Color.LIGHTBLUE, Color.WHITE, Color.BLUE, Color.WHITE, Color.CYAN), steps)));
 			break;
 		case Earth:
-			palette = new CachingPalette(new InterpolatingPalette(new CyclingPalette(Color.SADDLEBROWN, Color.GREEN, Color.DARKGREEN, Color.BROWN, Color.SANDYBROWN), steps));
+			palette = new MaxValuePalette(new CachingPalette(new InterpolatingPalette(new CyclingPalette(Color.SADDLEBROWN, Color.GREEN, Color.DARKGREEN, Color.BROWN, Color.SANDYBROWN), steps)));
 			break;
 		case Forest:
-			palette = new CachingPalette(new InterpolatingPalette(new CyclingPalette(Color.GREENYELLOW, Color.GREEN, Color.DARKGREEN, Color.LIGHTGREEN, Color.gray(0.1)), steps));
+			palette = new MaxValuePalette(new CachingPalette(new InterpolatingPalette(new CyclingPalette(Color.GREENYELLOW, Color.GREEN, Color.DARKGREEN, Color.LIGHTGREEN, Color.gray(0.1)), steps)));
 			break;
 		case StarryNight:
-			palette = new CachingPalette(new InterpolatingPalette(new CyclingPalette(Color.gray(0.1), Color.WHITE, Color.gray(0.1)), steps));
+			palette = new MaxValuePalette(new CachingPalette(new InterpolatingPalette(new CyclingPalette(Color.gray(0.1), Color.WHITE, Color.gray(0.1)), steps)));
 			break;
 		case Rainbow:
-			palette = new CachingPalette(new HuePalette(steps, 0.8, 0.8));
+			palette = new MaxValuePalette(new CachingPalette(new HuePalette(steps, 0.8, 0.8)));
 			break;
 		}
 		
