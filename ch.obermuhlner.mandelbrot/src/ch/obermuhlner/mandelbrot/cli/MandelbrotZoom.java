@@ -1,7 +1,10 @@
 package ch.obermuhlner.mandelbrot.cli;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
@@ -184,6 +187,19 @@ public class MandelbrotZoom {
 		Path outDir = Paths.get("images", directoryName);
 		outDir.toFile().mkdirs();
 
+		try {
+			try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(outDir.resolve("readme.txt").toFile())))) {
+				out.println("x :             " + xCenter);
+				out.println("y :             " + yCenter);
+				out.println("zoomStart :     " + zoomStart);
+				out.println("zoomStep :      " + zoomStep);
+				out.println("imageCount :    " + imageCount);
+				out.println("directoryName : " + directoryName);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
 		StopWatch stopWatch = new StopWatch();
 
 		IntStream.range(0, imageCount).forEach(index -> {
