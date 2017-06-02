@@ -5,11 +5,12 @@ import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.stream.IntStream;
 
+import ch.obermuhlner.mandelbrot.javafx.ColorUtil;
 import ch.obermuhlner.mandelbrot.javafx.Progress;
-import ch.obermuhlner.mandelbrot.javafx.palette.Palette;
+import ch.obermuhlner.mandelbrot.palette.Color;
+import ch.obermuhlner.mandelbrot.palette.Palette;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
-import javafx.scene.paint.Color;
 
 public class BigDecimalMandelbrotRenderer implements MandelbrotRenderer {
 
@@ -46,7 +47,7 @@ public class BigDecimalMandelbrotRenderer implements MandelbrotRenderer {
 				}
 
 				Color color = iterations == maxIterations ? Color.BLACK : palette.getColor(iterations);
-				pixelWriter.setColor(pixelX, pixelY, color);
+				pixelWriter.setColor(pixelX, pixelY, ColorUtil.toJavafxColor(color));
 
 				y0 = y0.add(stepY);
 			}

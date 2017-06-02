@@ -3,7 +3,7 @@ package ch.obermuhlner.mandelbrot.render;
 import java.math.BigDecimal;
 
 import ch.obermuhlner.mandelbrot.javafx.Progress;
-import ch.obermuhlner.mandelbrot.javafx.palette.Palette;
+import ch.obermuhlner.mandelbrot.palette.Palette;
 import javafx.scene.image.WritableImage;
 
 public class AutoPrecisionMandelbrotRenderer implements MandelbrotRenderer {

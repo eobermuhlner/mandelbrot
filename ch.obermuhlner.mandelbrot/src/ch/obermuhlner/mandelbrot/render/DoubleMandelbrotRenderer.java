@@ -2,11 +2,12 @@ package ch.obermuhlner.mandelbrot.render;
 
 import java.math.BigDecimal;
 
+import ch.obermuhlner.mandelbrot.javafx.ColorUtil;
 import ch.obermuhlner.mandelbrot.javafx.Progress;
-import ch.obermuhlner.mandelbrot.javafx.palette.Palette;
+import ch.obermuhlner.mandelbrot.palette.Color;
+import ch.obermuhlner.mandelbrot.palette.Palette;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
-import javafx.scene.paint.Color;
 
 public class DoubleMandelbrotRenderer implements MandelbrotRenderer {
 
@@ -41,7 +42,7 @@ public class DoubleMandelbrotRenderer implements MandelbrotRenderer {
 				}
 
 				Color color = iterations == maxIterations ? Color.BLACK : palette.getColor(iterations);
-				pixelWriter.setColor(pixelX, pixelY, color);
+				pixelWriter.setColor(pixelX, pixelY, ColorUtil.toJavafxColor(color));
 
 				y0 += stepY;
 			}

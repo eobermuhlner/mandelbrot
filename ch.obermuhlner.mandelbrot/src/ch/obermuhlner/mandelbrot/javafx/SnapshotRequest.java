@@ -2,7 +2,7 @@ package ch.obermuhlner.mandelbrot.javafx;
 
 import java.io.File;
 
-import ch.obermuhlner.mandelbrot.javafx.palette.Palette;
+import ch.obermuhlner.mandelbrot.palette.Palette;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleDoubleProperty;

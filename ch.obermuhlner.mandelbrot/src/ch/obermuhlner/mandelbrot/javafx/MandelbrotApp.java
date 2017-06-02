@@ -9,12 +9,13 @@ import java.util.Arrays;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 
-import ch.obermuhlner.mandelbrot.javafx.palette.CachingPalette;
-import ch.obermuhlner.mandelbrot.javafx.palette.CyclingPalette;
-import ch.obermuhlner.mandelbrot.javafx.palette.HuePalette;
-import ch.obermuhlner.mandelbrot.javafx.palette.InterpolatingPalette;
-import ch.obermuhlner.mandelbrot.javafx.palette.Palette;
-import ch.obermuhlner.mandelbrot.javafx.palette.RandomPalette;
+import ch.obermuhlner.mandelbrot.palette.CachingPalette;
+import ch.obermuhlner.mandelbrot.palette.Color;
+import ch.obermuhlner.mandelbrot.palette.CyclingPalette;
+import ch.obermuhlner.mandelbrot.palette.HuePalette;
+import ch.obermuhlner.mandelbrot.palette.InterpolatingPalette;
+import ch.obermuhlner.mandelbrot.palette.Palette;
+import ch.obermuhlner.mandelbrot.palette.RandomPalette;
 import ch.obermuhlner.mandelbrot.poi.PointOfInterest;
 import ch.obermuhlner.mandelbrot.poi.StandardPointsOfInterest;
 import javafx.application.Application;
@@ -54,7 +55,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
@@ -77,8 +77,8 @@ public class MandelbrotApp extends Application {
 	private static final DecimalFormat DOUBLE_FORMAT = new DecimalFormat("##0.000");
 	private static final DecimalFormat DOUBLE_8DIGITS_FORMAT = new DecimalFormat("##0.00000000");
 	
-	private static final Color WHITE_90 = new Color(1.0, 1.0, 1.0, 0.9);
-	private static final Color WHITE_20 = new Color(1.0, 1.0, 1.0, 0.2);
+	private static final javafx.scene.paint.Color WHITE_90 = new javafx.scene.paint.Color(1.0, 1.0, 1.0, 0.9);
+	private static final javafx.scene.paint.Color WHITE_20 = new javafx.scene.paint.Color(1.0, 1.0, 1.0, 0.2);
 
 	private enum PaletteType {
 		RandomColor,
@@ -485,10 +485,10 @@ public class MandelbrotApp extends Application {
 			palette = new CachingPalette(new InterpolatingPalette(new CyclingPalette(Color.BLUE, Color.LIGHTBLUE, Color.DARKBLUE, Color.CYAN, Color.gray(0.1)), steps));
 			break;
 		case Air:
-			palette = new CachingPalette(new InterpolatingPalette(new CyclingPalette(Color.LIGHTBLUE, Color.WHITE, Color.BLUE, Color.LIGHTBLUE.brighter(), Color.WHITE, Color.CYAN), steps));
+			palette = new CachingPalette(new InterpolatingPalette(new CyclingPalette(Color.LIGHTBLUE, Color.WHITE, Color.BLUE, Color.WHITE, Color.CYAN), steps));
 			break;
 		case Earth:
-			palette = new CachingPalette(new InterpolatingPalette(new CyclingPalette(Color.SADDLEBROWN, Color.GREEN, Color.DARKGREEN, Color.BROWN.darker(), Color.SANDYBROWN), steps));
+			palette = new CachingPalette(new InterpolatingPalette(new CyclingPalette(Color.SADDLEBROWN, Color.GREEN, Color.DARKGREEN, Color.BROWN, Color.SANDYBROWN), steps));
 			break;
 		case Forest:
 			palette = new CachingPalette(new InterpolatingPalette(new CyclingPalette(Color.GREENYELLOW, Color.GREEN, Color.DARKGREEN, Color.LIGHTGREEN, Color.gray(0.1)), steps));
@@ -600,7 +600,7 @@ public class MandelbrotApp extends Application {
 						int px = pixelX + pixelOffsetX;
 						int py = pixelY + pixelOffsetY;
 						if (px < pixelWidth && py < pixelHeight) {
-							pixelWriter.setColor(px, py, color);
+							pixelWriter.setColor(px, py, ColorUtil.toJavafxColor(color));
 						}
 					}
 				}
@@ -648,7 +648,7 @@ public class MandelbrotApp extends Application {
 						int px = pixelX + pixelOffsetX;
 						int py = pixelY + pixelOffsetY;
 						if (px < pixelWidth && py < pixelHeight) {
-							pixelWriter.setColor(px, py, color);
+							pixelWriter.setColor(px, py, ColorUtil.toJavafxColor(color));
 						}
 					}
 				}
