@@ -10,14 +10,10 @@ import java.util.Arrays;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 
-import ch.obermuhlner.mandelbrot.palette.CachingPalette;
 import ch.obermuhlner.mandelbrot.palette.Color;
-import ch.obermuhlner.mandelbrot.palette.CyclingPalette;
-import ch.obermuhlner.mandelbrot.palette.HuePalette;
-import ch.obermuhlner.mandelbrot.palette.InterpolatingPalette;
-import ch.obermuhlner.mandelbrot.palette.MaxValuePalette;
 import ch.obermuhlner.mandelbrot.palette.Palette;
-import ch.obermuhlner.mandelbrot.palette.RandomPalette;
+import ch.obermuhlner.mandelbrot.palette.PaletteFactory;
+import ch.obermuhlner.mandelbrot.palette.PaletteType;
 import ch.obermuhlner.mandelbrot.poi.PointOfInterest;
 import ch.obermuhlner.mandelbrot.poi.StandardPointsOfInterest;
 import javafx.application.Application;
@@ -77,20 +73,6 @@ public class MandelbrotApp extends Application {
 	private static final javafx.scene.paint.Color WHITE_90 = new javafx.scene.paint.Color(1.0, 1.0, 1.0, 0.9);
 	private static final javafx.scene.paint.Color WHITE_20 = new javafx.scene.paint.Color(1.0, 1.0, 1.0, 0.2);
 
-	private enum PaletteType {
-		RandomColor,
-		RandomGray,
-		RandomPastell,
-		Fire,
-		Water,
-		Air,
-		Earth,
-		Forest,
-		StarryNight,
-		Drawing,
-		Rainbow,
-	}
-	
 	private static final StringConverter<BigDecimal> BIGDECIMAL_STRING_CONVERTER = new StringConverter<BigDecimal>() {
 		@Override
 		public String toString(BigDecimal object) {
@@ -121,6 +103,7 @@ public class MandelbrotApp extends Application {
 	private IntegerProperty snapshotWidthProperty = new SimpleIntegerProperty(800);
 	private IntegerProperty snapshotHeightProperty = new SimpleIntegerProperty(800);
 
+	private PaletteFactory paletteFactory = new PaletteFactory();
 	private Palette palette;
 
 	private Canvas mandelbrotCanvas;
@@ -477,43 +460,9 @@ public class MandelbrotApp extends Application {
 		if (steps <= 0) {
 			steps = 10;
 		}
-		
-		switch (paletteTypeProperty.get()) {
-		case RandomColor:
-			palette = new MaxValuePalette(new CachingPalette(new InterpolatingPalette(new RandomPalette(seed), steps)));
-			break;
-		case RandomGray:
-			palette = new MaxValuePalette(new CachingPalette(new InterpolatingPalette(new RandomPalette(seed, 0f, 360f, 0.0f, 0.0f, 0.2f, 1.0f), steps)));
-			break;
-		case RandomPastell:
-			palette = new MaxValuePalette(new CachingPalette(new InterpolatingPalette(new RandomPalette(seed, 0f, 360f, 0.0f, 0.3f, 0.2f, 1.0f), steps)));
-			break;
-		case Drawing:
-			palette = new MaxValuePalette(new CyclingPalette(Color.WHITE, steps, Color.gray(0.8), Color.gray(0.6), Color.gray(0.4), Color.gray(0.2), Color.gray(0.0), Color.gray(0.2), Color.gray(0.4), Color.gray(0.6), Color.gray(0.8)));
-			break;
-		case Fire:
-			palette = new MaxValuePalette(new CachingPalette(new InterpolatingPalette(new CyclingPalette(Color.RED, Color.YELLOW, Color.DARKRED, Color.ORANGE, Color.gray(0.1)), steps)));
-			break;
-		case Water:
-			palette = new MaxValuePalette(new CachingPalette(new InterpolatingPalette(new CyclingPalette(Color.BLUE, Color.LIGHTBLUE, Color.DARKBLUE, Color.CYAN, Color.gray(0.1)), steps)));
-			break;
-		case Air:
-			palette = new MaxValuePalette(new CachingPalette(new InterpolatingPalette(new CyclingPalette(Color.LIGHTBLUE, Color.WHITE, Color.BLUE, Color.WHITE, Color.CYAN), steps)));
-			break;
-		case Earth:
-			palette = new MaxValuePalette(new CachingPalette(new InterpolatingPalette(new CyclingPalette(Color.SADDLEBROWN, Color.GREEN, Color.DARKGREEN, Color.BROWN, Color.SANDYBROWN), steps)));
-			break;
-		case Forest:
-			palette = new MaxValuePalette(new CachingPalette(new InterpolatingPalette(new CyclingPalette(Color.GREENYELLOW, Color.GREEN, Color.DARKGREEN, Color.LIGHTGREEN, Color.gray(0.1)), steps)));
-			break;
-		case StarryNight:
-			palette = new MaxValuePalette(new CachingPalette(new InterpolatingPalette(new CyclingPalette(Color.gray(0.1), Color.WHITE, Color.gray(0.1)), steps)));
-			break;
-		case Rainbow:
-			palette = new MaxValuePalette(new CachingPalette(new HuePalette(steps, 0.8, 0.8)));
-			break;
-		}
-		
+
+		palette = paletteFactory.createPalette(paletteTypeProperty.get(), seed, steps);
+
 		calculateAndDrawMandelbrot(canvas);
 	}
 	

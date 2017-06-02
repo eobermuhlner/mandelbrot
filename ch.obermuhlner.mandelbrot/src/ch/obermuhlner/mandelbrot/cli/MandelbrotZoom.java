@@ -11,6 +11,7 @@ import java.math.MathContext;
 import java.math.RoundingMode;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.stream.IntStream;
 
 import javax.imageio.ImageIO;
@@ -18,11 +19,9 @@ import javax.imageio.ImageIO;
 import ch.obermuhlner.mandelbrot.javafx.DummyProgress;
 import ch.obermuhlner.mandelbrot.javafx.Progress;
 import ch.obermuhlner.mandelbrot.math.BigDecimalMath;
-import ch.obermuhlner.mandelbrot.palette.CachingPalette;
-import ch.obermuhlner.mandelbrot.palette.InterpolatingPalette;
-import ch.obermuhlner.mandelbrot.palette.MaxValuePalette;
 import ch.obermuhlner.mandelbrot.palette.Palette;
-import ch.obermuhlner.mandelbrot.palette.RandomPalette;
+import ch.obermuhlner.mandelbrot.palette.PaletteFactory;
+import ch.obermuhlner.mandelbrot.palette.PaletteType;
 import ch.obermuhlner.mandelbrot.poi.PointOfInterest;
 import ch.obermuhlner.mandelbrot.poi.StandardPointsOfInterest;
 import ch.obermuhlner.mandelbrot.render.AutoPrecisionMandelbrotRenderer;
@@ -45,7 +44,8 @@ public class MandelbrotZoom {
 		BigDecimal yCenter = new BigDecimal("0");
 		BigDecimal zoomStart = new BigDecimal("5");
 		BigDecimal zoomStep = new BigDecimal("0.1");
-		int paletteSeed= 14;
+		PaletteType paletteType = PaletteType.RandomColor;
+		int paletteSeed = 14;
 		int paletteStep = 20;
 		int imageCount = 100;
 		String directoryName = "zoom";
@@ -91,6 +91,10 @@ public class MandelbrotZoom {
 			case "--zoomStep":
 				zoomStep = bigDecimalArgument(args, ++argumentIndex, new BigDecimal("0.1"));
 				break;
+			case "-t":
+			case "--paletteType":
+				paletteType = PaletteType.valueOf(stringArgument(args, ++argumentIndex, "RandomColor"));
+				break;
 			case "-r":
 			case "--paletteSeed":
 				paletteSeed = integerArgument(args, ++argumentIndex, 14);
@@ -117,18 +121,17 @@ public class MandelbrotZoom {
 			argumentIndex++;
 		}
 		
-		Palette palette = new MaxValuePalette(new CachingPalette(new InterpolatingPalette(new RandomPalette(paletteSeed), paletteStep)));
-
 		System.out.println("x :             " + xCenter);
 		System.out.println("y :             " + yCenter);
 		System.out.println("zoomStart :     " + zoomStart);
 		System.out.println("zoomStep :      " + zoomStep);
+		System.out.println("paletteType :   " + paletteType);
 		System.out.println("paletteSeed :   " + paletteSeed);
 		System.out.println("paletteStep :   " + paletteStep);
 		System.out.println("imageCount :    " + imageCount);
 		System.out.println("directoryName : " + directoryName);
 
-		renderZoomImages(xCenter, yCenter, zoomStart, zoomStep, palette, imageCount, directoryName);		
+		renderZoomImages(xCenter, yCenter, zoomStart, zoomStep, paletteType, paletteSeed, paletteStep, imageCount, directoryName);		
 	}
 	
 	private static void printHelp() {
@@ -145,20 +148,24 @@ public class MandelbrotZoom {
 		System.out.println("    Start value of zoom.");
 		System.out.println("  -z");
 		System.out.println("  --zoomStep");
-		System.out.println("    Zoom step.");
+		System.out.println("    Step to increase the zoom level for every image.");
+		System.out.println("  -t");
+		System.out.println("  --paletteType");
+		System.out.println("    The palette type.");
+		System.out.println("    One of: " + Arrays.toString(PaletteType.values()));
 		System.out.println("  -r");
 		System.out.println("  --paletteSeed");
-		System.out.println("    Random seed value for the palette.");
+		System.out.println("    Random seed value for the palette (if applicable for the palette type).");
 		System.out.println("  -s");
 		System.out.println("  --paletteStep");
-		System.out.println("    Number of steps used in the palette.");
+		System.out.println("    Number of steps used in the palette (if applicable for the palette type).");
 		System.out.println("  -c");
 		System.out.println("  --count");
 		System.out.println("  --imageCount");
 		System.out.println("    Number of images to create.");
 		System.out.println("  -n");
 		System.out.println("  --name");
-		System.out.println("  --directoryName    output directory name");
+		System.out.println("  --directoryName");
 		System.out.println("    Name of the directory to store the created images.");
 		System.out.println();
 		System.out.println("Points of interest:");
@@ -183,7 +190,7 @@ public class MandelbrotZoom {
 		return Integer.parseInt(stringArgument(args, index, String.valueOf(defaultValue)));
 	}
 		
-	public static void renderZoomImages(BigDecimal xCenter, BigDecimal yCenter, BigDecimal zoomStart, BigDecimal zoomStep, Palette palette, int imageCount, String directoryName) {
+	public static void renderZoomImages(BigDecimal xCenter, BigDecimal yCenter, BigDecimal zoomStart, BigDecimal zoomStep, PaletteType paletteType, int paletteSeed, int paletteStep, int imageCount, String directoryName) {
 		Path outDir = Paths.get("images", directoryName);
 		outDir.toFile().mkdirs();
 
@@ -193,13 +200,19 @@ public class MandelbrotZoom {
 				out.println("y :             " + yCenter);
 				out.println("zoomStart :     " + zoomStart);
 				out.println("zoomStep :      " + zoomStep);
+				out.println("paletteType :   " + paletteType);
+				out.println("paletteSeed :   " + paletteSeed);
+				out.println("paletteStep :   " + paletteStep);
 				out.println("imageCount :    " + imageCount);
 				out.println("directoryName : " + directoryName);
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+
+		PaletteFactory paletteFactory = new PaletteFactory();
+		Palette palette = paletteFactory.createPalette(paletteType, paletteSeed, paletteStep);
+
 		StopWatch stopWatch = new StopWatch();
 
 		IntStream.range(0, imageCount).forEach(index -> {
