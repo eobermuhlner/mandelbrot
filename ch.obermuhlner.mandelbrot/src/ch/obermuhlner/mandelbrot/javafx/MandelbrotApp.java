@@ -59,12 +59,6 @@ import javafx.stage.Stage;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
 
-/*
- * Nice points:
- * 0.56255802552 0.65043192728
- * -0.04729622199 0.66103581600
- * 0.56268187195 0.64225590163
- */
 public class MandelbrotApp extends Application {
 
 	private static final double KEY_TRANSLATE_FACTOR = 0.1;
