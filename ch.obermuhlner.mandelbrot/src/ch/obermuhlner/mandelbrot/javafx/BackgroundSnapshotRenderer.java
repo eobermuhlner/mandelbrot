@@ -18,7 +18,6 @@ import ch.obermuhlner.mandelbrot.util.StopWatch;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
-import javafx.scene.image.WritableImage;
 
 public class BackgroundSnapshotRenderer extends Thread {
 
@@ -103,12 +102,11 @@ public class BackgroundSnapshotRenderer extends Thread {
 		BigDecimal radius = zoomStart.multiply(BigDecimalMath.tenToThePowerOf(zoomPower.negate(), mc));
 		int maxIterations = 1000 + zoomPower.intValue() * 100;
 
-		WritableImage image = new WritableImage(imageWidth, imageHeight);
-		WritableImageMandelbrotResult result = new WritableImageMandelbrotResult(image, palette);
+		WritableImageMandelbrotResult result = new WritableImageMandelbrotResult(imageWidth, imageHeight, palette);
 		mandelbrotRenderer.drawMandelbrot(result, xCenter, yCenter, radius, radius, precision, maxIterations, imageWidth, imageHeight, progress);
 		
 		try {
-			ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", file);
+			ImageIO.write(SwingFXUtils.fromFXImage(result.getImage(), null), "png", file);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

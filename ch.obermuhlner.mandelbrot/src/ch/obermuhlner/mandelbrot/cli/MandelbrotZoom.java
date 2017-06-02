@@ -1,6 +1,5 @@
 package ch.obermuhlner.mandelbrot.cli;
 
-import java.awt.image.BufferedImage;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -271,8 +270,7 @@ public class MandelbrotZoom {
 
 		Progress progress = new DummyProgress();
 		
-		BufferedImage image = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_RGB);
-		BufferedImageMandelbrotResult result = new BufferedImageMandelbrotResult(image, palette);
+		BufferedImageMandelbrotResult result = new BufferedImageMandelbrotResult(imageWidth, imageHeight, palette);
 		mandelbrotRenderer.drawMandelbrot(
 				result,
 				xCenter,
@@ -287,7 +285,7 @@ public class MandelbrotZoom {
 		
 		try {
 			System.out.println("Calculated " + file.getName() + " with zoom " + zoomPower.toPlainString() + " in " + stopWatch);
-			ImageIO.write(image, "png", file);
+			ImageIO.write(result.getImage(), "png", file);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}		

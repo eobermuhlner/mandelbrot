@@ -21,7 +21,6 @@ import ch.obermuhlner.mandelbrot.poi.PointOfInterest;
 import ch.obermuhlner.mandelbrot.poi.StandardPointsOfInterest;
 import ch.obermuhlner.mandelbrot.render.BigDecimalMandelbrotRenderer;
 import javafx.embed.swing.SwingFXUtils;
-import javafx.scene.image.WritableImage;
 
 /**
  * Creates the same image for every zoom level multiple times with various precisions.
@@ -64,13 +63,12 @@ public class PrecisionCheck {
 				
 				File file = new File("check_zoom" + zoomPower + "_precision" + precision + ".png");
 				if (!file.exists()) {
-					WritableImage image = new WritableImage(imageSize, imageSize);
-					WritableImageMandelbrotResult result = new WritableImageMandelbrotResult(image, palette);
+					WritableImageMandelbrotResult result = new WritableImageMandelbrotResult(imageSize, imageSize, palette);
 					mandelbrotRenderer.drawMandelbrot(result, xCenter, yCenter, radius, radius, precision, maxIterations, imageSize, imageSize, progress);
 
 					System.out.println("Calculating " + file);
 					try {
-						ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", file);
+						ImageIO.write(SwingFXUtils.fromFXImage(result.getImage(), null), "png", file);
 					} catch (IOException e) {
 						e.printStackTrace();
 					}

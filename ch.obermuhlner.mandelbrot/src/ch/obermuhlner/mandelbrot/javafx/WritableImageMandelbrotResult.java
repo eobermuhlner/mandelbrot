@@ -12,14 +12,14 @@ public class WritableImageMandelbrotResult implements MandelbrotResult {
 	private final Palette palette;
 	private final PixelWriter pixelWriter;
 
-	public WritableImageMandelbrotResult(WritableImage image, Palette palette) {
-		this.image = image;
+	public WritableImageMandelbrotResult(int imageWidth, int imageHeight, Palette palette) {
+		this.image = new WritableImage(imageWidth, imageHeight);
 		this.palette = palette;
 		
 		pixelWriter = image.getPixelWriter();
 	}
 	
-	public WritableImage getWritableImage() {
+	public WritableImage getImage() {
 		return image;
 	}
 	

@@ -9,27 +9,39 @@ import ch.obermuhlner.mandelbrot.render.MandelbrotResult;
 
 public class BufferedImageMandelbrotResult implements MandelbrotResult {
 
-	private final BufferedImage image;
+	private final int width;
+	private final int height;
 	private final Palette palette;
-	private Graphics2D graphics;
 
-	public BufferedImageMandelbrotResult(BufferedImage image, Palette palette) {
-		this.image = image;
+	private final int data[];
+
+	public BufferedImageMandelbrotResult(int width, int height, Palette palette) {
+		this.width = width;
+		this.height = height;
 		this.palette = palette;
-		
-		graphics = image.createGraphics();
+
+		data = new int[width * height];
 	}
 	
-	public BufferedImage getWritableImage() {
+	public BufferedImage getImage() {
+		BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+		Graphics2D graphics = image.createGraphics();
+		
+		for (int y = 0; y < height; y++) {
+			for (int x = 0; x < width; x++) {
+				Color color = palette.getColor(data[x + y * width]);
+				
+				graphics.setColor(toAwtColor(color));
+				graphics.drawRect(x, y, 1, 1);
+			}
+		}
+
 		return image;
 	}
 	
 	@Override
 	public void setIterations(int pixelX, int pixelY, int iterations) {
-		Color color = palette.getColor(iterations);
-
-		graphics.setColor(toAwtColor(color));
-		graphics.drawRect(pixelX, pixelY, 1, 1);
+		data[pixelX + pixelY * width] = iterations;
 	}
 
 	private java.awt.Color toAwtColor(Color color) {

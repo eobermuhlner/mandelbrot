@@ -1,6 +1,7 @@
 package ch.obermuhlner.mandelbrot.render;
 
 import java.math.BigDecimal;
+import java.util.stream.IntStream;
 
 import ch.obermuhlner.mandelbrot.javafx.Progress;
 
@@ -14,9 +15,10 @@ public class DoubleMandelbrotRenderer implements MandelbrotRenderer {
 	private void drawMandelbrotDouble(MandelbrotResult result, double xCenter, double yCenter, double xRadius, double yRadius, int maxIterations, int imageWidth, int imageHeight, Progress progress) {
 		double stepX = xRadius*2 / imageWidth;
 		double stepY = yRadius*2 / imageHeight;
-		double x0 = 0 - xCenter - xRadius; 
+		double x0Start = -xCenter - xRadius; 
 		
-		for (int pixelX = 0; pixelX < imageWidth; pixelX++) {
+		IntStream.range(0, imageWidth).parallel().forEach(pixelX -> {
+			double x0 = x0Start + stepX * pixelX;
 			double y0 = 0 - yCenter - yRadius; 
 			for (int pixelY = 0; pixelY < imageHeight; pixelY++) {
 				double x = 0;
@@ -41,7 +43,7 @@ public class DoubleMandelbrotRenderer implements MandelbrotRenderer {
 			x0 += stepX;
 			
 			progress.incrementProgress(imageWidth);
-		}
+		});
 	}	
 
 	
