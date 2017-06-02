@@ -1,11 +1,11 @@
 package ch.obermuhlner.mandelbrot.cli;
 
 import java.awt.image.BufferedImage;
-import java.io.BufferedWriter;
+import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.PrintStream;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
@@ -40,6 +40,7 @@ public class MandelbrotZoom {
 			return;
 		}
 		
+		boolean allPointsOfInterest = false;
 		BigDecimal xCenter = new BigDecimal("0");
 		BigDecimal yCenter = new BigDecimal("0");
 		BigDecimal zoomStart = new BigDecimal("5");
@@ -60,6 +61,10 @@ public class MandelbrotZoom {
 				printHelp();
 				return;
 				
+			case "-a":
+			case "--all":
+				allPointsOfInterest = true;
+				break;
 			case "-p":
 			case "--poi":
 				String poiName = stringArgument(args, ++argumentIndex, "Snail Shell");
@@ -122,21 +127,32 @@ public class MandelbrotZoom {
 			argumentIndex++;
 		}
 		
-		System.out.println("x :             " + xCenter);
-		System.out.println("y :             " + yCenter);
-		System.out.println("zoomStart :     " + zoomStart);
-		System.out.println("zoomStep :      " + zoomStep);
-		System.out.println("paletteType :   " + paletteType);
-		System.out.println("paletteSeed :   " + paletteSeed);
-		System.out.println("paletteStep :   " + paletteStep);
-		System.out.println("imageCount :    " + imageCount);
-		System.out.println("directoryName : " + directoryName);
+		if (allPointsOfInterest) {
+			for (PointOfInterest pointOfInterest : StandardPointsOfInterest.POINTS_OF_INTEREST) {
+				xCenter = pointOfInterest.x;
+				yCenter = pointOfInterest.y;
+				paletteType = pointOfInterest.paletteType;
+				paletteSeed = pointOfInterest.paletteSeed;
+				paletteStep = pointOfInterest.paletteStep;
+				directoryName = pointOfInterest.name;
 
-		renderZoomImages(xCenter, yCenter, zoomStart, zoomStep, paletteType, paletteSeed, paletteStep, imageCount, directoryName);		
+				printInfo(System.out, xCenter, yCenter, zoomStart, zoomStep, paletteType, paletteSeed, paletteStep, imageCount, directoryName);
+
+				renderZoomImages(xCenter, yCenter, zoomStart, zoomStep, paletteType, paletteSeed, paletteStep, imageCount, directoryName);
+				System.out.println();
+			}
+		} else {
+			printInfo(System.out, xCenter, yCenter, zoomStart, zoomStep, paletteType, paletteSeed, paletteStep, imageCount, directoryName);
+
+			renderZoomImages(xCenter, yCenter, zoomStart, zoomStep, paletteType, paletteSeed, paletteStep, imageCount, directoryName);
+		}
 	}
 	
 	private static void printHelp() {
 		System.out.println("Options:");
+		System.out.println("  -a");
+		System.out.println("  --all");
+		System.out.println("    Creates the zooms for all points of interests.");
 		System.out.println("  -p");
 		System.out.println("  --poi");
 		System.out.println("    Point of interest name (defines x, y, palette, name).");
@@ -196,16 +212,8 @@ public class MandelbrotZoom {
 		outDir.toFile().mkdirs();
 
 		try {
-			try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(outDir.resolve("readme.txt").toFile())))) {
-				out.println("x :             " + xCenter);
-				out.println("y :             " + yCenter);
-				out.println("zoomStart :     " + zoomStart);
-				out.println("zoomStep :      " + zoomStep);
-				out.println("paletteType :   " + paletteType);
-				out.println("paletteSeed :   " + paletteSeed);
-				out.println("paletteStep :   " + paletteStep);
-				out.println("imageCount :    " + imageCount);
-				out.println("directoryName : " + directoryName);
+			try (PrintStream out = new PrintStream(new BufferedOutputStream(new FileOutputStream(outDir.resolve("readme.txt").toFile())))) {
+				printInfo(out, xCenter, yCenter, zoomStart, zoomStep, paletteType, paletteSeed, paletteStep, imageCount, directoryName);
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -226,6 +234,18 @@ public class MandelbrotZoom {
 		System.out.println("Calculated all " + imageCount + " images for " + directoryName + " in " + stopWatch);
 	}
 
+	private static void printInfo(PrintStream out, BigDecimal xCenter, BigDecimal yCenter, BigDecimal zoomStart, BigDecimal zoomStep, PaletteType paletteType, int paletteSeed, int paletteStep, int imageCount, String directoryName) {
+		out.println("x :             " + xCenter);
+		out.println("y :             " + yCenter);
+		out.println("zoomStart :     " + zoomStart);
+		out.println("zoomStep :      " + zoomStep);
+		out.println("paletteType :   " + paletteType);
+		out.println("paletteSeed :   " + paletteSeed);
+		out.println("paletteStep :   " + paletteStep);
+		out.println("imageCount :    " + imageCount);
+		out.println("directoryName : " + directoryName);		
+	}
+	
 	private static void renderImage(File file, BigDecimal xCenter, BigDecimal yCenter, BigDecimal zoomStart, BigDecimal zoomPower, Palette palette) {
 		if (file.exists()) {
 			System.out.println("Already calculated " + file.getName() + " with zoom " + zoomPower.toPlainString());
