@@ -185,6 +185,7 @@ public class MandelbrotApp extends Application {
 			xCenterProperty.set(pointOfInterest.x);
 			yCenterProperty.set(pointOfInterest.y);
 			zoomProperty.set(pointOfInterest.zoom);
+			paletteTypeProperty.set(pointOfInterest.paletteType);
 			paletteSeedProperty.set(pointOfInterest.paletteSeed);
 			paletteStepProperty.set(pointOfInterest.paletteStep);
 		});

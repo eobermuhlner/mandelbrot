@@ -70,6 +70,7 @@ public class MandelbrotZoom {
 				} 
 				xCenter = pointOfInterest.x;
 				yCenter = pointOfInterest.y;
+				paletteType = pointOfInterest.paletteType;
 				paletteSeed = pointOfInterest.paletteSeed;
 				paletteStep = pointOfInterest.paletteStep;
 				directoryName = pointOfInterest.name;
