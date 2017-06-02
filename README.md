@@ -20,7 +20,7 @@ java -cp mandelbrot.jar ch.obermuhlner.mandelbrot.javafx.MandelbrotApp
 ```
 
 
-![Screenshot Mandelbrot Viewer](ch.obermuhlner.mandelbrot.docs/screenshots/mandelbrot_snail_shell.png?raw=true "Screenshot Mandelbrot Viewer")
+![Screenshot Mandelbrot Viewer](ch.obermuhlner.mandelbrot.docs/screenshots/mandelbrot_viewer_screenshot1.png?raw=true "Screenshot Mandelbrot Viewer")
 
 ## Command Line Tool
 
@@ -86,7 +86,7 @@ ffmpeg -y -r 10 -start_number 0 -i mandelbrot%04d.png -s 800x800 -vcodec mpeg4 -
 ### Palette Earth
 ![Mandelbrot Palette Earth](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_snail_shell_zoom10_earth.png?raw=true "Mandelbrot Palette Earth")
 
-### 
+### Palette Air
 ![Mandelbrot Palette Air](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_snail_shell_zoom10_air.png?raw=true "Mandelbrot Palette Air")
 
 ### Palette Forest
