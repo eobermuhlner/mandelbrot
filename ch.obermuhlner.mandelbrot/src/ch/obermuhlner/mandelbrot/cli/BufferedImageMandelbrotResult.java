@@ -12,13 +12,15 @@ public class BufferedImageMandelbrotResult implements MandelbrotResult {
 	private final int width;
 	private final int height;
 	private final Palette palette;
+	private final double colorOffset;
 
 	private final int data[];
 
-	public BufferedImageMandelbrotResult(int width, int height, Palette palette) {
+	public BufferedImageMandelbrotResult(int width, int height, Palette palette, double colorOffset) {
 		this.width = width;
 		this.height = height;
 		this.palette = palette;
+		this.colorOffset = colorOffset;
 
 		data = new int[width * height];
 	}
@@ -29,7 +31,7 @@ public class BufferedImageMandelbrotResult implements MandelbrotResult {
 		
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
-				Color color = palette.getColor(data[x + y * width]);
+				Color color = palette.getColor((int) (data[x + y * width] + colorOffset));
 				
 				graphics.setColor(toAwtColor(color));
 				graphics.drawRect(x, y, 1, 1);

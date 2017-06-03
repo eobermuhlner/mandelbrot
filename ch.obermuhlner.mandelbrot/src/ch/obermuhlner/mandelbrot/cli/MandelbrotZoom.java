@@ -47,6 +47,7 @@ public class MandelbrotZoom {
 		PaletteType paletteType = PaletteType.RandomColor;
 		int paletteSeed = 14;
 		int paletteStep = 20;
+		double colorCycle = 0;
 		int imageCountStart = 0;
 		int imageCount = 1000;
 		String directoryName = "zoom";
@@ -109,12 +110,14 @@ public class MandelbrotZoom {
 			case "--paletteStep":
 				paletteSeed = integerArgument(args, ++argumentIndex, 20);
 				break;
-			case "--i":
 			case "--imageCountStart":
 				imageCountStart = integerArgument(args, ++argumentIndex, 0);
 				break;
+			case "-l":
+			case "--colorCycle":
+				colorCycle = integerArgument(args, ++argumentIndex, 0);
+				break;
 			case "-c":
-			case "--count":
 			case "--imageCount":
 				imageCount = integerArgument(args, ++argumentIndex, 1000);
 				break;
@@ -145,13 +148,13 @@ public class MandelbrotZoom {
 
 				printInfo(System.out, xCenter, yCenter, zoomStart, zoomStep, paletteType, paletteSeed, paletteStep, imageCount, directoryName);
 
-				renderZoomImages(xCenter, yCenter, zoomStart, zoomStep, paletteType, paletteSeed, paletteStep, imageCountStart, imageCount, directoryName);
+				renderZoomImages(xCenter, yCenter, zoomStart, zoomStep, paletteType, paletteSeed, paletteStep, colorCycle, imageCountStart, imageCount, directoryName);
 				System.out.println();
 			}
 		} else {
 			printInfo(System.out, xCenter, yCenter, zoomStart, zoomStep, paletteType, paletteSeed, paletteStep, imageCount, directoryName);
 
-			renderZoomImages(xCenter, yCenter, zoomStart, zoomStep, paletteType, paletteSeed, paletteStep, imageCountStart, imageCount, directoryName);
+			renderZoomImages(xCenter, yCenter, zoomStart, zoomStep, paletteType, paletteSeed, paletteStep, colorCycle, imageCountStart, imageCount, directoryName);
 		}
 	}
 	
@@ -214,7 +217,7 @@ public class MandelbrotZoom {
 		return Integer.parseInt(stringArgument(args, index, String.valueOf(defaultValue)));
 	}
 		
-	public static void renderZoomImages(BigDecimal xCenter, BigDecimal yCenter, BigDecimal zoomStart, BigDecimal zoomStep, PaletteType paletteType, int paletteSeed, int paletteStep, int imageCountStart, int imageCount, String directoryName) {
+	public static void renderZoomImages(BigDecimal xCenter, BigDecimal yCenter, BigDecimal zoomStart, BigDecimal zoomStep, PaletteType paletteType, int paletteSeed, int paletteStep, double colorCycle, int imageCountStart, int imageCount, String directoryName) {
 		Path outDir = Paths.get("images", directoryName);
 		outDir.toFile().mkdirs();
 
@@ -235,7 +238,8 @@ public class MandelbrotZoom {
 			String filename = String.format("mandelbrot%04d.png", index);
 			File file = outDir.resolve(filename).toFile();
 			BigDecimal zoomPower = zoomStep.multiply(new BigDecimal(index));
-			renderImage(file, xCenter, yCenter, zoomStart, zoomPower, palette);
+			double colorOffset = colorCycle * zoomStep.doubleValue() * index; 
+			renderImage(file, xCenter, yCenter, zoomStart, zoomPower, palette, colorOffset);
 		});
 
 		System.out.println("Calculated all " + imageCount + " images for " + directoryName + " in " + stopWatch);
@@ -253,7 +257,7 @@ public class MandelbrotZoom {
 		out.println("directoryName : " + directoryName);		
 	}
 	
-	private static void renderImage(File file, BigDecimal xCenter, BigDecimal yCenter, BigDecimal zoomStart, BigDecimal zoomPower, Palette palette) {
+	private static void renderImage(File file, BigDecimal xCenter, BigDecimal yCenter, BigDecimal zoomStart, BigDecimal zoomPower, Palette palette, double colorOffset) {
 		if (file.exists()) {
 			System.out.println("Already calculated " + file.getName() + " with zoom " + zoomPower.toPlainString());
 			return;
@@ -270,7 +274,7 @@ public class MandelbrotZoom {
 
 		Progress progress = new DummyProgress();
 		
-		BufferedImageMandelbrotResult result = new BufferedImageMandelbrotResult(imageWidth, imageHeight, palette);
+		BufferedImageMandelbrotResult result = new BufferedImageMandelbrotResult(imageWidth, imageHeight, palette, colorOffset);
 		mandelbrotRenderer.drawMandelbrot(
 				result,
 				xCenter,
