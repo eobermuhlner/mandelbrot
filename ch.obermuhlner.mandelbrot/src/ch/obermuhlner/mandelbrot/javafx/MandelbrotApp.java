@@ -7,6 +7,7 @@ import java.math.MathContext;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 
@@ -35,7 +36,9 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
@@ -47,6 +50,7 @@ import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.cell.ProgressBarTableCell;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
@@ -142,6 +146,29 @@ public class MandelbrotApp extends Application {
 		primaryStage.show();
 		
 		mandelbrotCanvas.requestFocus();
+		
+		primaryStage.setOnCloseRequest(event -> {
+			if (backgroundSnapshotRenderer.getPendingSnapshotRequestCount() > 0) {
+				Alert alert = new Alert(
+						AlertType.CONFIRMATION,
+						"You still have pending snapshots to be calculated.\n\n" +
+						"Do you want to calculate all pending snapshots in the background after closing the application?\n",
+						ButtonType.YES, ButtonType.NO, ButtonType.CANCEL);
+				Optional<ButtonType> optionalAlertResult = alert.showAndWait();
+				if (optionalAlertResult.isPresent()) {
+					ButtonType alertResult = optionalAlertResult.get();
+					if (alertResult == ButtonType.YES) {
+						// do nothing
+					} else if (alertResult == ButtonType.NO) {
+						backgroundSnapshotRenderer.cancelAllSnapshotRequestsAndStopRunning();
+					} else if (alertResult == ButtonType.CANCEL) {
+						event.consume();
+					} else {
+						throw new IllegalArgumentException("Unexpected alert result: " + alertResult);
+					}
+				}
+			}
+		});
 	}
 
 	@Override
@@ -292,10 +319,13 @@ public class MandelbrotApp extends Application {
 					TableRow<SnapshotRequest> tableRow = new TableRow<>();
 					tableRow.setOnMouseClicked(event -> {
 						if (event.getClickCount() == 2) {
-							try {
-								Desktop.getDesktop().open(tableRow.getItem().file);
-							} catch (Exception e) {
-								e.printStackTrace();
+							File file = tableRow.getItem().file;
+							if (file.exists()) {
+								try {
+									Desktop.getDesktop().open(file);
+								} catch (Exception e) {
+									e.printStackTrace();
+								}
 							}
 						}
 					});

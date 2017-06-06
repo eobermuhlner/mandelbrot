@@ -6,6 +6,7 @@ import java.math.RoundingMode;
 import java.util.stream.IntStream;
 
 import ch.obermuhlner.mandelbrot.javafx.Progress;
+import ch.obermuhlner.mandelbrot.util.ThreadInterruptedException;
 
 public class BigDecimalMandelbrotRenderer implements MandelbrotRenderer {
 
@@ -30,6 +31,9 @@ public class BigDecimalMandelbrotRenderer implements MandelbrotRenderer {
 				BigDecimal xx = x.multiply(x, mc);
 				BigDecimal yy = y.multiply(y, mc);
 				while (xx.add(yy, mc).compareTo(TWO_SQUARE) < 0 && iterations < maxIterations) {
+					if (Thread.interrupted()) {
+						throw new ThreadInterruptedException();
+					}
 					y = TWO.multiply(x, mc).multiply(y, mc).add(y0, mc);
 					x = xx.subtract(yy, mc).add(x0, mc);
 					iterations++;

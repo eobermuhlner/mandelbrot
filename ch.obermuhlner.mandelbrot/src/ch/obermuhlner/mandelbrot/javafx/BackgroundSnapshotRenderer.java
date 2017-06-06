@@ -15,6 +15,7 @@ import ch.obermuhlner.mandelbrot.palette.Palette;
 import ch.obermuhlner.mandelbrot.render.AutoPrecisionMandelbrotRenderer;
 import ch.obermuhlner.mandelbrot.render.MandelbrotRenderer;
 import ch.obermuhlner.mandelbrot.util.StopWatch;
+import ch.obermuhlner.mandelbrot.util.ThreadInterruptedException;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
@@ -26,51 +27,69 @@ public class BackgroundSnapshotRenderer extends Thread {
 	private Deque<SnapshotRequest> pendingSnapshotRequests = new ArrayDeque<>();
 	private volatile boolean running;
 
+	private int pendingCount = 0;
+	
 	private ObservableList<SnapshotRequest> snapshotRequests = FXCollections.observableArrayList();
 	
 	private final MandelbrotRenderer mandelbrotRenderer = new AutoPrecisionMandelbrotRenderer();
 
 	public synchronized int getPendingSnapshotRequestCount() {
-		return pendingSnapshotRequests.size();
+		return pendingCount;
 	}
 	
 	public synchronized void stopRunning() {
 		running = false;
 		notifyAll();
 	}
+	
+	public synchronized void cancelAllSnapshotRequestsAndStopRunning() {
+		pendingSnapshotRequests.clear();
+		snapshotRequests.clear();
+		//stopRunning();
+		
+		interrupt();
+	}
 
 	public synchronized void addSnapshotRequest(SnapshotRequest snapshotRequest) {
 		snapshotRequests.add(snapshotRequest);
 		pendingSnapshotRequests.add(snapshotRequest);
+		pendingCount++;
 		notifyAll();
 	}
 
 	@Override
 	public void run() {
-		running = true;
-		
-		while (running) {
-			SnapshotRequest snapshotRequest = null;
+		try {
+			running = true;
 			
-			synchronized(this) {
-				if (!pendingSnapshotRequests.isEmpty()) {
-					snapshotRequest = pendingSnapshotRequests.pop();
+			while (running) {
+				SnapshotRequest snapshotRequest = null;
+				
+				synchronized(this) {
+					if (!pendingSnapshotRequests.isEmpty()) {
+						snapshotRequest = pendingSnapshotRequests.pop();
+					}
 				}
-			}
-			
-			if (snapshotRequest != null) {
-				draw(snapshotRequest);
-			}
-			
-			synchronized(this) {
-				if (running && pendingSnapshotRequests.isEmpty()) {
-					try {
-						wait();
-					} catch (Exception e) {
-						throw new RuntimeException(e);
+				
+				if (snapshotRequest != null) {
+					draw(snapshotRequest);
+					synchronized(this) {
+						pendingCount--;
+					}
+				}
+				
+				synchronized(this) {
+					if (running && pendingSnapshotRequests.isEmpty()) {
+						try {
+							wait();
+						} catch (Exception e) {
+							throw new RuntimeException(e);
+						}
 					}
 				}
 			}
+		} catch (ThreadInterruptedException ex) {
+			// ignore end leave thread
 		}
 	}
 
