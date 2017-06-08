@@ -12,4 +12,6 @@ public enum PaletteType {
 	StarryNight,
 	Drawing,
 	Rainbow,
+	LogRandomColor,
+	LogRandomGray,
 }

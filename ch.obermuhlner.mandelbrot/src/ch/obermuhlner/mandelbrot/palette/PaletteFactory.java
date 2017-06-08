@@ -2,6 +2,8 @@ package ch.obermuhlner.mandelbrot.palette;
 
 public class PaletteFactory {
 
+	private static final int LOG_INTERPOLATION_STEPS = 30;
+	
 	public Palette createPalette(PaletteType paletteType, int seed, int steps) {
 		switch (paletteType) {
 		case RandomColor:
@@ -10,6 +12,10 @@ public class PaletteFactory {
 			return new MaxValuePalette(new CachingPalette(new InterpolatingPalette(new RandomPalette(seed, 0f, 360f, 0.0f, 0.0f, 0.2f, 1.0f), steps)));
 		case RandomPastell:
 			return new MaxValuePalette(new CachingPalette(new InterpolatingPalette(new RandomPalette(seed, 0f, 360f, 0.0f, 0.3f, 0.2f, 1.0f), steps)));
+		case LogRandomColor:
+			return new MaxValuePalette(new CachingPalette(new InterpolatingPalette(new LogPalette(new RandomPalette(seed), steps), LOG_INTERPOLATION_STEPS)));
+		case LogRandomGray:
+			return new MaxValuePalette(new CachingPalette(new InterpolatingPalette(new LogPalette(new RandomPalette(seed, 0f, 360f, 0.0f, 0.0f, 0.2f, 1.0f), steps), LOG_INTERPOLATION_STEPS)));
 		case Drawing:
 			return new MaxValuePalette(new CyclingPalette(Color.WHITE, steps, Color.gray(0.8), Color.gray(0.6), Color.gray(0.4), Color.gray(0.2), Color.gray(0.0), Color.gray(0.2), Color.gray(0.4), Color.gray(0.6), Color.gray(0.8)));
 		case Fire:
