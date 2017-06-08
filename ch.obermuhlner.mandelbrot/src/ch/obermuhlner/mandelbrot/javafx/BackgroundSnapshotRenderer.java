@@ -133,5 +133,10 @@ public class BackgroundSnapshotRenderer extends Thread {
 
 	public ObservableList<SnapshotRequest> getSnapshotRequests() {
 		return snapshotRequests;
+	}
+
+	public void removeSnapshotRequest(SnapshotRequest snapshotRequest) {
+		pendingSnapshotRequests.remove(snapshotRequest);
+		snapshotRequests.remove(snapshotRequest);
 	}	
 }

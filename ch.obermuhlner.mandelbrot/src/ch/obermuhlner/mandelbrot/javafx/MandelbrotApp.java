@@ -40,7 +40,9 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.Slider;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.TableCell;
@@ -329,6 +331,13 @@ public class MandelbrotApp extends Application {
 							}
 						}
 					});
+					MenuItem removeMenuItem = new MenuItem("Remove");
+					removeMenuItem.setOnAction(event -> {
+						backgroundSnapshotRenderer.removeSnapshotRequest(tableRow.getItem());
+					});
+					tableRow.setContextMenu(new ContextMenu(
+								removeMenuItem
+							));
 					return tableRow;
 				}
 			});
