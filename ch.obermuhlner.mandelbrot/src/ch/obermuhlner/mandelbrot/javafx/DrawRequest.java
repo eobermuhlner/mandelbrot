@@ -16,11 +16,13 @@ public class DrawRequest {
 	public final BigDecimal x;
 	public final BigDecimal y;
 	public final double zoom;
+	public final int maxIteration;
 
-	public DrawRequest(BigDecimal x, BigDecimal y, double zoom) {
+	public DrawRequest(BigDecimal x, BigDecimal y, double zoom, int maxIteration) {
 		this.x = x;
 		this.y = y;
 		this.zoom = zoom;
+		this.maxIteration = maxIteration;
 	}
 
 	public boolean isInsideDoublePrecision() {
@@ -52,7 +54,7 @@ public class DrawRequest {
 	}
 
 	public int getMaxIteration() {
-		return MandelbrotMath.getMaxIteration(zoom);
+		return maxIteration;
 	}
 	
 	@Override

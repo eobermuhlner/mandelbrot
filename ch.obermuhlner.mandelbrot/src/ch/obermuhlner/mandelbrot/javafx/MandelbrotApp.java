@@ -39,6 +39,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
@@ -98,6 +99,10 @@ public class MandelbrotApp extends Application {
 	private ObjectProperty<BigDecimal> xCenterProperty = new SimpleObjectProperty<BigDecimal>(BigDecimal.ZERO);
 	private ObjectProperty<BigDecimal> yCenterProperty = new SimpleObjectProperty<BigDecimal>(BigDecimal.ZERO);
 	private DoubleProperty zoomProperty = new SimpleDoubleProperty(0.0);
+	private BooleanProperty autoMaxIterationProperty = new SimpleBooleanProperty(true); 
+	private IntegerProperty maxIterationProperty = new SimpleIntegerProperty(1000);
+	private IntegerProperty maxIterationAtZeroZoomLevelProperty = new SimpleIntegerProperty(1000);
+	private IntegerProperty maxIterationPerZoomLevelProperty = new SimpleIntegerProperty(1000);
 	
 	private ObjectProperty<PaletteType> paletteTypeProperty = new SimpleObjectProperty<PaletteType>(PaletteType.RandomColor);
 	private IntegerProperty paletteSeedProperty = new SimpleIntegerProperty(14);
@@ -257,6 +262,27 @@ public class MandelbrotApp extends Application {
 		Bindings.bindBidirectional(zoomTextField.textProperty(), zoomProperty, DOUBLE_FORMAT);
 		rowIndex++;
 
+		gridPane.add(new Label("Max Iterations:"), 0, rowIndex);
+		TextField maxIterationTextField = new TextField();
+		gridPane.add(maxIterationTextField, 1, rowIndex);
+		maxIterationTextField.disableProperty().bind(autoMaxIterationProperty);
+		Bindings.bindBidirectional(maxIterationTextField.textProperty(), maxIterationProperty, INTEGER_FORMAT);
+		CheckBox autoMaxIterationCheckBox = new CheckBox("Auto");
+		Bindings.bindBidirectional(autoMaxIterationCheckBox.selectedProperty(), autoMaxIterationProperty);
+		gridPane.add(autoMaxIterationCheckBox, 2, rowIndex);
+		updateAutoMaxIterationFormula(autoMaxIterationProperty.get());
+		autoMaxIterationProperty.addListener((observable, oldValue, newAutoMaxIteration) -> {
+			updateAutoMaxIterationFormula(newAutoMaxIteration);
+		});
+		rowIndex++;
+
+		gridPane.add(new Label("Max Iterations/Zoom:"), 0, rowIndex);
+		TextField maxIterationPerZoomLevelTextField = new TextField();
+		maxIterationPerZoomLevelTextField.disableProperty().bind(autoMaxIterationProperty.not());
+		gridPane.add(maxIterationPerZoomLevelTextField, 1, rowIndex);
+		Bindings.bindBidirectional(maxIterationPerZoomLevelTextField.textProperty(), maxIterationPerZoomLevelProperty, INTEGER_FORMAT);
+		rowIndex++;
+
 		gridPane.add(new Label("Color Palette:"), 0, rowIndex);
 		ComboBox<PaletteType> paletteTypeComboBox = new ComboBox<>(FXCollections.observableArrayList(PaletteType.values()));
 		gridPane.add(paletteTypeComboBox, 1, rowIndex);
@@ -281,6 +307,14 @@ public class MandelbrotApp extends Application {
 		return box;
 	}
 
+	private void updateAutoMaxIterationFormula(boolean autoMaxIteration) {
+		if (autoMaxIteration) {
+			maxIterationProperty.bind(maxIterationPerZoomLevelProperty.multiply(zoomProperty).add(maxIterationAtZeroZoomLevelProperty.get()));
+		} else {
+			maxIterationProperty.unbind();
+		}
+	}
+	
 	private Node createSnapshotEditor() {
 		VBox vBox = new VBox(4);
 
@@ -303,7 +337,7 @@ public class MandelbrotApp extends Application {
 			Button snapshotButton = new Button("Snapshot");
 			hBox.getChildren().add(snapshotButton);
 			snapshotButton.setOnAction(event -> {
-				DrawRequest drawRequest = new DrawRequest(xCenterProperty.get(), yCenterProperty.get(), zoomProperty.get());
+				DrawRequest drawRequest = new DrawRequest(xCenterProperty.get(), yCenterProperty.get(), zoomProperty.get(), maxIterationProperty.get());
 				String filename = "mandelbrot" + LocalDateTime.now().toString().replace(':', '_') + ".png";
 				int width = snapshotWidthProperty.get();
 				int height = snapshotHeightProperty.get();
@@ -542,7 +576,7 @@ public class MandelbrotApp extends Application {
 	}
 	
 	private void calculateAndDrawMandelbrot(Canvas canvas) {
-		backgroundProgressiveRenderer.triggerDraw(new DrawRequest(xCenterProperty.get(), yCenterProperty.get(), zoomProperty.get()));
+		backgroundProgressiveRenderer.triggerDraw(new DrawRequest(xCenterProperty.get(), yCenterProperty.get(), zoomProperty.get(), maxIterationProperty.get()));
 	}		
 	
 	void drawMandelbrot() {
