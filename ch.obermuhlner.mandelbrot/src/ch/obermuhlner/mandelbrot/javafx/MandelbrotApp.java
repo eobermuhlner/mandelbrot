@@ -293,9 +293,7 @@ public class MandelbrotApp extends Application {
 		Spinner<Integer> paletteSeedSpinner = new Spinner<Integer>(0, 999, paletteSeedProperty.get());
 		gridPane.add(paletteSeedSpinner, 1, rowIndex);
 		paletteSeedSpinner.setEditable(true);
-		paletteSeedSpinner.valueProperty().addListener((observable, oldValue, newValue) -> {
-			paletteSeedProperty.set(newValue);
-		});
+		paletteSeedProperty.bind(paletteSeedSpinner.valueProperty());
 		rowIndex++;
 
 		gridPane.add(new Label("Color Step:"), 0, rowIndex);
