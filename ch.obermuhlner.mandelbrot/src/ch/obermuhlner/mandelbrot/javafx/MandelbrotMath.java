@@ -26,10 +26,6 @@ public class MandelbrotMath {
 		return radius;
 	}
 	
-	public static int getMaxIteration(double zoom) {
-		return (int) (zoom * 300 + 1000);
-	}
-
 	public static int calculateMandelbrotIterations(double x0, double y0, int maxIteration) {
 		int iterations = 0;
 
