@@ -29,7 +29,7 @@ public class PaletteFactory {
 		case Forest:
 			return new MaxValuePalette(new CachingPalette(new InterpolatingPalette(new CyclingPalette(Color.GREENYELLOW, Color.GREEN, Color.DARKGREEN, Color.LIGHTGREEN, Color.gray(0.1)), steps)));
 		case StarryNight:
-			return new MaxValuePalette(new CachingPalette(new InterpolatingPalette(new CyclingPalette(Color.gray(0.1), Color.WHITE, Color.gray(0.1)), steps)));
+			return new MaxValuePalette(new CachingPalette(new InterpolatingPalette(new CyclingPalette(Color.DARKBLUE, Color.WHITE, Color.gray(0.1), Color.MIDNIGHTBLUE, Color.gray(0.1)), steps)));
 		case Rainbow:
 			return new MaxValuePalette(new CachingPalette(new HuePalette(steps, 0.8, 0.8)));
 		}
