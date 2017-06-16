@@ -119,10 +119,13 @@ public class BackgroundSnapshotRenderer extends Thread {
 		int precision = zoomPower.intValue() * 1 + 10;
 		MathContext mc = new MathContext(precision, RoundingMode.HALF_UP);
 		BigDecimal radius = zoomStart.multiply(BigDecimalMath.tenToThePowerOf(zoomPower.negate(), mc));
+		BigDecimal minWidthHeight = new BigDecimal(Math.min(imageWidth, imageHeight));
+		BigDecimal xRadius = radius.multiply(new BigDecimal(imageWidth), mc).divide(minWidthHeight, mc);
+		BigDecimal yRadius = radius.multiply(new BigDecimal(imageHeight), mc).divide(minWidthHeight, mc);
 		int maxIterations = 1000 + zoomPower.intValue() * 100;
 
 		WritableImageMandelbrotResult result = new WritableImageMandelbrotResult(imageWidth, imageHeight, palette);
-		mandelbrotRenderer.drawMandelbrot(result, xCenter, yCenter, radius, radius, precision, maxIterations, imageWidth, imageHeight, progress);
+		mandelbrotRenderer.drawMandelbrot(result, xCenter, yCenter, xRadius, yRadius, precision, maxIterations, imageWidth, imageHeight, progress);
 		
 		try {
 			ImageIO.write(SwingFXUtils.fromFXImage(result.getImage(), null), "png", file);
