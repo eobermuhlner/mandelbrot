@@ -120,8 +120,6 @@ After cloning the git repository you can either use the gradle command line to c
 ```bash
 ./gradlew eclipse
 ```
+and import with "Existing Projects into Workspace".
 
-or you can use the Gradle Buildship Import in the Eclipse IDE to import the project.
-
-
-
+or if you have the Gradle Buildship Plugin installed you simply import with "Gradle Project".
