@@ -1,5 +1,21 @@
-/images/
-/build/
+# gradle stuff
+
 /.gradle/
+/build/
+
+# output of mandelbrot zoom runs
+
+/images/
+
+# Eclipse IDE stuff
+
+.project
+.classpath
 /bin/
 /.settings/
+
+# IntelliJ IDEA stuff
+
+*.iml
+/.idea/
+
