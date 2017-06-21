@@ -107,3 +107,21 @@ The Mandelbrot viewer and Zoom application support different palette algorithms.
 ### Palette Rainbow
 ![Mandelbrot Palette Rainbow](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_snail_shell_zoom10_rainbow.png?raw=true "Mandelbrot Palette Rainbow")
 
+## Development
+
+The project can be built in the command line with gradle. To see a list of available gradle tasks execute:
+```bash
+./gradlew tasks
+```
+
+### Eclipse Development
+
+After cloning the git repository you can either use the gradle command line to create the eclipse project files:
+```bash
+./gradlew eclipse
+```
+
+or you can use the Gradle Buildship Import in the Eclipse IDE to import the project.
+
+
+
