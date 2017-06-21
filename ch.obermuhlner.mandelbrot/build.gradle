@@ -2,9 +2,11 @@ import org.gradle.plugins.ide.eclipse.model.AccessRule
 
 apply plugin: 'java'
 apply plugin: 'eclipse'
+apply plugin: 'application'
 
 
 version = '1.0'
+mainClassName = 'ch.obermuhlner.mandelbrot.javafx.MandelbrotApp'
 
 jar {
 	baseName 'mandelbrot'
@@ -13,7 +15,7 @@ jar {
 			'Implementation-Version' : version,
 			'Implementation-Vendor' : 'Eric Obermuhlner',
 			'Implementation-URL' : 'https://github.com/eobermuhlner/mandelbrot',
-			'Main-Class' : 'ch.obermuhlner.mandelbrot.javafx.MandelbrotApp'
+			'Main-Class' : mainClassName
 	}
 }
 
