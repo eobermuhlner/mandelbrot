@@ -72,6 +72,8 @@ ffmpeg -y -r 10 -start_number 0 -i mandelbrot%04d.png -s 800x800 -vcodec mpeg4 -
 
 ## Gallery Palettes
 
+The Mandelbrot viewer and Zoom application support different palette algorithms.
+
 ### Palette Random Colors
 ![Mandelbrot Palette Random Colors](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_snail_shell_zoom10.png?raw=true "Mandelbrot Palette Random Colors")
 
