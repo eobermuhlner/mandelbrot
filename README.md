@@ -72,6 +72,8 @@ ffmpeg -y -r 10 -start_number 0 -i mandelbrot%04d.png -s 800x800 -vcodec mpeg4 -
 
 ## Gallery Palettes
 
+The Mandelbrot viewer and Zoom application support different palette algorithms.
+
 ### Palette Random Colors
 ![Mandelbrot Palette Random Colors](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_snail_shell_zoom10.png?raw=true "Mandelbrot Palette Random Colors")
 
@@ -105,3 +107,19 @@ ffmpeg -y -r 10 -start_number 0 -i mandelbrot%04d.png -s 800x800 -vcodec mpeg4 -
 ### Palette Rainbow
 ![Mandelbrot Palette Rainbow](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_snail_shell_zoom10_rainbow.png?raw=true "Mandelbrot Palette Rainbow")
 
+## Development
+
+The project can be built in the command line with gradle. To see a list of available gradle tasks execute:
+```bash
+./gradlew tasks
+```
+
+### Eclipse Development
+
+After cloning the git repository you can either use the gradle command line to create the eclipse project files:
+```bash
+./gradlew eclipse
+```
+and import with "Existing Projects into Workspace".
+
+or if you have the Gradle Buildship Plugin installed you simply import with "Gradle Project".
