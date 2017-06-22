@@ -7,11 +7,12 @@ apply plugin: 'application'
 
 version = '1.0'
 mainClassName = 'ch.obermuhlner.mandelbrot.javafx.MandelbrotApp'
+applicationName = 'Mandelbrot'
 
 jar {
 	baseName 'mandelbrot'
 	manifest {
-		attributes 'Implementation-Title' : 'Mandelbrot',
+		attributes 'Implementation-Title' : applicationName,
 			'Implementation-Version' : version,
 			'Implementation-Vendor' : 'Eric Obermuhlner',
 			'Implementation-URL' : 'https://github.com/eobermuhlner/mandelbrot',
