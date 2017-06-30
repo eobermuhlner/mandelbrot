@@ -20,7 +20,7 @@ java -cp mandelbrot.jar ch.obermuhlner.mandelbrot.javafx.MandelbrotApp
 ```
 
 
-![Screenshot Mandelbrot Viewer](ch.obermuhlner.mandelbrot.docs/screenshots/mandelbrot_viewer_screenshot1.png?raw=true "Screenshot Mandelbrot Viewer")
+![Screenshot Mandelbrot Viewer](ch.obermuhlner.mandelbrot.docs/screenshots/mandelbrot_viewer_screenshot1.png "Screenshot Mandelbrot Viewer")
 
 ## Command Line Tool
 
@@ -57,55 +57,55 @@ ffmpeg -y -r 10 -start_number 0 -i mandelbrot%04d.png -s 800x800 -vcodec mpeg4 -
 
 ## Gallery
 
-![Mandelbrot Curved Swords at zoom 10^-4](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_curved_swords_zoom4.png?raw=true "Mandelbrot Curved Swords at zoom 10^-4")
-![Mandelbrot Curved Swords at zoom 10^-9](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_curved_swords_zoom9.png?raw=true "Mandelbrot Curved Swords at zoom 10^-9")
-![Mandelbrot Curved Swords at zoom 10^-10](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_curved_swords_zoom10.png?raw=true "Mandelbrot Curved Swords at zoom 10^-10")
-![Mandelbrot Curved Swords at zoom 10^-13](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_curved_swords_zoom13.png?raw=true "Mandelbrot Curved Swords at zoom 10^-13")
-![Mandelbrot Curved Swords at zoom 10^-15](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_curved_swords_zoom15.png?raw=true "Mandelbrot Curved Swords at zoom 10^-15")
+![Mandelbrot Curved Swords at zoom 10^-4](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_curved_swords_zoom4.png "Mandelbrot Curved Swords at zoom 10^-4")
+![Mandelbrot Curved Swords at zoom 10^-9](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_curved_swords_zoom9.png "Mandelbrot Curved Swords at zoom 10^-9")
+![Mandelbrot Curved Swords at zoom 10^-10](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_curved_swords_zoom10.png "Mandelbrot Curved Swords at zoom 10^-10")
+![Mandelbrot Curved Swords at zoom 10^-13](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_curved_swords_zoom13.png "Mandelbrot Curved Swords at zoom 10^-13")
+![Mandelbrot Curved Swords at zoom 10^-15](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_curved_swords_zoom15.png "Mandelbrot Curved Swords at zoom 10^-15")
 
-![Mandelbrot Jelly Fish at zoom 10^-10](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_jelly_fish_zoom10.png?raw=true "Mandelbrot Jelly Fish at zoom 10^-10")
+![Mandelbrot Jelly Fish at zoom 10^-10](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_jelly_fish_zoom10.png "Mandelbrot Jelly Fish at zoom 10^-10")
 
-![Mandelbrot Chaotic Spirals at zoom 10^-9](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_chaotic_spirals_zoom9.png?raw=true "Mandelbrot Chaotic Spirals at zoom 10^-9")
+![Mandelbrot Chaotic Spirals at zoom 10^-9](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_chaotic_spirals_zoom9.png "Mandelbrot Chaotic Spirals at zoom 10^-9")
 
-![Mandelbrot Deep Zoom 1 at zoom 10^-21](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_deep1_zoom21.png?raw=true "Mandelbrot Deep Zoom 1 at zoom 10^-21")
-![Mandelbrot Deep Zoom 1 at zoom 10^-45](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_deep1_zoom45.png?raw=true "Mandelbrot Deep Zoom 1 at zoom 10^-45")
+![Mandelbrot Deep Zoom 1 at zoom 10^-21](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_deep1_zoom21.png "Mandelbrot Deep Zoom 1 at zoom 10^-21")
+![Mandelbrot Deep Zoom 1 at zoom 10^-45](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_deep1_zoom45.png "Mandelbrot Deep Zoom 1 at zoom 10^-45")
 
 ## Gallery Palettes
 
 The Mandelbrot viewer and Zoom application support different palette algorithms.
 
 ### Palette Random Colors
-![Mandelbrot Palette Random Colors](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_snail_shell_zoom10.png?raw=true "Mandelbrot Palette Random Colors")
+![Mandelbrot Palette Random Colors](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_snail_shell_zoom10.png "Mandelbrot Palette Random Colors")
 
 ### Palette Random Gray
-![Mandelbrot Palette Random Gray](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_snail_shell_zoom10_random_gray.png?raw=true "Mandelbrot Palette Random Gray")
+![Mandelbrot Palette Random Gray](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_snail_shell_zoom10_random_gray.png "Mandelbrot Palette Random Gray")
 
 ### Palette Random Pastell
-![Mandelbrot Palette Random Pastell](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_snail_shell_zoom10_random_pastell.png?raw=true "Mandelbrot Palette Random Pastell")
+![Mandelbrot Palette Random Pastell](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_snail_shell_zoom10_random_pastell.png "Mandelbrot Palette Random Pastell")
 
 ### Palette Fire
-![Mandelbrot Palette Fire](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_snail_shell_zoom10_fire.png?raw=true "Mandelbrot Palette Fire")
+![Mandelbrot Palette Fire](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_snail_shell_zoom10_fire.png "Mandelbrot Palette Fire")
 
 ### Palette Water
-![Mandelbrot Palette Water](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_snail_shell_zoom10_water.png?raw=true "Mandelbrot Palette Water")
+![Mandelbrot Palette Water](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_snail_shell_zoom10_water.png "Mandelbrot Palette Water")
 
 ### Palette Earth
-![Mandelbrot Palette Earth](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_snail_shell_zoom10_earth.png?raw=true "Mandelbrot Palette Earth")
+![Mandelbrot Palette Earth](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_snail_shell_zoom10_earth.png "Mandelbrot Palette Earth")
 
 ### Palette Air
-![Mandelbrot Palette Air](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_snail_shell_zoom10_air.png?raw=true "Mandelbrot Palette Air")
+![Mandelbrot Palette Air](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_snail_shell_zoom10_air.png "Mandelbrot Palette Air")
 
 ### Palette Forest
-![Mandelbrot Palette Forest](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_snail_shell_zoom10_forest.png?raw=true "Mandelbrot Palette Forest")
+![Mandelbrot Palette Forest](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_snail_shell_zoom10_forest.png "Mandelbrot Palette Forest")
 
 ### Palette Starry Night
-![Mandelbrot Palette Starry Night](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_snail_shell_zoom10_starry_night.png?raw=true "Mandelbrot Palette Starry Night")
+![Mandelbrot Palette Starry Night](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_snail_shell_zoom10_starry_night.png "Mandelbrot Palette Starry Night")
 
 ### Palette Drawing
-![Mandelbrot Palette Drawing](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_snail_shell_zoom10_drawing.png?raw=true "Mandelbrot Palette Drawing")
+![Mandelbrot Palette Drawing](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_snail_shell_zoom10_drawing.png "Mandelbrot Palette Drawing")
 
 ### Palette Rainbow
-![Mandelbrot Palette Rainbow](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_snail_shell_zoom10_rainbow.png?raw=true "Mandelbrot Palette Rainbow")
+![Mandelbrot Palette Rainbow](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_snail_shell_zoom10_rainbow.png "Mandelbrot Palette Rainbow")
 
 ## Development
 
