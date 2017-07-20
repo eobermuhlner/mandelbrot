@@ -14,7 +14,7 @@ public class RandomPalette implements Palette {
 	private final float brightnessEnd;
 	
 	public RandomPalette(long seed) {
-		this(seed, 0f, 360f, 0.8f, 1.0f, 0.2f, 1.0f);
+		this(seed, 0f, 360f, 0.8f, 1.0f, 0.1f, 1.0f);
 	}
 
 	public RandomPalette(long seed, float hueStart, float hueEnd, float saturationStart, float saturationEnd, float brightnessStart, float brightnessEnd) {
