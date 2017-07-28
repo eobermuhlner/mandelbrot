@@ -112,8 +112,8 @@ public class MandelbrotApp extends Application {
 	private BooleanProperty crosshairProperty = new SimpleBooleanProperty(true); 
 	private BooleanProperty gridProperty = new SimpleBooleanProperty(false); 
 
-	private IntegerProperty snapshotWidthProperty = new SimpleIntegerProperty(800);
-	private IntegerProperty snapshotHeightProperty = new SimpleIntegerProperty(800);
+	private IntegerProperty snapshotWidthProperty = new SimpleIntegerProperty(1920);
+	private IntegerProperty snapshotHeightProperty = new SimpleIntegerProperty(1200);
 
 	private PaletteFactory paletteFactory = new PaletteFactory();
 	private Palette palette;
