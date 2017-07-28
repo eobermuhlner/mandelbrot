@@ -2,6 +2,7 @@ package ch.obermuhlner.mandelbrot.javafx;
 
 import java.awt.Desktop;
 import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.text.DecimalFormat;
@@ -335,11 +336,28 @@ public class MandelbrotApp extends Application {
 			Button snapshotButton = new Button("Snapshot");
 			hBox.getChildren().add(snapshotButton);
 			snapshotButton.setOnAction(event -> {
+				String basename = "mandelbrot_" + LocalDateTime.now().toString().replace(':', '_');
+
+				String mandelbrotFilename = basename + ".mandelbrot";
+				PointOfInterest pointOfInterest = new PointOfInterest(
+						basename,
+						xCenterProperty.get(),
+						yCenterProperty.get(),
+						zoomProperty.get(),
+						paletteTypeProperty.get(),
+						paletteSeedProperty.get(),
+						paletteStepProperty.get());
+				try {
+					pointOfInterest.save(new File(mandelbrotFilename));
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				
+				String snapshotFilename = basename + ".png";
 				DrawRequest drawRequest = new DrawRequest(xCenterProperty.get(), yCenterProperty.get(), zoomProperty.get(), maxIterationProperty.get());
-				String filename = "mandelbrot" + LocalDateTime.now().toString().replace(':', '_') + ".png";
 				int width = snapshotWidthProperty.get();
 				int height = snapshotHeightProperty.get();
-				backgroundSnapshotRenderer.addSnapshotRequest(new SnapshotRequest(drawRequest, palette, width, height, new File(filename)));
+				backgroundSnapshotRenderer.addSnapshotRequest(new SnapshotRequest(drawRequest, palette, width, height, new File(snapshotFilename)));
 			});
 		}
 
