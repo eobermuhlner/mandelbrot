@@ -62,6 +62,8 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
@@ -138,7 +140,7 @@ public class MandelbrotApp extends Application {
 		BorderPane borderPane = new BorderPane();
 		root.getChildren().add(borderPane);
 		
-		Node toolbar = createToolbar();
+		Node toolbar = createToolbar(primaryStage);
 		borderPane.setTop(toolbar);
 
 		Node editor = createEditor();
@@ -201,8 +203,14 @@ public class MandelbrotApp extends Application {
 		return canvas;
 	}
 
-	private Node createToolbar() {
+	private Node createToolbar(Stage stage) {
 		HBox box = new HBox(2);
+
+		Button openButton = new Button("Open...");
+		box.getChildren().add(openButton);
+		openButton.setOnAction(event -> {
+			openMandelbrotFile(stage);
+		});
 		
 		ToggleButton crosshairToggleButton = new ToggleButton("Crosshair");
 		box.getChildren().add(crosshairToggleButton);
@@ -217,17 +225,36 @@ public class MandelbrotApp extends Application {
 		pointsOfInterestComboBox.setValue(StandardPointsOfInterest.POINTS_OF_INTEREST[0]);
 		pointsOfInterestComboBox.setOnAction(event -> {
 			PointOfInterest pointOfInterest = pointsOfInterestComboBox.getValue();
-			xCenterProperty.set(pointOfInterest.x);
-			yCenterProperty.set(pointOfInterest.y);
-			zoomProperty.set(pointOfInterest.zoom);
-			paletteTypeProperty.set(pointOfInterest.paletteType);
-			paletteSeedProperty.set(pointOfInterest.paletteSeed);
-			paletteStepProperty.set(pointOfInterest.paletteStep);
+			setPointOfInterest(pointOfInterest);
 		});
 				
 		return box;
 	}
 	
+	private void openMandelbrotFile(Stage stage) {
+		FileChooser fileChooser = new FileChooser();
+		fileChooser.setTitle("Open Mandelbrot");
+		fileChooser.getExtensionFilters().add(new ExtensionFilter("Mandelbrot", "*.mandelbrot"));
+		File file = fileChooser.showOpenDialog(stage);
+		
+		if (file != null) {
+			try {
+				setPointOfInterest(PointOfInterest.load(file));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	private void setPointOfInterest(PointOfInterest pointOfInterest) {
+		xCenterProperty.set(pointOfInterest.x);
+		yCenterProperty.set(pointOfInterest.y);
+		zoomProperty.set(pointOfInterest.zoom);
+		paletteTypeProperty.set(pointOfInterest.paletteType);
+		paletteSeedProperty.set(pointOfInterest.paletteSeed);
+		paletteStepProperty.set(pointOfInterest.paletteStep);
+	}
+
 	private Node createEditor() {
 		HBox box = new HBox();
 		Slider zoomSlider = new Slider(0.0, 100.0, 0.0);
