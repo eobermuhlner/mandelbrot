@@ -4,20 +4,27 @@ public class InterpolatingPalette implements Palette {
 
 	private final Palette palette;
 	private final int steps;
+	private final int offset;
 	
 	public InterpolatingPalette(Palette palette, int steps) {
+		this(palette, steps, 0);
+	}
+
+	public InterpolatingPalette(Palette palette, int steps, int offset) {
 		this.palette = palette;
 		this.steps = steps;
+		this.offset = offset;
 	}
-	
+
 	@Override
 	public Color getColor(int iterations) {
-		int colorIndex = iterations / steps;
+		int n = iterations + offset;
+		int colorIndex = n / steps;
 		
 		Color startColor = palette.getColor(colorIndex);
 		Color endColor = palette.getColor(colorIndex + 1);
 
-		double fraction = (double) (iterations % steps) / steps;
+		double fraction = (double) (n % steps) / steps;
 		return startColor.interpolate(endColor, fraction);
 	}
 	
