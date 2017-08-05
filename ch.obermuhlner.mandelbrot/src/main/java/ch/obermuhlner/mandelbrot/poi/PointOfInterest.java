@@ -11,13 +11,13 @@ import java.util.Properties;
 import ch.obermuhlner.mandelbrot.palette.PaletteType;
 
 public class PointOfInterest {
-	public final String name;
-	public final BigDecimal x;
-	public final BigDecimal y;
-	public final double zoom;
-	public final PaletteType paletteType;
-	public final int paletteSeed;
-	public final int paletteStep;
+	public String name;
+	public BigDecimal x;
+	public BigDecimal y;
+	public double zoom;
+	public PaletteType paletteType;
+	public int paletteSeed;
+	public int paletteStep;
 
 	public PointOfInterest(String name, BigDecimal x, BigDecimal y, double zoom, PaletteType paletteType, int paletteSeed, int paletteStep) {
 		this.name = name;
