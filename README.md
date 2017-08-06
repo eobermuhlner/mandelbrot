@@ -78,37 +78,43 @@ A gallery of the best mandelbrot images is available in https://github.com/eober
 The Mandelbrot viewer and Zoom application support different palette algorithms.
 
 ### Palette Random Colors
-![Mandelbrot Palette Random Colors](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_snail_shell_zoom10.png "Mandelbrot Palette Random Colors")
+![Mandelbrot Palette Random Colors](ch.obermuhlner.mandelbrot.docs/images/palette_example_RandomColor.png "Mandelbrot Palette Random Color")
 
 ### Palette Random Gray
-![Mandelbrot Palette Random Gray](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_snail_shell_zoom10_random_gray.png "Mandelbrot Palette Random Gray")
+![Mandelbrot Palette Random Gray](ch.obermuhlner.mandelbrot.docs/images/palette_example_RandomGray.png "Mandelbrot Palette Random Gray")
 
 ### Palette Random Pastell
-![Mandelbrot Palette Random Pastell](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_snail_shell_zoom10_random_pastell.png "Mandelbrot Palette Random Pastell")
+![Mandelbrot Palette Random Pastell](ch.obermuhlner.mandelbrot.docs/images/palette_example_RandomPastell.png "Mandelbrot Palette Random Pastell")
 
 ### Palette Fire
-![Mandelbrot Palette Fire](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_snail_shell_zoom10_fire.png "Mandelbrot Palette Fire")
+![Mandelbrot Palette Fire](ch.obermuhlner.mandelbrot.docs/images/palette_example_Fire.png "Mandelbrot Palette Fire")
 
 ### Palette Water
-![Mandelbrot Palette Water](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_snail_shell_zoom10_water.png "Mandelbrot Palette Water")
+![Mandelbrot Palette Water](ch.obermuhlner.mandelbrot.docs/images/palette_example_Water.png "Mandelbrot Palette Water")
 
 ### Palette Earth
-![Mandelbrot Palette Earth](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_snail_shell_zoom10_earth.png "Mandelbrot Palette Earth")
+![Mandelbrot Palette Earth](ch.obermuhlner.mandelbrot.docs/images/palette_example_Earth.png "Mandelbrot Palette Earth")
 
 ### Palette Air
-![Mandelbrot Palette Air](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_snail_shell_zoom10_air.png "Mandelbrot Palette Air")
+![Mandelbrot Palette Air](ch.obermuhlner.mandelbrot.docs/images/palette_example_Air.png "Mandelbrot Palette Air")
 
 ### Palette Forest
-![Mandelbrot Palette Forest](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_snail_shell_zoom10_forest.png "Mandelbrot Palette Forest")
+![Mandelbrot Palette Forest](ch.obermuhlner.mandelbrot.docs/images/palette_example_Forest.png "Mandelbrot Palette Forest")
 
 ### Palette Starry Night
-![Mandelbrot Palette Starry Night](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_snail_shell_zoom10_starry_night.png "Mandelbrot Palette Starry Night")
+![Mandelbrot Palette Starry Night](ch.obermuhlner.mandelbrot.docs/images/palette_example_StarryNight.png "Mandelbrot Palette Starry Night")
 
 ### Palette Drawing
-![Mandelbrot Palette Drawing](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_snail_shell_zoom10_drawing.png "Mandelbrot Palette Drawing")
+![Mandelbrot Palette Drawing](ch.obermuhlner.mandelbrot.docs/images/palette_example_Drawing.png "Mandelbrot Palette Drawing")
 
 ### Palette Rainbow
-![Mandelbrot Palette Rainbow](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_snail_shell_zoom10_rainbow.png "Mandelbrot Palette Rainbow")
+![Mandelbrot Palette Rainbow](ch.obermuhlner.mandelbrot.docs/images/palette_example_Rainbow.png "Mandelbrot Palette Rainbow")
+
+### Palette Log Random Color
+![Mandelbrot Palette Log Random Color](ch.obermuhlner.mandelbrot.docs/images/palette_example_LogRandomColor.png "Mandelbrot Palette Log Random Color")
+
+### Palette Log Random Gray
+![Mandelbrot Palette Log Random Gray](ch.obermuhlner.mandelbrot.docs/images/palette_example_LogRandomGray.png "Mandelbrot Palette Log Random Gray")
 
 ## Development
 
