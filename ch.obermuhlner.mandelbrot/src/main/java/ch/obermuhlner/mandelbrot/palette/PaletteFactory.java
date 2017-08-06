@@ -26,7 +26,7 @@ public class PaletteFactory {
 		case Air:
 			return new MaxValuePalette(new CachingPalette(new InterpolatingPalette(new FixPalette(new CyclingPalette(Color.LIGHTBLUE, Color.WHITE, Color.BLUE, Color.WHITE, Color.CYAN), FIX_COLORS), steps, seed)));
 		case Earth:
-			return new MaxValuePalette(new CachingPalette(new InterpolatingPalette(new FixPalette(new CyclingPalette(Color.SADDLEBROWN, Color.GREEN, Color.DARKGREEN, Color.BROWN, Color.SANDYBROWN), FIX_COLORS), steps, seed)));
+			return new MaxValuePalette(new CachingPalette(new InterpolatingPalette(new FixPalette(new CyclingPalette(Color.gray(0.1), Color.SADDLEBROWN, Color.DARKGREEN, Color.gray(0.1), Color.LIGHTGREEN), FIX_COLORS), steps, seed)));
 		case Forest:
 			return new MaxValuePalette(new CachingPalette(new InterpolatingPalette(new FixPalette(new CyclingPalette(Color.GREENYELLOW, Color.GREEN, Color.DARKGREEN, Color.LIGHTGREEN, Color.gray(0.1)), FIX_COLORS), steps, seed)));
 		case StarryNight:
