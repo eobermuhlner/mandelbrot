@@ -5,12 +5,12 @@ apply plugin: 'eclipse'
 apply plugin: 'application'
 
 
-version = '1.0.0'
+version = '1.0.1'
 mainClassName = 'ch.obermuhlner.mandelbrot.javafx.MandelbrotApp'
 applicationName = 'MandelbrotViewer'
 
 jar {
-	baseName 'mandelbrot'
+	baseName 'mandelbrot-viewer'
 	manifest {
 		attributes 'Implementation-Title' : applicationName,
 			'Implementation-Version' : version,

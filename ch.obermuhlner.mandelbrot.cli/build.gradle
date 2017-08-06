@@ -5,7 +5,7 @@ apply plugin: 'eclipse'
 apply plugin: 'application'
 
 
-version = '1.0.0'
+version = '1.0.1'
 mainClassName = 'ch.obermuhlner.mandelbrot.cli.Mandelbrot'
 applicationName = 'mandelbrot'
 
