@@ -35,6 +35,7 @@ public class Mandelbrot {
 		
 		List<String> fileNames = new ArrayList<>();
 		
+		String name = null;
 		BigDecimal xCenter = null;
 		BigDecimal yCenter = null;
 		BigDecimal zoom = null;
@@ -54,6 +55,10 @@ public class Mandelbrot {
 				printHelp();
 				return;
 				
+			case "-n":
+			case "--name":
+				name = stringArgument(args, ++argumentIndex, "mandelbrot");
+				break;
 			case "-x":
 			case "--x":
 				xCenter = bigDecimalArgument(args, ++argumentIndex, BigDecimal.ZERO);
@@ -101,6 +106,9 @@ public class Mandelbrot {
 		for (String fileName : fileNames) {
 			try {
 				PointOfInterest pointOfInterest = PointOfInterest.load(new File(fileName));
+				if (name != null) {
+					pointOfInterest.name = name;
+				}
 				if (xCenter != null) {
 					pointOfInterest.x = xCenter;
 				}
@@ -131,6 +139,9 @@ public class Mandelbrot {
 	
 	private static void printHelp() {
 		System.out.println("Options:");
+		System.out.println("  -n");
+		System.out.println("  --name");
+		System.out.println("    Name of the generated image.");
 		System.out.println("  -w");
 		System.out.println("  --width");
 		System.out.println("    Image width in pixels.");
