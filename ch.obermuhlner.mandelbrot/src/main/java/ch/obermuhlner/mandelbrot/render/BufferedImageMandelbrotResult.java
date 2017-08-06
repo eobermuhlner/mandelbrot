@@ -1,11 +1,10 @@
-package ch.obermuhlner.mandelbrot.cli;
+package ch.obermuhlner.mandelbrot.render;
 
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
 import ch.obermuhlner.mandelbrot.palette.Color;
 import ch.obermuhlner.mandelbrot.palette.Palette;
-import ch.obermuhlner.mandelbrot.render.MandelbrotResult;
 
 public class BufferedImageMandelbrotResult implements MandelbrotResult {
 

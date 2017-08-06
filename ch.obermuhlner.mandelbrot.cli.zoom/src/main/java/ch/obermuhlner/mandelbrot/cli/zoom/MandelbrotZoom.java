@@ -1,4 +1,4 @@
-package ch.obermuhlner.mandelbrot.cli;
+package ch.obermuhlner.mandelbrot.cli.zoom;
 
 import java.io.BufferedOutputStream;
 import java.io.File;

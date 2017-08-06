@@ -20,6 +20,7 @@ import ch.obermuhlner.mandelbrot.palette.PaletteType;
 import ch.obermuhlner.mandelbrot.poi.PointOfInterest;
 import ch.obermuhlner.mandelbrot.poi.StandardPointsOfInterest;
 import ch.obermuhlner.mandelbrot.render.AutoPrecisionMandelbrotRenderer;
+import ch.obermuhlner.mandelbrot.render.BufferedImageMandelbrotResult;
 import ch.obermuhlner.mandelbrot.render.MandelbrotRenderer;
 
 public class Mandelbrot {
