@@ -2,9 +2,9 @@
 
 Interactive Mandelbrot Viewer and command line tools to generate zoom sequences into the Mandelbrot set.
 
-## Interactive Viewer
+## Interactive Mandelbrot Viewer
 
-The interactive viewer allows user interaction using mouse, touch gestures or the keyboard.
+The interactive Mandelbrot Viewer allows user interaction using mouse, touch gestures or the keyboard.
 
 It is possible to zoom interactively down to 10<sup>-100</sup> and beyond, all calculations switch automatically from double to BigDecimal if more precision is needed.
 
@@ -23,9 +23,19 @@ Depending on the settings in your OS you might get away with simply double click
 
 ![Screenshot Mandelbrot Viewer](ch.obermuhlner.mandelbrot.docs/screenshots/mandelbrot_viewer_screenshot1.png "Screenshot Mandelbrot Viewer")
 
+## Command Line Tool `mandelbrot`
+
+The command line tool `mandelbrot` allows to create images from the `*.mandelbrot` files created by the interactive Mandelbrot Viewer.
+
+To install the tool you need to unzip the distribution file `mandelbrot-1.0.1.zip` and set the PATH environment variable to the `bin` directory.
+
+```bash
+mandelbrot --width 1920 --height 1200 *.mandelbrot
+```
+
 ## Command Line Tool `mandelbrot-zoom`
 
-The command line tool allows to automatically create many images for a specific point in the mandelbrot at increasing zoom levels.
+The command line tool `mandelbrot-zoom` allows to automatically create many images for a specific point in the mandelbrot at increasing zoom levels.
 
 The generated images can be used to create a video that zooms deeper and deeper into the specified point.
 
