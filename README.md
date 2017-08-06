@@ -1,10 +1,10 @@
 # mandelbrot
 
-Interactive Mandelbrot Viewer and command line tool to generate zoom sequences into the Mandelbrot set.
+Interactive Mandelbrot Viewer and command line tools to generate zoom sequences into the Mandelbrot set.
 
-## Interactive Viewer
+## Interactive Mandelbrot Viewer
 
-The interactive viewer allows user interaction using mouse, touch gestures or the keyboard.
+The interactive Mandelbrot Viewer allows user interaction using mouse, touch gestures or the keyboard.
 
 It is possible to zoom interactively down to 10<sup>-100</sup> and beyond, all calculations switch automatically from double to BigDecimal if more precision is needed.
 
@@ -16,25 +16,39 @@ Multiple color palette variations are supported.
 
 To start the interactive viewer use the following command line:
 ```bash
-java -cp mandelbrot.jar ch.obermuhlner.mandelbrot.javafx.MandelbrotApp
+java -jar mandelbrot-viewer.1.0.1.jar
 ```
 
+Depending on the settings in your OS you might get away with simply double clicking the distributed file ` mandelbrot-viewer.1.0.1.jar`.
 
 ![Screenshot Mandelbrot Viewer](ch.obermuhlner.mandelbrot.docs/screenshots/mandelbrot_viewer_screenshot1.png "Screenshot Mandelbrot Viewer")
 
-## Command Line Tool
+## Command Line Tool `mandelbrot`
 
-The command line tool allows to automatically create many images for a specific point in the mandelbrot at increasing zoom levels.
+The command line tool `mandelbrot` allows to create images from the `*.mandelbrot` files created by the interactive Mandelbrot Viewer.
+
+To install the tool you need to unzip the distribution file `mandelbrot-1.0.1.zip` and set the PATH environment variable to the `bin` directory.
+
+```bash
+mandelbrot --width 1920 --height 1200 *.mandelbrot
+```
+
+## Command Line Tool `mandelbrot-zoom`
+
+The command line tool `mandelbrot-zoom` allows to automatically create many images for a specific point in the mandelbrot at increasing zoom levels.
 
 The generated images can be used to create a video that zooms deeper and deeper into the specified point.
 
-You may specify to render a point of interest (that are also available in the interactive viewer):
+To install the tool you need to unzip the distribution file `mandelbrot-zoom-1.0.1.zip` and set the PATH environment variable to the `bin` directory.
+
+You can simply specify to render a point of interest (that are also available in the interactive viewer):
 ```bash
-java -cp mandelbrot.jar ch.obermuhlner.mandelbrot.cli.MandelbrotZoom --poi Thorns
+mandelbrot-zoom --poi Thorns
 ```
+
 You may also specify the complete rendering information (the example shows the same point as the "Thorns" example above:
 ```bash
-java -cp mandelbrot.jar ch.obermuhlner.mandelbrot.cli.MandelbrotZoom \
+mandelbrot-zoom \
     --x 0.615688188277165136862977361674265969958593022307313876044710397223212241218305144722407409388125158236774855883651489995471305785441350335740253105778 \
     --y  0.674900407359391397989165449336345186641209056492297641703764886106334430140801874852392546319746961769590518919533419668508561716801971179771345638618 \
     --zoomStart 5 \
@@ -57,20 +71,9 @@ ffmpeg -y -r 10 -start_number 0 -i mandelbrot%04d.png -s 800x800 -vcodec mpeg4 -
 
 ## Gallery
 
-![Mandelbrot Curved Swords at zoom 10^-4](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_curved_swords_zoom4.png "Mandelbrot Curved Swords at zoom 10^-4")
-![Mandelbrot Curved Swords at zoom 10^-9](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_curved_swords_zoom9.png "Mandelbrot Curved Swords at zoom 10^-9")
-![Mandelbrot Curved Swords at zoom 10^-10](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_curved_swords_zoom10.png "Mandelbrot Curved Swords at zoom 10^-10")
-![Mandelbrot Curved Swords at zoom 10^-13](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_curved_swords_zoom13.png "Mandelbrot Curved Swords at zoom 10^-13")
-![Mandelbrot Curved Swords at zoom 10^-15](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_curved_swords_zoom15.png "Mandelbrot Curved Swords at zoom 10^-15")
+A gallery of the best mandelbrot images is available in https://github.com/eobermuhlner/mandelbrot-gallery
 
-![Mandelbrot Jelly Fish at zoom 10^-10](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_jelly_fish_zoom10.png "Mandelbrot Jelly Fish at zoom 10^-10")
-
-![Mandelbrot Chaotic Spirals at zoom 10^-9](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_chaotic_spirals_zoom9.png "Mandelbrot Chaotic Spirals at zoom 10^-9")
-
-![Mandelbrot Deep Zoom 1 at zoom 10^-21](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_deep1_zoom21.png "Mandelbrot Deep Zoom 1 at zoom 10^-21")
-![Mandelbrot Deep Zoom 1 at zoom 10^-45](ch.obermuhlner.mandelbrot.docs/images/mandelbrot_deep1_zoom45.png "Mandelbrot Deep Zoom 1 at zoom 10^-45")
-
-## Gallery Palettes
+## Palettes
 
 The Mandelbrot viewer and Zoom application support different palette algorithms.
 
