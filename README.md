@@ -23,6 +23,8 @@ Depending on the settings in your OS you might get away with simply double click
 
 ![Screenshot Mandelbrot Viewer](ch.obermuhlner.mandelbrot.docs/screenshots/mandelbrot_viewer_screenshot1.png "Screenshot Mandelbrot Viewer")
 
+Snapshot images can be saved in the desired size (default is 1920 x 1200). Together with the image a `*.mandelbrot` file is saved which contains all necessary information to load the same location again in interactive viewer.
+
 ## Command Line Tool `mandelbrot`
 
 The command line tool `mandelbrot` allows to create images from the `*.mandelbrot` files created by the interactive Mandelbrot Viewer.
