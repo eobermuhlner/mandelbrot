@@ -6,11 +6,15 @@ apply plugin: 'application'
 
 
 version = '1.0.0'
-mainClassName = 'ch.obermuhlner.mandelbrot.javafx.MandelbrotApp'
-applicationName = 'MandelbrotViewer'
+mainClassName = 'ch.obermuhlner.mandelbrot.cli.Mandelbrot'
+applicationName = 'mandelbrot'
+
+dependencies {
+	compile project(':ch.obermuhlner.mandelbrot')
+}
 
 jar {
-	baseName 'mandelbrot'
+	baseName 'mandelbrot-cli'
 	manifest {
 		attributes 'Implementation-Title' : applicationName,
 			'Implementation-Version' : version,
@@ -18,15 +22,4 @@ jar {
 			'Implementation-URL' : 'https://github.com/eobermuhlner/mandelbrot',
 			'Main-Class' : mainClassName
 	}
-}
-
-eclipse {
-    classpath {
-        file {
-            whenMerged {
-                def jre = entries.find { it.path.contains 'org.eclipse.jdt.launching.JRE_CONTAINER' }
-                jre.accessRules.add(new AccessRule('accessible', 'javafx/**'))
-            }
-        }
-    }
 }

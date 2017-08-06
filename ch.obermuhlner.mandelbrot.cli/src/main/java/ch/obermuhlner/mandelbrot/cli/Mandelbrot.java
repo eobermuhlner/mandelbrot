@@ -130,12 +130,12 @@ public class Mandelbrot {
 	
 	private static void printHelp() {
 		System.out.println("Options:");
-		System.out.println("  -a");
-		System.out.println("  --all");
-		System.out.println("    Creates the zooms for all points of interests.");
-		System.out.println("  -p");
-		System.out.println("  --poi");
-		System.out.println("    Point of interest name (defines x, y, palette, name).");
+		System.out.println("  -w");
+		System.out.println("  --width");
+		System.out.println("    Image width in pixels.");
+		System.out.println("  -h");
+		System.out.println("  --height");
+		System.out.println("    Image height in pixels.");
 		System.out.println("  -x");
 		System.out.println("    Center x coordinate.");
 		System.out.println("  -y");

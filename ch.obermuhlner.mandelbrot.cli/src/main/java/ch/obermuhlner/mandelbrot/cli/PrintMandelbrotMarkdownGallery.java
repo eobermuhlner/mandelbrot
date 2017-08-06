@@ -1,3 +1,4 @@
+package ch.obermuhlner.mandelbrot.cli;
 
 public class PrintMandelbrotMarkdownGallery {
 
