@@ -38,6 +38,7 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
@@ -46,7 +47,6 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Slider;
-import javafx.scene.control.Spinner;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellDataFeatures;
@@ -54,7 +54,6 @@ import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.cell.ProgressBarTableCell;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
@@ -253,6 +252,15 @@ public class MandelbrotApp extends Application {
 		paletteTypeProperty.set(pointOfInterest.paletteType);
 		paletteSeedProperty.set(pointOfInterest.paletteSeed);
 		paletteStepProperty.set(pointOfInterest.paletteStep);
+		if (pointOfInterest.maxIterationsLinear == 0) {
+			autoMaxIterationProperty.set(false);
+			maxIterationProperty.set(pointOfInterest.maxIterationsConst);			
+			maxIterationAtZeroZoomLevelProperty.set(1000);
+		} else {
+			autoMaxIterationProperty.set(true);
+			maxIterationAtZeroZoomLevelProperty.set(pointOfInterest.maxIterationsConst);
+			maxIterationPerZoomLevelProperty.set(pointOfInterest.maxIterationsLinear);
+		}
 	}
 
 	private Node createEditor() {
@@ -318,10 +326,21 @@ public class MandelbrotApp extends Application {
 		rowIndex++;
 		
 		gridPane.add(new Label("Color Scheme:"), 0, rowIndex);
-		Spinner<Integer> paletteSeedSpinner = new Spinner<Integer>(0, 999, paletteSeedProperty.get());
-		gridPane.add(paletteSeedSpinner, 1, rowIndex);
-		paletteSeedSpinner.setEditable(true);
-		paletteSeedProperty.bind(paletteSeedSpinner.valueProperty());
+		TextField paletteSeedTextField = new TextField();
+		gridPane.add(paletteSeedTextField, 1, rowIndex);
+		Bindings.bindBidirectional(paletteSeedTextField.textProperty(), paletteSeedProperty, INTEGER_FORMAT);
+		Button paletteSeedDownButton = new Button("<");
+		paletteSeedDownButton.setOnAction(event -> {
+			paletteSeedProperty.set(paletteSeedProperty.get() + 1);
+		});
+		Button paletteSeedUpButton = new Button(">");
+		paletteSeedUpButton.setOnAction(event -> {
+			if (paletteSeedProperty.get() > 0) {
+				paletteSeedProperty.set(paletteSeedProperty.get() - 1);
+			}
+		});
+		HBox paletteSeedUpDownBox = new HBox(paletteSeedDownButton, paletteSeedUpButton);
+		gridPane.add(paletteSeedUpDownBox, 2, rowIndex);
 		rowIndex++;
 
 		gridPane.add(new Label("Color Step:"), 0, rowIndex);
@@ -366,6 +385,15 @@ public class MandelbrotApp extends Application {
 				String basename = "mandelbrot_" + LocalDateTime.now().toString().replace(':', '_');
 
 				String mandelbrotFilename = basename + ".mandelbrot";
+				int maxIterationsConst;
+				int maxIterationsLinear;
+				if (autoMaxIterationProperty.get()) {
+					maxIterationsConst = maxIterationAtZeroZoomLevelProperty.get();
+					maxIterationsLinear = maxIterationPerZoomLevelProperty.get();
+				} else {
+					maxIterationsConst = maxIterationProperty.get();
+					maxIterationsLinear = 0;
+				}
 				PointOfInterest pointOfInterest = new PointOfInterest(
 						basename,
 						xCenterProperty.get(),
@@ -373,7 +401,9 @@ public class MandelbrotApp extends Application {
 						zoomProperty.get(),
 						paletteTypeProperty.get(),
 						paletteSeedProperty.get(),
-						paletteStepProperty.get());
+						paletteStepProperty.get(),
+						maxIterationsConst,
+						maxIterationsLinear);
 				try {
 					pointOfInterest.save(new File(mandelbrotFilename));
 				} catch (IOException e) {

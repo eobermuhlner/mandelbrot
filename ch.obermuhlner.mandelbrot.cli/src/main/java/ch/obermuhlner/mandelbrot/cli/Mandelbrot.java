@@ -39,7 +39,6 @@ public class Mandelbrot {
 		BigDecimal xCenter = null;
 		BigDecimal yCenter = null;
 		BigDecimal zoom = null;
-		//Function<BigDecimal, Integer> zoomLevelToMaxIterationsFunction = (zoomLevel) -> (int) (zoomLevel.doubleValue() * 1000 + 1000);
 		PaletteType paletteType = null;
 		Integer paletteSeed = null;
 		Integer paletteStep = null;
@@ -194,48 +193,36 @@ public class Mandelbrot {
 		double colorOffset = 0.0;
 
 		File file = new File(poi.name + ".png");
+		BigDecimal zoomPower = BigDecimal.valueOf(poi.zoom);
 		
-		renderImage(
-				file,
-				width, 
-				height,
-				poi.x,
-				poi.y,
-				new BigDecimal(2),
-				BigDecimal.valueOf(poi.zoom),
-				palette,
-				colorOffset);
-	}
-	
-	private static void renderImage(File file, int imageWidth, int imageHeight, BigDecimal xCenter, BigDecimal yCenter, BigDecimal zoomStart, BigDecimal zoomPower, Palette palette, double colorOffset) {
 		int precision = zoomPower.intValue() * 1 + 10;
 		MathContext mc = new MathContext(precision, RoundingMode.HALF_UP);
-
+		
 		Progress progress = new DummyProgress();
-
-		int maxIterations = 1000 + zoomPower.intValue() * 1000;
-		BigDecimal radius = zoomStart.multiply(BigDecimalMath.tenToThePowerOf(zoomPower.negate(), mc));
-		BigDecimal minWidthHeight = new BigDecimal(Math.min(imageWidth, imageHeight));
-		BigDecimal xRadius = radius.multiply(new BigDecimal(imageWidth), mc).divide(minWidthHeight, mc);
-		BigDecimal yRadius = radius.multiply(new BigDecimal(imageHeight), mc).divide(minWidthHeight, mc);
-
-		BufferedImageMandelbrotResult result = new BufferedImageMandelbrotResult(imageWidth, imageHeight, palette, colorOffset);
+		
+		int maxIterations = poi.maxIterationsConst + zoomPower.intValue() * poi.maxIterationsLinear;
+		BigDecimal radius = new BigDecimal(2).multiply(BigDecimalMath.tenToThePowerOf(zoomPower.negate(), mc));
+		BigDecimal minWidthHeight = new BigDecimal(Math.min(width, height));
+		BigDecimal xRadius = radius.multiply(new BigDecimal(width), mc).divide(minWidthHeight, mc);
+		BigDecimal yRadius = radius.multiply(new BigDecimal(height), mc).divide(minWidthHeight, mc);
+		
+		BufferedImageMandelbrotResult result = new BufferedImageMandelbrotResult(width, height, palette, colorOffset);
 		mandelbrotRenderer.drawMandelbrot(
 				result,
-				xCenter,
-				yCenter,
+				poi.x,
+				poi.y,
 				xRadius,
 				yRadius,
 				precision,
 				maxIterations,
-				imageWidth,
-				imageHeight,
+				width,
+				height,
 				progress);
 		
 		try {
 			ImageIO.write(result.getImage(), "png", file);
 		} catch (IOException e) {
 			e.printStackTrace();
-		}		
+		}
 	}
 }

@@ -11,7 +11,6 @@ import java.math.RoundingMode;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.function.Function;
 import java.util.stream.IntStream;
 
 import javax.imageio.ImageIO;
@@ -46,7 +45,8 @@ public class MandelbrotZoom {
 		BigDecimal yCenter = new BigDecimal("0");
 		BigDecimal zoomStart = new BigDecimal("5");
 		BigDecimal zoomStep = new BigDecimal("0.01");
-		Function<BigDecimal, Integer> zoomLevelToMaxIterationsFunction = (zoomLevel) -> (int) (zoomLevel.doubleValue() * 1000 + 1000);
+		int maxIterationsConst = 1000;
+		int maxIterationsLinear = 1000;
 		PaletteType paletteType = PaletteType.RandomColor;
 		int paletteSeed = 14;
 		int paletteStep = 20;
@@ -102,8 +102,8 @@ public class MandelbrotZoom {
 				zoomStep = bigDecimalArgument(args, ++argumentIndex, new BigDecimal("0.01"));
 				break;
 			case "--maxIterations":
-				int maxIterations = integerArgument(args, ++argumentIndex, 10000);
-				zoomLevelToMaxIterationsFunction = (zoomLevel) -> maxIterations;
+				maxIterationsConst = integerArgument(args, ++argumentIndex, 10000);
+				maxIterationsLinear = 0;
 				break;
 			case "-t":
 			case "--paletteType":
@@ -151,17 +151,19 @@ public class MandelbrotZoom {
 				paletteType = pointOfInterest.paletteType;
 				paletteSeed = pointOfInterest.paletteSeed;
 				paletteStep = pointOfInterest.paletteStep;
+				maxIterationsConst = pointOfInterest.maxIterationsConst;
+				maxIterationsLinear = pointOfInterest.maxIterationsLinear;
 				directoryName = pointOfInterest.name;
 
-				printInfo(System.out, xCenter, yCenter, zoomStart, zoomStep, paletteType, paletteSeed, paletteStep, imageCount, directoryName);
+				printInfo(System.out, xCenter, yCenter, zoomStart, zoomStep, maxIterationsConst, maxIterationsLinear, paletteType, paletteSeed, paletteStep, imageCount, directoryName);
 
-				renderZoomImages(xCenter, yCenter, zoomStart, zoomStep, zoomLevelToMaxIterationsFunction, paletteType, paletteSeed, paletteStep, colorCycle, imageCountStart, imageCount, directoryName);
+				renderZoomImages(xCenter, yCenter, zoomStart, zoomStep, maxIterationsConst, maxIterationsLinear, paletteType, paletteSeed, paletteStep, colorCycle, imageCountStart, imageCount, directoryName);
 				System.out.println();
 			}
 		} else {
-			printInfo(System.out, xCenter, yCenter, zoomStart, zoomStep, paletteType, paletteSeed, paletteStep, imageCount, directoryName);
+			printInfo(System.out, xCenter, yCenter, zoomStart, zoomStep, maxIterationsConst, maxIterationsLinear, paletteType, paletteSeed, paletteStep, imageCount, directoryName);
 
-			renderZoomImages(xCenter, yCenter, zoomStart, zoomStep, zoomLevelToMaxIterationsFunction, paletteType, paletteSeed, paletteStep, colorCycle, imageCountStart, imageCount, directoryName);
+			renderZoomImages(xCenter, yCenter, zoomStart, zoomStep, maxIterationsConst, maxIterationsLinear, paletteType, paletteSeed, paletteStep, colorCycle, imageCountStart, imageCount, directoryName);
 		}
 	}
 	
@@ -224,13 +226,13 @@ public class MandelbrotZoom {
 		return Integer.parseInt(stringArgument(args, index, String.valueOf(defaultValue)));
 	}
 		
-	public static void renderZoomImages(BigDecimal xCenter, BigDecimal yCenter, BigDecimal zoomStart, BigDecimal zoomStep, Function<BigDecimal, Integer> zoomLevelToMaxIterationsFunctions, PaletteType paletteType, int paletteSeed, int paletteStep, double colorCycle, int imageCountStart, int imageCount, String directoryName) {
+	public static void renderZoomImages(BigDecimal xCenter, BigDecimal yCenter, BigDecimal zoomStart, BigDecimal zoomStep, int maxIterationsConst, int maxIterationsLinear, PaletteType paletteType, int paletteSeed, int paletteStep, double colorCycle, int imageCountStart, int imageCount, String directoryName) {
 		Path outDir = Paths.get("images", directoryName);
 		outDir.toFile().mkdirs();
 
 		try {
 			try (PrintStream out = new PrintStream(new BufferedOutputStream(new FileOutputStream(outDir.resolve("readme.txt").toFile())))) {
-				printInfo(out, xCenter, yCenter, zoomStart, zoomStep, paletteType, paletteSeed, paletteStep, imageCount, directoryName);
+				printInfo(out, xCenter, yCenter, zoomStart, zoomStep, maxIterationsConst, maxIterationsLinear, paletteType, paletteSeed, paletteStep, imageCount, directoryName);
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -245,27 +247,28 @@ public class MandelbrotZoom {
 			String filename = String.format("mandelbrot%04d.png", index);
 			File file = outDir.resolve(filename).toFile();
 			BigDecimal zoomPower = zoomStep.multiply(new BigDecimal(index));
-			int maxIterations = 1000 + zoomPower.intValue() * 1000;
 			double colorOffset = colorCycle * zoomStep.doubleValue() * index; 
-			renderImage(file, xCenter, yCenter, zoomStart, zoomPower, maxIterations, palette, colorOffset);
+			renderImage(file, xCenter, yCenter, zoomStart, zoomPower, maxIterationsConst, maxIterationsLinear, palette, colorOffset);
 		});
 
 		System.out.println("Calculated all " + imageCount + " images for " + directoryName + " in " + stopWatch);
 	}
 
-	private static void printInfo(PrintStream out, BigDecimal xCenter, BigDecimal yCenter, BigDecimal zoomStart, BigDecimal zoomStep, PaletteType paletteType, int paletteSeed, int paletteStep, int imageCount, String directoryName) {
-		out.println("x :             " + xCenter);
-		out.println("y :             " + yCenter);
-		out.println("zoomStart :     " + zoomStart);
-		out.println("zoomStep :      " + zoomStep);
-		out.println("paletteType :   " + paletteType);
-		out.println("paletteSeed :   " + paletteSeed);
-		out.println("paletteStep :   " + paletteStep);
-		out.println("imageCount :    " + imageCount);
-		out.println("directoryName : " + directoryName);		
+	private static void printInfo(PrintStream out, BigDecimal xCenter, BigDecimal yCenter, BigDecimal zoomStart, BigDecimal zoomStep, int maxIterationsConst, int maxIterationsLinear, PaletteType paletteType, int paletteSeed, int paletteStep, int imageCount, String directoryName) {
+		out.println("x :                   " + xCenter);
+		out.println("y :                   " + yCenter);
+		out.println("zoomStart :           " + zoomStart);
+		out.println("zoomStep :            " + zoomStep);
+		out.println("maxIterationsConst :  " + zoomStep);
+		out.println("maxIterationsLinear : " + zoomStep);
+		out.println("paletteType :         " + paletteType);
+		out.println("paletteSeed :         " + paletteSeed);
+		out.println("paletteStep :         " + paletteStep);
+		out.println("imageCount :          " + imageCount);
+		out.println("directoryName :       " + directoryName);		
 	}
 	
-	private static void renderImage(File file, BigDecimal xCenter, BigDecimal yCenter, BigDecimal zoomStart, BigDecimal zoomPower, int maxIterations, Palette palette, double colorOffset) {
+	 private static void renderImage(File file, BigDecimal xCenter, BigDecimal yCenter, BigDecimal zoomStart, BigDecimal zoomPower, int maxIterationsConst, int maxIterationsLinear, Palette palette, double colorOffset) {
 		if (file.exists()) {
 			System.out.println("Already calculated " + file.getName() + " with zoom " + zoomPower.toPlainString());
 			return;
@@ -276,6 +279,7 @@ public class MandelbrotZoom {
 		int precision = zoomPower.intValue() * 1 + 10;
 		MathContext mc = new MathContext(precision, RoundingMode.HALF_UP);
 		BigDecimal radius = zoomStart.multiply(BigDecimalMath.tenToThePowerOf(zoomPower.negate(), mc));
+		int maxIterations = maxIterationsConst + zoomPower.intValue() * maxIterationsLinear;
 		int imageWidth = 800;
 		int imageHeight = 800;
 
