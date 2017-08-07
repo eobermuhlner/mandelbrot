@@ -82,6 +82,8 @@ public class MandelbrotZoom {
 				paletteType = pointOfInterest.paletteType;
 				paletteSeed = pointOfInterest.paletteSeed;
 				paletteStep = pointOfInterest.paletteStep;
+				maxIterationsConst = pointOfInterest.maxIterationsConst;
+				maxIterationsLinear = pointOfInterest.maxIterationsLinear;
 				directoryName = pointOfInterest.name;
 				break;
 
