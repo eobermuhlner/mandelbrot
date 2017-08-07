@@ -331,13 +331,13 @@ public class MandelbrotApp extends Application {
 		Bindings.bindBidirectional(paletteSeedTextField.textProperty(), paletteSeedProperty, INTEGER_FORMAT);
 		Button paletteSeedDownButton = new Button("<");
 		paletteSeedDownButton.setOnAction(event -> {
-			paletteSeedProperty.set(paletteSeedProperty.get() + 1);
-		});
-		Button paletteSeedUpButton = new Button(">");
-		paletteSeedUpButton.setOnAction(event -> {
 			if (paletteSeedProperty.get() > 0) {
 				paletteSeedProperty.set(paletteSeedProperty.get() - 1);
 			}
+		});
+		Button paletteSeedUpButton = new Button(">");
+		paletteSeedUpButton.setOnAction(event -> {
+			paletteSeedProperty.set(paletteSeedProperty.get() + 1);
 		});
 		HBox paletteSeedUpDownBox = new HBox(paletteSeedDownButton, paletteSeedUpButton);
 		gridPane.add(paletteSeedUpDownBox, 2, rowIndex);
