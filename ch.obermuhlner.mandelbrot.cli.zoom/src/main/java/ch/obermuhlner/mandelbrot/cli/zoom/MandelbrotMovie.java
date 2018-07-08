@@ -52,7 +52,39 @@ public class MandelbrotMovie {
     }
 
     private static List<PointOfInterest> travelingSalesman(PointOfInterest[] pointsOfInterest) {
-        return Arrays.asList(pointsOfInterest);
+        List<PointOfInterest> remaining = new ArrayList<>(Arrays.asList(pointsOfInterest));
+        List<PointOfInterest> result = new ArrayList<>();
+
+        PointOfInterest current = remaining.remove(0);
+        result.add(current);
+
+        while (!remaining.isEmpty()) {
+            PointOfInterest nearest = findNearest(remaining, current);
+            remaining.remove(nearest);
+            result.add(nearest);
+        }
+
+        return result;
+    }
+
+    private static PointOfInterest findNearest(List<PointOfInterest> points, PointOfInterest start) {
+        PointOfInterest nearestPoint = null;
+        BigDecimal nearestDistanceSquare = null;
+
+        for (PointOfInterest point : points) {
+            if (nearestPoint == null) {
+                nearestPoint = point;
+                nearestDistanceSquare = start.distanceSquare(point);
+            } else {
+                BigDecimal distanceSquare = start.distanceSquare(point);
+                if (distanceSquare.compareTo(nearestDistanceSquare) < 0) {
+                    nearestPoint = point;
+                    nearestDistanceSquare = distanceSquare;
+                }
+            }
+        }
+
+        return nearestPoint;
     }
 
     private static MovieStep toMovieStep(PointOfInterest poi) {
