@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.DoubleFunction;
 
@@ -41,7 +42,7 @@ public class MandelbrotMovie {
 
     public static void main(String[] args) {
         List<MovieStep> movieSteps = new ArrayList<>();
-        List<PointOfInterest> pointsOfInterest = travellingSalesman(StandardPointsOfInterest.POINTS_OF_INTEREST);
+        List<PointOfInterest> pointsOfInterest = travelingSalesman(StandardPointsOfInterest.POINTS_OF_INTEREST);
         for (PointOfInterest poi : pointsOfInterest) {
             movieSteps.add(toMovieStep(poi));
         }
@@ -50,8 +51,8 @@ public class MandelbrotMovie {
         createMovie(movieSteps, 100);
     }
 
-    private static List<PointOfInterest> travellingSalesman(PointOfInterest[] pointsOfInterest) {
-        return travellingSalesman(pointsOfInterest);
+    private static List<PointOfInterest> travelingSalesman(PointOfInterest[] pointsOfInterest) {
+        return Arrays.asList(pointsOfInterest);
     }
 
     private static MovieStep toMovieStep(PointOfInterest poi) {
