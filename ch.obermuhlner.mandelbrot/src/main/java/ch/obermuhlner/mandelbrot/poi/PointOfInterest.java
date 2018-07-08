@@ -93,4 +93,10 @@ public class PointOfInterest {
 					Integer.parseInt(maxIterationsLinearString));
 		}
 	}
+
+	public BigDecimal distanceSquare(PointOfInterest other) {
+		BigDecimal dx = x.subtract(other.x);
+		BigDecimal dy = y.subtract(other.y);
+		return dx.multiply(dx).add(dy.multiply(dy));
+	}
 }
