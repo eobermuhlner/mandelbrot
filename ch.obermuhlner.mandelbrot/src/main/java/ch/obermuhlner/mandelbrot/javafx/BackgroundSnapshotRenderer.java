@@ -108,7 +108,7 @@ public class BackgroundSnapshotRenderer extends Thread {
 				snapshotRequest.height,
 				new UiThreadProgress(snapshotRequest));
 		snapshotRequest.snapshotStatusProperty().set(SnapshotStatus.Done);
-		snapshotRequest.calculationMillisProperty().set(stopWatch.getElapsedMilliseconds());
+		snapshotRequest.setCalculationMillis((long) stopWatch.getElapsedMilliseconds());
 	}
 
 	private void renderImage(File file, BigDecimal xCenter, BigDecimal yCenter, BigDecimal zoomStart, BigDecimal zoomPower, int maxIterations, Palette palette, int imageWidth, int imageHeight, Progress progress) {
