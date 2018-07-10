@@ -17,7 +17,6 @@ import javax.imageio.ImageIO;
 
 import ch.obermuhlner.mandelbrot.javafx.DummyProgress;
 import ch.obermuhlner.mandelbrot.javafx.Progress;
-import ch.obermuhlner.mandelbrot.math.BigDecimalMath;
 import ch.obermuhlner.mandelbrot.palette.Palette;
 import ch.obermuhlner.mandelbrot.palette.PaletteFactory;
 import ch.obermuhlner.mandelbrot.palette.PaletteType;
@@ -27,6 +26,7 @@ import ch.obermuhlner.mandelbrot.render.AutoPrecisionMandelbrotRenderer;
 import ch.obermuhlner.mandelbrot.render.BufferedImageMandelbrotResult;
 import ch.obermuhlner.mandelbrot.render.MandelbrotRenderer;
 import ch.obermuhlner.mandelbrot.util.StopWatch;
+import ch.obermuhlner.math.big.BigDecimalMath;
 
 // ffmpeg -y -r 10 -start_number 0 -i mandelbrot%04d.png -s 800x800 -vcodec mpeg4 -q:v 1 mandelbrot.mp4
 
@@ -280,7 +280,7 @@ public class MandelbrotZoom {
 
 		int precision = zoomPower.intValue() * 1 + 10;
 		MathContext mc = new MathContext(precision, RoundingMode.HALF_UP);
-		BigDecimal radius = zoomStart.multiply(BigDecimalMath.tenToThePowerOf(zoomPower.negate(), mc));
+		BigDecimal radius = zoomStart.multiply(BigDecimalMath.pow(BigDecimal.TEN, zoomPower.negate(), mc));
 		int maxIterations = maxIterationsConst + zoomPower.intValue() * maxIterationsLinear;
 		int imageWidth = 800;
 		int imageHeight = 800;

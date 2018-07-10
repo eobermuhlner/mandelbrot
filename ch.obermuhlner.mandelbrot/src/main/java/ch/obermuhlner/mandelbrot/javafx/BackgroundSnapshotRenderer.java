@@ -10,12 +10,12 @@ import java.util.Deque;
 
 import javax.imageio.ImageIO;
 
-import ch.obermuhlner.mandelbrot.math.BigDecimalMath;
 import ch.obermuhlner.mandelbrot.palette.Palette;
 import ch.obermuhlner.mandelbrot.render.AutoPrecisionMandelbrotRenderer;
 import ch.obermuhlner.mandelbrot.render.MandelbrotRenderer;
 import ch.obermuhlner.mandelbrot.util.StopWatch;
 import ch.obermuhlner.mandelbrot.util.ThreadInterruptedException;
+import ch.obermuhlner.math.big.BigDecimalMath;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
@@ -119,7 +119,7 @@ public class BackgroundSnapshotRenderer extends Thread {
 
 		int precision = zoomPower.intValue() * 1 + 10;
 		MathContext mc = new MathContext(precision, RoundingMode.HALF_UP);
-		BigDecimal radius = zoomStart.multiply(BigDecimalMath.tenToThePowerOf(zoomPower.negate(), mc));
+		BigDecimal radius = zoomStart.multiply(BigDecimalMath.pow(BigDecimal.TEN, zoomPower.negate(), mc));
 		BigDecimal minWidthHeight = new BigDecimal(Math.min(imageWidth, imageHeight));
 		BigDecimal xRadius = radius.multiply(new BigDecimal(imageWidth), mc).divide(minWidthHeight, mc);
 		BigDecimal yRadius = radius.multiply(new BigDecimal(imageHeight), mc).divide(minWidthHeight, mc);
