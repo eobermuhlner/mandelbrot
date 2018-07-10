@@ -5,9 +5,12 @@ import ch.obermuhlner.mandelbrot.palette.Palette;
 import ch.obermuhlner.mandelbrot.palette.PaletteFactory;
 import ch.obermuhlner.mandelbrot.poi.PointOfInterest;
 import ch.obermuhlner.mandelbrot.poi.StandardPointsOfInterest;
+import ch.obermuhlner.math.big.BigDecimalMath;
 
 import java.io.File;
 import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -94,13 +97,17 @@ public class MandelbrotMovie {
     }
 
     private static void createMovie(List<MovieStep> movieSteps, int frames) {
-        BigDecimal intermediateZoom = BigDecimal.valueOf(0.5);
-
         int imageIndex = 0;
         MovieStep lastStep = null;
         for (MovieStep currentStep: movieSteps) {
             if (lastStep != null) {
-                if (needIntermediateStep(lastStep, currentStep)) {
+
+                int precision = (int) (Math.max(lastStep.zoom.doubleValue(), currentStep.zoom.doubleValue())* 1 + 10);
+                MathContext mc = new MathContext(precision, RoundingMode.HALF_UP);
+                BigDecimal stepDistance = lastStep.distance(currentStep, mc);
+                BigDecimal intermediateZoom = BigDecimalMath.log10(stepDistance, new MathContext(10)).negate();
+
+                if (needIntermediateStep(lastStep, currentStep, intermediateZoom)) {
                     MovieStep half1Step = new MovieStep(lastStep.x, lastStep.y, intermediateZoom, lastStep.palette);
                     imageIndex = interpolateBetweenMovieSteps(frames, imageIndex, lastStep, half1Step, SMOOTH, SMOOTH); // easeInOrOut(lastStep.zoom, halfStepZoom)
 
@@ -116,8 +123,8 @@ public class MandelbrotMovie {
         }
     }
 
-    private static boolean needIntermediateStep(MovieStep firstStep, MovieStep secondStep) {
-        return true;
+    private static boolean needIntermediateStep(MovieStep firstStep, MovieStep secondStep, BigDecimal intermediateZoom) {
+        return firstStep.zoom.compareTo(intermediateZoom) >= 0 || secondStep.zoom.compareTo(intermediateZoom) >= 0;
     }
 
     private static InterpolatorFactory<BigDecimal> easeInOrOut(BigDecimal startZoom, BigDecimal endZoom) {
@@ -211,6 +218,17 @@ public class MandelbrotMovie {
             this.y = y;
             this.zoom = zoom;
             this.palette = palette;
+        }
+
+        public BigDecimal distanceSquare(MovieStep other) {
+            BigDecimal dx = x.subtract(other.x);
+            BigDecimal dy = y.subtract(other.y);
+
+            return dx.multiply(dx).add(dy.multiply(dy));
+        }
+
+        public BigDecimal distance(MovieStep other, MathContext mc) {
+            return BigDecimalMath.sqrt(distanceSquare(other), mc);
         }
     }
 }
