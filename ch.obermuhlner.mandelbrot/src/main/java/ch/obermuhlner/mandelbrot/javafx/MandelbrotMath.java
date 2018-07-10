@@ -3,7 +3,7 @@ package ch.obermuhlner.mandelbrot.javafx;
 import java.math.BigDecimal;
 import java.math.MathContext;
 
-import ch.obermuhlner.mandelbrot.math.BigDecimalMath;
+import ch.obermuhlner.math.big.BigDecimalMath;
 
 public class MandelbrotMath {
 
@@ -22,7 +22,7 @@ public class MandelbrotMath {
 	public static BigDecimal getRadius(double zoom) {
 		int precision = getPrecision(zoom);
 		MathContext mathContext = new MathContext(precision);
-		BigDecimal radius = TWO.multiply(BigDecimalMath.tenToThePowerOf(BigDecimal.valueOf(-zoom), mathContext));
+		BigDecimal radius = TWO.multiply(BigDecimalMath.pow(BigDecimal.TEN, BigDecimal.valueOf(-zoom), mathContext));
 		return radius;
 	}
 	

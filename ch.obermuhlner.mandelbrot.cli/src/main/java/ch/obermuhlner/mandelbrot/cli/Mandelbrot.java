@@ -13,7 +13,6 @@ import javax.imageio.ImageIO;
 
 import ch.obermuhlner.mandelbrot.javafx.DummyProgress;
 import ch.obermuhlner.mandelbrot.javafx.Progress;
-import ch.obermuhlner.mandelbrot.math.BigDecimalMath;
 import ch.obermuhlner.mandelbrot.palette.Palette;
 import ch.obermuhlner.mandelbrot.palette.PaletteFactory;
 import ch.obermuhlner.mandelbrot.palette.PaletteType;
@@ -22,6 +21,7 @@ import ch.obermuhlner.mandelbrot.poi.StandardPointsOfInterest;
 import ch.obermuhlner.mandelbrot.render.AutoPrecisionMandelbrotRenderer;
 import ch.obermuhlner.mandelbrot.render.BufferedImageMandelbrotResult;
 import ch.obermuhlner.mandelbrot.render.MandelbrotRenderer;
+import ch.obermuhlner.math.big.BigDecimalMath;
 
 public class Mandelbrot {
 
@@ -201,7 +201,7 @@ public class Mandelbrot {
 		Progress progress = new DummyProgress();
 		
 		int maxIterations = poi.maxIterationsConst + zoomPower.intValue() * poi.maxIterationsLinear;
-		BigDecimal radius = new BigDecimal(2).multiply(BigDecimalMath.tenToThePowerOf(zoomPower.negate(), mc));
+		BigDecimal radius = new BigDecimal(2).multiply(BigDecimalMath.pow(BigDecimal.TEN, zoomPower.negate(), mc));
 		BigDecimal minWidthHeight = new BigDecimal(Math.min(width, height));
 		BigDecimal xRadius = radius.multiply(new BigDecimal(width), mc).divide(minWidthHeight, mc);
 		BigDecimal yRadius = radius.multiply(new BigDecimal(height), mc).divide(minWidthHeight, mc);

@@ -9,8 +9,14 @@ version = '1.0.1'
 mainClassName = 'ch.obermuhlner.mandelbrot.cli.zoom.MandelbrotZoom'
 applicationName = 'mandelbrot-zoom'
 
+repositories {
+	mavenLocal()
+	mavenCentral()
+}
+
 dependencies {
 	compile project(':ch.obermuhlner.mandelbrot')
+	compile 'ch.obermuhlner:big-math:2.0.1'
 }
 
 jar {
