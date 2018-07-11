@@ -272,7 +272,7 @@ public class MandelbrotZoom {
 	
 	 public static void renderImage(File file, BigDecimal xCenter, BigDecimal yCenter, BigDecimal zoomStart, BigDecimal zoomPower, int maxIterationsConst, int maxIterationsLinear, Palette palette, double colorOffset) {
 		if (file.exists()) {
-			System.out.println("Already calculated " + file.getName() + " with zoom " + zoomPower.toPlainString());
+			//System.out.println("Already calculated " + file.getName() + " with zoom " + zoomPower.toPlainString());
 			return;
 		}
 
