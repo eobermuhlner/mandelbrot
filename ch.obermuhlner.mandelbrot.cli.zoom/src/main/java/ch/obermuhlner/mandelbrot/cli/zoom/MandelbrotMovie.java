@@ -51,7 +51,7 @@ public class MandelbrotMovie {
         }
         movieSteps.add(toMovieStep(pointsOfInterest.get(0)));
 
-        createMovie(movieSteps, 100);
+        createMovie(movieSteps, 1, 1, 24);
     }
 
     private static List<PointOfInterest> travelingSalesman(PointOfInterest[] pointsOfInterest) {
@@ -96,26 +96,41 @@ public class MandelbrotMovie {
         return new MovieStep(poi.x, poi.y, BigDecimal.valueOf(poi.zoom), palette);
     }
 
-    private static void createMovie(List<MovieStep> movieSteps, int frames) {
+    private static void createMovie(List<MovieStep> movieSteps, double secondsPerTranslate, double secondsPerZoomLevel, double framesPerSecond) {
+        double framesPerTranslate = secondsPerTranslate * framesPerSecond;
+        double framePerZoomLevel = secondsPerZoomLevel * framesPerSecond;
+
+        createMovie(movieSteps, framesPerTranslate, framePerZoomLevel);
+    }
+
+    private static void createMovie(List<MovieStep> movieSteps, double framesPerTranslate, double framesPerZoomLevel ) {
         int imageIndex = 0;
         MovieStep lastStep = null;
         for (MovieStep currentStep: movieSteps) {
             if (lastStep != null) {
-
                 int precision = (int) (Math.max(lastStep.zoom.doubleValue(), currentStep.zoom.doubleValue())* 1 + 10);
                 MathContext mc = new MathContext(precision, RoundingMode.HALF_UP);
                 BigDecimal stepDistance = lastStep.distance(currentStep, mc);
                 BigDecimal intermediateZoom = BigDecimalMath.log10(stepDistance, new MathContext(10)).negate();
+                System.out.println("STEP DISTANCE:     " + stepDistance);
+                System.out.println("INTERMEDIATE ZOOM: " + intermediateZoom);
 
                 if (needIntermediateStep(lastStep, currentStep, intermediateZoom)) {
+                    System.out.println("HALF1 STEP: ");
                     MovieStep half1Step = new MovieStep(lastStep.x, lastStep.y, intermediateZoom, lastStep.palette);
-                    imageIndex = interpolateBetweenMovieSteps(frames, imageIndex, lastStep, half1Step, SMOOTH, SMOOTH); // easeInOrOut(lastStep.zoom, halfStepZoom)
+                    imageIndex = interpolateBetweenMovieSteps(toZoomFrames(lastStep, half1Step, framesPerZoomLevel), imageIndex, lastStep, half1Step, SMOOTH, SMOOTH); // easeInOrOut(lastStep.zoom, halfStepZoom)
 
+                    System.out.println("HALF2 STEP: ");
                     MovieStep half2Step = new MovieStep(currentStep.x, currentStep.y, intermediateZoom, lastStep.palette);
-                    imageIndex = interpolateBetweenMovieSteps(frames, imageIndex, half1Step, half2Step, SMOOTH, SMOOTH);
+                    imageIndex = interpolateBetweenMovieSteps(toTranslateFrames(half1Step, half2Step, framesPerTranslate), imageIndex, half1Step, half2Step, SMOOTH, SMOOTH);
 
-                    imageIndex = interpolateBetweenMovieSteps(frames, imageIndex, half2Step, currentStep, SMOOTH, SMOOTH);
+                    System.out.println("HALF3 STEP: ");
+                    imageIndex = interpolateBetweenMovieSteps(toZoomFrames(half2Step, currentStep, framesPerZoomLevel), imageIndex, half2Step, currentStep, SMOOTH, SMOOTH);
                 } else {
+                    System.out.println("DIRECT MOVE+ZOOM: " + toTranslateFrames(lastStep, currentStep, framesPerTranslate) + " move frames, " + toZoomFrames(lastStep, currentStep, framesPerZoomLevel) + " zoom frames");
+                    int frames = Math.max(
+                            toTranslateFrames(lastStep, currentStep, framesPerTranslate),
+                            toZoomFrames(lastStep, currentStep, framesPerZoomLevel));
                     imageIndex = interpolateBetweenMovieSteps(frames, imageIndex, lastStep, currentStep, SMOOTH, SMOOTH);
                 }
             }
@@ -125,6 +140,18 @@ public class MandelbrotMovie {
 
     private static boolean needIntermediateStep(MovieStep firstStep, MovieStep secondStep, BigDecimal intermediateZoom) {
         return firstStep.zoom.compareTo(intermediateZoom) >= 0 || secondStep.zoom.compareTo(intermediateZoom) >= 0;
+    }
+
+    private static int toTranslateFrames(MovieStep firstStep, MovieStep secondStep, double framesPerTranslate) {
+        return Math.max(1, (int) (framesPerTranslate + 0.5));
+    }
+
+    private static int toZoomFrames(MovieStep firstStep, MovieStep secondStep, double framesPerZoomLevel) {
+        double deltaZoom = firstStep.zoom.subtract(secondStep.zoom).abs().doubleValue();
+        if (deltaZoom < 1.0) {
+            deltaZoom = 0.1;
+        }
+        return (int) (deltaZoom * framesPerZoomLevel + 0.5);
     }
 
     private static InterpolatorFactory<BigDecimal> easeInOrOut(BigDecimal startZoom, BigDecimal endZoom) {
@@ -148,6 +175,8 @@ public class MandelbrotMovie {
 
         Path outDir = Paths.get("images", "zoom");
         outDir.toFile().mkdirs();
+
+        System.out.println("INTERPOLATE: " + frames + " frames");
 
         for (int frame = 0; frame < frames; frame++) {
             double value = ((double)frame) / frames;
