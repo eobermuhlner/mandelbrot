@@ -111,27 +111,83 @@ public class MandelbrotMovie {
                 int precision = (int) (Math.max(lastStep.zoom.doubleValue(), currentStep.zoom.doubleValue())* 1 + 10);
                 MathContext mc = new MathContext(precision, RoundingMode.HALF_UP);
                 BigDecimal stepDistance = lastStep.distance(currentStep, mc);
-                BigDecimal intermediateZoom = BigDecimalMath.log10(stepDistance, new MathContext(10)).negate();
+                BigDecimal intermediateZoom = BigDecimalMath.log10(stepDistance, MathContext.DECIMAL64).negate();
                 System.out.println("STEP DISTANCE:     " + stepDistance);
                 System.out.println("INTERMEDIATE ZOOM: " + intermediateZoom);
 
-                if (needIntermediateStep(lastStep, currentStep, intermediateZoom)) {
+                boolean needFirstHalfStep = lastStep.zoom.compareTo(intermediateZoom) >= 0;
+                boolean needSecondHalfStep = currentStep.zoom.compareTo(intermediateZoom) >= 0;
+
+                if (needFirstHalfStep && needSecondHalfStep) {
                     System.out.println("HALF1 STEP: ");
                     MovieStep half1Step = new MovieStep(lastStep.x, lastStep.y, intermediateZoom, lastStep.palette);
-                    imageIndex = interpolateBetweenMovieSteps(toZoomFrames(lastStep, half1Step, framesPerZoomLevel), imageIndex, lastStep, half1Step, SMOOTH, SMOOTH); // easeInOrOut(lastStep.zoom, halfStepZoom)
+                    imageIndex = interpolateBetweenMovieSteps(
+                            toZoomFrames(lastStep, half1Step, framesPerZoomLevel),
+                            imageIndex,
+                            lastStep,
+                            half1Step,
+                            SMOOTH, SMOOTH); // easeInOrOut(lastStep.zoom, halfStepZoom)
 
                     System.out.println("HALF2 STEP: ");
                     MovieStep half2Step = new MovieStep(currentStep.x, currentStep.y, intermediateZoom, lastStep.palette);
-                    imageIndex = interpolateBetweenMovieSteps(toTranslateFrames(half1Step, half2Step, framesPerTranslate), imageIndex, half1Step, half2Step, SMOOTH, SMOOTH);
+                    imageIndex = interpolateBetweenMovieSteps(
+                            toTranslateFrames(half1Step, half2Step, framesPerTranslate),
+                            imageIndex,
+                            half1Step,
+                            half2Step,
+                            SMOOTH, SMOOTH);
 
                     System.out.println("HALF3 STEP: ");
-                    imageIndex = interpolateBetweenMovieSteps(toZoomFrames(half2Step, currentStep, framesPerZoomLevel), imageIndex, half2Step, currentStep, SMOOTH, SMOOTH);
+                    imageIndex = interpolateBetweenMovieSteps(
+                            toZoomFrames(half2Step, currentStep, framesPerZoomLevel),
+                            imageIndex,
+                            half2Step,
+                            currentStep,
+                            SMOOTH, SMOOTH);
+                } else if (needFirstHalfStep && !needSecondHalfStep) {
+                    System.out.println("HALF1 STEP: ");
+                    MovieStep half1Step = new MovieStep(lastStep.x, lastStep.y, intermediateZoom, lastStep.palette);
+                    imageIndex = interpolateBetweenMovieSteps(
+                            toZoomFrames(lastStep, half1Step, framesPerZoomLevel),
+                            imageIndex,
+                            lastStep,
+                            half1Step,
+                            SMOOTH, SMOOTH); // easeInOrOut(lastStep.zoom, halfStepZoom)
+
+                    System.out.println("HALF2+HALF3 STEP: ");
+                    imageIndex = interpolateBetweenMovieSteps(
+                            toFrames(half1Step, currentStep, framesPerTranslate, framesPerZoomLevel),
+                            imageIndex,
+                            half1Step,
+                            currentStep,
+                            SMOOTH, SMOOTH);
+                } else if (!needFirstHalfStep && needSecondHalfStep) {
+                    System.out.println("HALF1+HALF2 STEP: ");
+                    MovieStep half12Step = new MovieStep(currentStep.x, currentStep.y, intermediateZoom, lastStep.palette);
+                    imageIndex = interpolateBetweenMovieSteps(
+                            toFrames(lastStep, half12Step, framesPerTranslate, framesPerZoomLevel),
+                            imageIndex,
+                            lastStep,
+                            half12Step,
+                            SMOOTH, SMOOTH);
+
+                    System.out.println("HALF3 STEP: ");
+                    imageIndex = interpolateBetweenMovieSteps(
+                            toZoomFrames(half12Step, currentStep, framesPerZoomLevel),
+                            imageIndex,
+                            half12Step,
+                            currentStep,
+                            SMOOTH, SMOOTH);
+                } else if (!needFirstHalfStep && !needSecondHalfStep) {
+                    System.out.println("HALF1+HALF2+HALF3 STEP: ");
+                    imageIndex = interpolateBetweenMovieSteps(
+                            toFrames(lastStep, currentStep, framesPerTranslate, framesPerZoomLevel),
+                            imageIndex,
+                            lastStep,
+                            currentStep,
+                            SMOOTH, SMOOTH);
                 } else {
-                    System.out.println("DIRECT MOVE+ZOOM: " + toTranslateFrames(lastStep, currentStep, framesPerTranslate) + " move frames, " + toZoomFrames(lastStep, currentStep, framesPerZoomLevel) + " zoom frames");
-                    int frames = Math.max(
-                            toTranslateFrames(lastStep, currentStep, framesPerTranslate),
-                            toZoomFrames(lastStep, currentStep, framesPerZoomLevel));
-                    imageIndex = interpolateBetweenMovieSteps(frames, imageIndex, lastStep, currentStep, SMOOTH, SMOOTH);
+                    throw new IllegalStateException("All cases must be handled! Missing case: " + needFirstHalfStep + " " + needSecondHalfStep);
                 }
             }
             lastStep = currentStep;
@@ -140,6 +196,12 @@ public class MandelbrotMovie {
 
     private static boolean needIntermediateStep(MovieStep firstStep, MovieStep secondStep, BigDecimal intermediateZoom) {
         return firstStep.zoom.compareTo(intermediateZoom) >= 0 || secondStep.zoom.compareTo(intermediateZoom) >= 0;
+    }
+
+    private static int toFrames(MovieStep firstStep, MovieStep secondStep, double framesPerTranslate, double framesPerZoomLevel) {
+        return Math.max(
+                toTranslateFrames(firstStep, secondStep, framesPerTranslate),
+                toZoomFrames(firstStep, secondStep, framesPerZoomLevel));
     }
 
     private static int toTranslateFrames(MovieStep firstStep, MovieStep secondStep, double framesPerTranslate) {
