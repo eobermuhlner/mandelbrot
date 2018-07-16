@@ -73,7 +73,7 @@ public class MandelbrotApp extends Application {
 	private static final double KEY_ZOOM_STEP = 0.1;
 	private static final double SCROLL_ZOOM_STEP = 0.5;
 
-	private static final int IMAGE_SIZE = 512+256;
+	private static final int IMAGE_SIZE = 256+128+64;
 	
 	private static final DecimalFormat INTEGER_FORMAT = new DecimalFormat("##0");
 	private static final DecimalFormat DOUBLE_FORMAT = new DecimalFormat("##0.000");
