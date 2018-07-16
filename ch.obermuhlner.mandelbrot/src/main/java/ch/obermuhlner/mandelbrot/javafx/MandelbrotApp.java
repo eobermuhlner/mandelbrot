@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -12,6 +14,8 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 
+import ch.obermuhlner.mandelbrot.movie.MandelbrotMovie;
+import ch.obermuhlner.mandelbrot.movie.MovieStep;
 import ch.obermuhlner.mandelbrot.palette.Color;
 import ch.obermuhlner.mandelbrot.palette.Palette;
 import ch.obermuhlner.mandelbrot.palette.PaletteFactory;
@@ -20,40 +24,19 @@ import ch.obermuhlner.mandelbrot.poi.PointOfInterest;
 import ch.obermuhlner.mandelbrot.poi.StandardPointsOfInterest;
 import javafx.application.Application;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.ReadOnlyStringWrapper;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.*;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.geometry.Orientation;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Alert;
+import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.Label;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.Slider;
-import javafx.scene.control.TableCell;
-import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellDataFeatures;
-import javafx.scene.control.TableRow;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
-import javafx.scene.control.ToggleButton;
 import javafx.scene.control.cell.ProgressBarTableCell;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
@@ -73,7 +56,7 @@ public class MandelbrotApp extends Application {
 	private static final double KEY_ZOOM_STEP = 0.1;
 	private static final double SCROLL_ZOOM_STEP = 0.5;
 
-	private static final int IMAGE_SIZE = 512+256;
+	private static final int IMAGE_SIZE = 256+128;
 	
 	private static final DecimalFormat INTEGER_FORMAT = new DecimalFormat("##0");
 	private static final DecimalFormat DOUBLE_FORMAT = new DecimalFormat("##0.000");
@@ -116,6 +99,10 @@ public class MandelbrotApp extends Application {
 	private IntegerProperty snapshotWidthProperty = new SimpleIntegerProperty(1920);
 	private IntegerProperty snapshotHeightProperty = new SimpleIntegerProperty(1200);
 
+	private IntegerProperty movieWidthProperty = new SimpleIntegerProperty(1280);
+	private IntegerProperty movieHeightProperty = new SimpleIntegerProperty(720);
+	private ListProperty<MovieStep> movieStepsProperty = new SimpleListProperty<>(FXCollections.observableArrayList());
+
 	private PaletteFactory paletteFactory = new PaletteFactory();
 	private Palette palette;
 
@@ -147,10 +134,17 @@ public class MandelbrotApp extends Application {
 
 		mandelbrotCanvas = createMandelbrotCanvas();
 		borderPane.setCenter(mandelbrotCanvas);
-		
-		Node status = createSnapshotEditor();
-		borderPane.setBottom(status);
-		
+
+		TabPane tabPane = new TabPane();
+		borderPane.setBottom(tabPane);
+		tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
+
+		Node snapshotEditor = createSnapshotEditor();
+		tabPane.getTabs().add(new Tab("Snapshots", snapshotEditor));
+
+		Node movieEditor = createMovieEditor();
+		tabPane.getTabs().add(new Tab("Movie", movieEditor));
+
 		primaryStage.setScene(scene);
 		primaryStage.show();
 		
@@ -481,6 +475,131 @@ public class MandelbrotApp extends Application {
 		}
 
 		return vBox;
+	}
+
+	private Node createMovieEditor() {
+		BorderPane borderPane = new BorderPane();
+
+		{
+			HBox hBox = new HBox(4);
+			borderPane.setTop(hBox);
+
+			TextField widthTextField = new TextField();
+			widthTextField.setPrefWidth(60);
+			hBox.getChildren().add(widthTextField);
+			Bindings.bindBidirectional(widthTextField.textProperty(), movieWidthProperty, INTEGER_FORMAT);
+
+			hBox.getChildren().add(new Label("x"));
+
+			TextField heightTextField = new TextField();
+			heightTextField.setPrefWidth(60);
+			hBox.getChildren().add(heightTextField);
+			Bindings.bindBidirectional(heightTextField.textProperty(), movieHeightProperty, INTEGER_FORMAT);
+
+			Button createMovieButton = new Button("Create Movie");
+			hBox.getChildren().add(createMovieButton);
+			createMovieButton.setOnAction(event -> {
+				new Thread(() -> {
+					createMovieButton.setDisable(true);
+					try {
+						String basename = "mandelbrot_" + LocalDateTime.now().toString().replace(':', '_');
+						Path directory = Paths.get(basename);
+						MandelbrotMovie movie = new MandelbrotMovie();
+						movie.createMovie(directory, movieStepsProperty.get());
+					} finally {
+						createMovieButton.setDisable(false);
+					}
+				}).start();
+			});
+		}
+
+		TableView<MovieStep> movieStepsTableView = new TableView<>(movieStepsProperty);
+		{
+			borderPane.setCenter(movieStepsTableView);
+			movieStepsTableView.setPrefHeight(100);
+			movieStepsTableView.setRowFactory(new Callback<TableView<MovieStep>, TableRow<MovieStep>>() {
+				@Override
+				public TableRow<MovieStep> call(TableView<MovieStep> param) {
+					TableRow<MovieStep> tableRow = new TableRow<>();
+
+					return tableRow;
+				}
+			});
+			addTableColumn(movieStepsTableView, "X", 100, movieStep -> {
+				return new ReadOnlyStringWrapper(DOUBLE_8DIGITS_FORMAT.format(movieStep.x));
+			});
+			addTableColumn(movieStepsTableView, "Y", 100, movieStep -> {
+				return new ReadOnlyStringWrapper(DOUBLE_8DIGITS_FORMAT.format(movieStep.y));
+			});
+			addTableColumn(movieStepsTableView, "Zoom", 60, movieStep -> {
+				return new ReadOnlyStringWrapper(DOUBLE_FORMAT.format(movieStep.zoom));
+			});
+		}
+
+		{
+			VBox vBox = new VBox(4);
+			borderPane.setRight(vBox);
+
+			Button addStepButton = new Button("Add");
+			vBox.getChildren().add(addStepButton);
+			addStepButton.setOnAction(event -> {
+				MovieStep movieStep = new MovieStep(
+						xCenterProperty.get(),
+						yCenterProperty.get(),
+						BigDecimal.valueOf(zoomProperty.get()),
+						palette);
+				movieStepsProperty.add(movieStep);
+			});
+
+			Button removeStepButton = new Button("Remove");
+			vBox.getChildren().add(removeStepButton);
+			removeStepButton.setOnAction(event -> {
+				MovieStep selectedMovieStep = movieStepsTableView.getSelectionModel().getSelectedItem();
+				if (selectedMovieStep != null) {
+					movieStepsProperty.remove(selectedMovieStep);
+				}
+			});
+
+			Button upStepButton = new Button("Up");
+			vBox.getChildren().add(upStepButton);
+			upStepButton.setOnAction(event -> {
+				int selectedIndex = movieStepsTableView.getSelectionModel().getSelectedIndex();
+				if (selectedIndex > 0) {
+					MovieStep movieStep = movieStepsProperty.remove(selectedIndex);
+					movieStepsProperty.add(selectedIndex - 1, movieStep);
+					movieStepsTableView.getSelectionModel().select(selectedIndex - 1);
+				}
+			});
+
+			Button downStepButton = new Button("Down");
+			vBox.getChildren().add(downStepButton);
+			downStepButton.setOnAction(event -> {
+				int selectedIndex = movieStepsTableView.getSelectionModel().getSelectedIndex();
+				if (selectedIndex >= 0 && selectedIndex < movieStepsProperty.size() - 1) {
+					MovieStep movieStep = movieStepsProperty.remove(selectedIndex);
+					movieStepsProperty.add(selectedIndex + 1, movieStep);
+					movieStepsTableView.getSelectionModel().select(selectedIndex + 1);
+				}
+			});
+
+			removeStepButton.setDisable(true);
+			upStepButton.setDisable(true);
+			downStepButton.setDisable(true);
+			movieStepsTableView.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
+				int selectedIndex = newValue.intValue();
+				if (selectedIndex < 0) {
+					removeStepButton.setDisable(true);
+					upStepButton.setDisable(true);
+					downStepButton.setDisable(true);
+				} else {
+					removeStepButton.setDisable(false);
+					upStepButton.setDisable(selectedIndex == 0);
+					downStepButton.setDisable(selectedIndex == movieStepsProperty.size() - 1);
+				}
+			});
+		}
+
+		return borderPane;
 	}
 
 	private <E, V> TableColumn<E, V> addTableColumn(TableView<E> tableView, String header, double prefWidth, Function<E, ObservableValue<V>> valueFunction) {

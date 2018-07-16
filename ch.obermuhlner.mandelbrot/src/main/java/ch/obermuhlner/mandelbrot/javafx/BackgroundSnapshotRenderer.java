@@ -29,7 +29,7 @@ public class BackgroundSnapshotRenderer extends Thread {
 
 	private int pendingCount = 0;
 	
-	private ObservableList<SnapshotRequest> snapshotRequests = FXCollections.observableArrayList();
+	private final ObservableList<SnapshotRequest> snapshotRequests = FXCollections.observableArrayList();
 	
 	private final MandelbrotRenderer mandelbrotRenderer = new AutoPrecisionMandelbrotRenderer();
 
