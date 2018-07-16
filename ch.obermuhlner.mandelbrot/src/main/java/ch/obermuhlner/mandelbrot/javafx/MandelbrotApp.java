@@ -455,7 +455,7 @@ public class MandelbrotApp extends Application {
 				return snapshotRequest.progressProperty().multiply(100);
 			});
 			addTableColumn(snapshotTableView, "Calculation Time", 100, snapshotRequest -> {
-				return snapshotRequest.calculationMillisProperty();
+				return snapshotRequest.calculationTimeProperty();
 			});
 			addTableColumn(snapshotTableView, "X", 100, snapshotRequest -> {
 				return new ReadOnlyStringWrapper(DOUBLE_8DIGITS_FORMAT.format(snapshotRequest.drawRequest.x));
