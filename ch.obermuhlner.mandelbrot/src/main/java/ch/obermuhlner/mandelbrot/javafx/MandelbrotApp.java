@@ -27,7 +27,6 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.geometry.Orientation;
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -108,7 +107,9 @@ public class MandelbrotApp extends Application {
 
 	private Canvas mandelbrotCanvas;
 	private WritableImage image = new WritableImage(IMAGE_SIZE, IMAGE_SIZE);
-	
+
+	private final Path homeDirectory = homeDirectory();
+
 	private BackgroundProgressiveRenderer backgroundProgressiveRenderer;
 	private BackgroundSnapshotRenderer backgroundSnapshotRenderer;
 
@@ -226,6 +227,7 @@ public class MandelbrotApp extends Application {
 	
 	private void openMandelbrotFile(Stage stage) {
 		FileChooser fileChooser = new FileChooser();
+		fileChooser.setInitialDirectory(homeDirectory.toFile());
 		fileChooser.setTitle("Open Mandelbrot");
 		fileChooser.getExtensionFilters().add(new ExtensionFilter("Mandelbrot", "*.mandelbrot"));
 		File file = fileChooser.showOpenDialog(stage);
@@ -399,7 +401,7 @@ public class MandelbrotApp extends Application {
 						maxIterationsConst,
 						maxIterationsLinear);
 				try {
-					pointOfInterest.save(new File(mandelbrotFilename));
+					pointOfInterest.save(homeDirectory.resolve(mandelbrotFilename).toFile());
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -408,7 +410,7 @@ public class MandelbrotApp extends Application {
 				DrawRequest drawRequest = new DrawRequest(xCenterProperty.get(), yCenterProperty.get(), zoomProperty.get(), maxIterationProperty.get());
 				int width = snapshotWidthProperty.get();
 				int height = snapshotHeightProperty.get();
-				backgroundSnapshotRenderer.addSnapshotRequest(new SnapshotRequest(drawRequest, palette, width, height, new File(snapshotFilename)));
+				backgroundSnapshotRenderer.addSnapshotRequest(new SnapshotRequest(drawRequest, palette, width, height, homeDirectory.resolve(snapshotFilename).toFile()));
 			});
 		}
 
@@ -503,7 +505,7 @@ public class MandelbrotApp extends Application {
 					createMovieButton.setDisable(true);
 					try {
 						String basename = "mandelbrot_" + LocalDateTime.now().toString().replace(':', '_');
-						Path directory = Paths.get(basename);
+						Path directory = homeDirectory.resolve(basename);
 						MandelbrotMovie movie = new MandelbrotMovie();
 						movie.createMovie(directory, movieStepsProperty.get());
 					} finally {
@@ -884,6 +886,12 @@ public class MandelbrotApp extends Application {
 				y0 = y0.add(blockStepY, mc);
 			}
 		});
+	}
+
+	private static Path homeDirectory() {
+		Path path = Paths.get(System.getProperty("user.home", "."), "Mandelbrot");
+		path.toFile().mkdirs();
+		return path;
 	}
 
 	public static void main(String[] args) {
