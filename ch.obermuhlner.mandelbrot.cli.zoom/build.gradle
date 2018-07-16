@@ -16,7 +16,6 @@ repositories {
 
 dependencies {
 	compile project(':ch.obermuhlner.mandelbrot')
-	compile 'ch.obermuhlner:big-math:2.0.1'
 }
 
 jar {
